@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cardio Clowns - The daily step game that gets your family and friends moving — and laughing. Create a group, share a code, steal the crown. For iPhone and Apple Watch.">
+    <meta property="og:title" content="Cardio Clowns 🤡 — The Daily Step Game">
+    <meta property="og:description" content="Nothing gets a family moving like the fear of losing to each other. Create a group, share a 6-character code, and battle for the daily crown.">
+    <title>Cardio Clowns 🤡 — The Daily Step Game for Family & Friends</title>
+    <style>
+        :root {
+            --cc-primary: #e84545;
+            --cc-primary-dark: #c73636;
+            --cc-accent: #ffc947;
+            --cc-accent-dark: #e6b33e;
+            --cc-text: #2c3e50;
+            --cc-text-light: #6c757d;
+            --cc-bg: #ffffff;
+            --cc-bg-light: #f8f9fa;
+            --cc-border: #e9ecef;
+            --cc-shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --cc-shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --cc-shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --cc-radius: 12px;
+            --cc-transition: all 0.3s ease;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--cc-text);
+            background: var(--cc-bg);
+        }
+
+        a {
+            color: var(--cc-primary);
+            text-decoration: none;
+            transition: var(--cc-transition);
+        }
+
+        a:hover { color: var(--cc-primary-dark); }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Hero */
+        .cc-hero {
+            background: linear-gradient(135deg, var(--cc-primary) 0%, #ff6b6b 50%, var(--cc-accent) 100%);
+            color: #fff;
+            padding: 4rem 1.5rem 5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cc-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.1) 0%, transparent 50%);
+        }
+
+        .cc-hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cc-icon {
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 3.5rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            animation: cc-bounce 2.5s ease-in-out infinite;
+        }
+
+        @keyframes cc-bounce {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+
+        .cc-hero h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.02em;
+        }
+
+        .cc-hero .tagline {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .cc-hero .subtagline {
+            font-size: 1.05rem;
+            opacity: 0.9;
+            max-width: 560px;
+            margin: 0 auto 2rem;
+        }
+
+        .cc-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: #1a2a3a;
+            color: #fff;
+            padding: 0.9rem 1.75rem;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            transition: var(--cc-transition);
+        }
+
+        .cc-cta:hover {
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+            color: var(--cc-accent);
+        }
+
+        .cc-cta-sub {
+            display: block;
+            margin-top: 0.85rem;
+            font-size: 0.9rem;
+            opacity: 0.85;
+        }
+
+        /* Leaderboard mock */
+        .cc-leaderboard {
+            max-width: 360px;
+            margin: 2.5rem auto 0;
+            background: rgba(255,255,255,0.96);
+            border-radius: 20px;
+            padding: 1.25rem;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+            text-align: left;
+            color: var(--cc-text);
+            transform: rotate(-1.5deg);
+            transition: var(--cc-transition);
+        }
+
+        .cc-leaderboard:hover { transform: rotate(0deg) scale(1.02); }
+
+        .cc-leaderboard-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--cc-text-light);
+            margin-bottom: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .cc-lb-live {
+            color: var(--cc-primary);
+            animation: cc-pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes cc-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .cc-lb-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.55rem 0.5rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+
+        .cc-lb-row.cc-lb-you {
+            background: #fff6e0;
+            border: 1.5px dashed var(--cc-accent-dark);
+        }
+
+        .cc-lb-rank { font-weight: 800; width: 1.4rem; text-align: center; }
+        .cc-lb-name { font-weight: 600; flex: 1; }
+        .cc-lb-steps { font-variant-numeric: tabular-nums; color: var(--cc-text-light); font-size: 0.9rem; }
+
+        .cc-lb-hint {
+            margin-top: 0.6rem;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--cc-primary);
+        }
+
+        /* Nav */
+        .cc-nav {
+            background: var(--cc-bg);
+            border-bottom: 1px solid var(--cc-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .cc-nav-inner {
+            display: flex;
+            gap: 0.25rem;
+            padding: 0.75rem 0;
+            overflow-x: auto;
+        }
+
+        .cc-nav a {
+            color: var(--cc-text-light);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            transition: var(--cc-transition);
+        }
+
+        .cc-nav a:hover {
+            background: var(--cc-bg-light);
+            color: var(--cc-primary);
+        }
+
+        /* Sections */
+        .cc-section {
+            padding: 4rem 0;
+        }
+
+        .cc-section:nth-of-type(even) {
+            background: var(--cc-bg-light);
+        }
+
+        .cc-section h2 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--cc-text);
+        }
+
+        .cc-section h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--cc-text);
+        }
+
+        .cc-section p {
+            color: var(--cc-text-light);
+            margin-bottom: 1rem;
+        }
+
+        .cc-section p:last-child {
+            margin-bottom: 0;
+        }
+
+        .cc-lead {
+            font-size: 1.15rem;
+        }
+
+        .cc-lead strong { color: var(--cc-text); }
+
+        /* Feature cards */
+        .cc-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .cc-feature {
+            background: var(--cc-bg);
+            padding: 1.75rem;
+            border-radius: var(--cc-radius);
+            box-shadow: var(--cc-shadow-md);
+            transition: var(--cc-transition);
+        }
+
+        .cc-feature:hover {
+            transform: translateY(-4px) rotate(-0.5deg);
+            box-shadow: var(--cc-shadow-lg);
+        }
+
+        .cc-feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .cc-feature h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .cc-feature p {
+            font-size: 0.95rem;
+            margin-bottom: 0;
+        }
+
+        .cc-feature .cc-quote {
+            display: inline-block;
+            background: var(--cc-bg-light);
+            border-radius: 8px;
+            padding: 0.15rem 0.6rem;
+            font-style: italic;
+            font-size: 0.9rem;
+            color: var(--cc-text);
+        }
+
+        /* How it works */
+        .cc-steps {
+            list-style: none;
+            counter-reset: cc-step;
+            margin-top: 1.5rem;
+            display: grid;
+            gap: 1rem;
+        }
+
+        .cc-steps li {
+            counter-increment: cc-step;
+            background: var(--cc-bg);
+            border-radius: var(--cc-radius);
+            box-shadow: var(--cc-shadow-sm);
+            padding: 1.1rem 1.25rem 1.1rem 4rem;
+            position: relative;
+            color: var(--cc-text-light);
+            transition: var(--cc-transition);
+        }
+
+        .cc-steps li:hover {
+            transform: translateX(4px);
+            box-shadow: var(--cc-shadow-md);
+        }
+
+        .cc-steps li::before {
+            content: counter(cc-step);
+            position: absolute;
+            left: 1.1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 2.1rem;
+            height: 2.1rem;
+            background: linear-gradient(135deg, var(--cc-primary), var(--cc-accent));
+            color: #fff;
+            font-weight: 800;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cc-steps strong { color: var(--cc-text); }
+
+        /* Closing CTA banner */
+        .cc-banner {
+            background: linear-gradient(135deg, var(--cc-primary) 0%, #ff6b6b 50%, var(--cc-accent) 100%);
+            color: #fff;
+            text-align: center;
+            padding: 3.5rem 1.5rem;
+        }
+
+        .cc-banner h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+
+        .cc-banner p {
+            opacity: 0.95;
+            margin-bottom: 1.75rem;
+            font-size: 1.1rem;
+        }
+
+        /* Privacy list */
+        .cc-privacy-list {
+            list-style: none;
+            margin: 1.5rem 0;
+        }
+
+        .cc-privacy-list li {
+            padding: 0.75rem 0 0.75rem 2rem;
+            position: relative;
+            border-bottom: 1px solid var(--cc-border);
+            color: var(--cc-text-light);
+        }
+
+        .cc-privacy-list li:last-child {
+            border-bottom: none;
+        }
+
+        .cc-privacy-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: 700;
+        }
+
+        /* Info box */
+        .cc-info-box {
+            background: var(--cc-bg);
+            border-left: 4px solid var(--cc-primary);
+            padding: 1.5rem;
+            border-radius: 0 var(--cc-radius) var(--cc-radius) 0;
+            box-shadow: var(--cc-shadow-sm);
+            margin: 1.5rem 0;
+        }
+
+        .cc-info-box p {
+            margin-bottom: 0;
+        }
+
+        /* Footer */
+        .cc-footer {
+            background: #1a2a3a;
+            color: rgba(255,255,255,0.7);
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+        }
+
+        .cc-footer p {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .cc-footer a {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .cc-footer a:hover {
+            color: var(--cc-accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .cc-hero { padding: 3rem 1rem 4rem; }
+            .cc-hero h1 { font-size: 2rem; }
+            .cc-icon { width: 90px; height: 90px; font-size: 2.5rem; border-radius: 22px; }
+            .cc-section { padding: 3rem 0; }
+            .cc-section h2 { font-size: 1.5rem; }
+        }
+
+        @media (max-width: 480px) {
+            .cc-hero h1 { font-size: 1.75rem; }
+            .cc-hero .tagline { font-size: 1.05rem; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .cc-icon, .cc-lb-live { animation: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <section class="cc-hero">
+        <div class="cc-hero-content">
+            <div class="cc-icon" aria-hidden="true">🤡</div>
+            <h1>Cardio Clowns</h1>
+            <p class="tagline">The daily step game that gets your family and friends moving — and laughing.</p>
+            <p class="subtagline">Create a group, share a 6-character code, and every step you take becomes ammunition in a daily battle for the crown. 👑</p>
+            <!-- TODO: replace # with the App Store URL once the app is live -->
+            <a class="cc-cta" href="#">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                Download on the App Store
+            </a>
+            <span class="cc-cta-sub">Free · iPhone &amp; Apple Watch · No accounts, no subscriptions</span>
+
+            <div class="cc-leaderboard" aria-hidden="true">
+                <div class="cc-leaderboard-title"><span>Today's Race</span><span class="cc-lb-live">● LIVE</span></div>
+                <div class="cc-lb-row">
+                    <span class="cc-lb-rank">👑</span>
+                    <span class="cc-lb-name">Mom 🇻🇳</span>
+                    <span class="cc-lb-steps">9,412</span>
+                </div>
+                <div class="cc-lb-row cc-lb-you">
+                    <span class="cc-lb-rank">2</span>
+                    <span class="cc-lb-name">You 🇺🇸</span>
+                    <span class="cc-lb-steps">9,100</span>
+                </div>
+                <div class="cc-lb-row">
+                    <span class="cc-lb-rank">3</span>
+                    <span class="cc-lb-name">Dad 🇺🇸 <small>🔥 W3</small></span>
+                    <span class="cc-lb-steps">8,856</span>
+                </div>
+                <div class="cc-lb-hint">Almost there! +312 to pass Mom 🏃</div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="cc-nav">
+        <div class="container">
+            <div class="cc-nav-inner">
+                <a href="#about">About</a>
+                <a href="#features">Why It's Different</a>
+                <a href="#how-it-works">How It Works</a>
+                <a href="#privacy">Privacy Policy</a>
+                <a href="#support">Support</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="about" class="cc-section">
+        <div class="container">
+            <h2>About Cardio Clowns</h2>
+            <p class="cc-lead">Most fitness apps are about <strong>you</strong>: your goals, your streaks, your stats. Cardio Clowns is about <strong>them</strong> — the four or five people you love just enough to never, ever let win.</p>
+            <p>Create a group, share a 6-character code, and every step you take becomes ammunition in a daily battle for the crown. No accounts, no feeds full of strangers, no subscriptions to a "wellness journey." Just your people, a live leaderboard, and the perfect excuse to take the stairs.</p>
+        </div>
+    </section>
+
+    <section id="features" class="cc-section">
+        <div class="container">
+            <h2>Why it's not just another fitness app</h2>
+            <div class="cc-features">
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">🏆</div>
+                    <h3>A daily race, not a lonely goal</h3>
+                    <p>Every day is a fresh competition. The leaderboard updates live from your iPhone and Apple Watch, shows exactly how many steps you need to pass the person ahead of you — <span class="cc-quote">"Almost there! +312 to pass Mom"</span> — and crowns a daily winner 👑 for the whole group to see. Or resent.</p>
+                </div>
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">💬</div>
+                    <h3>Push each other, built right in</h3>
+                    <p>Long-press anyone on the leaderboard to send a playful message — and the app knows the situation. Up by 1,000 steps? <span class="cc-quote">"Stay down there 😏"</span> About to get caught? <span class="cc-quote">"Don't choke now 👀"</span> It's the group chat energy fitness apps are missing, delivered straight to your rival's wrist.</p>
+                </div>
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">🥊</div>
+                    <h3>Head-to-Head rivalries</h3>
+                    <p>Every member of your group is a 7-day matchup: win–loss records, win streaks (🔥 W3), an animated tug-of-war rope showing who's pulling ahead, and stats like your biggest blowout and your most painful loss. You're not chasing an abstract goal — you're settling a score with your brother.</p>
+                </div>
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">🔔</div>
+                    <h3>Notifications that talk like a rival, not a coach</h3>
+                    <p><span class="cc-quote">"Dad just passed you! Time to fight back! 😤"</span> Pick your intensity: Chill mode only pings you for the big moments and stays quiet at night, while All In mode keeps the pressure on all day.</p>
+                </div>
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">⌚</div>
+                    <h3>Made for the wrist</h3>
+                    <p>A full Apple Watch app — leaderboard, history, head-to-head matchups, and messaging — plus watch-face widgets showing your live rank, so one glance tells you whether it's time for a victory lap or a panic walk.</p>
+                </div>
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">👨‍👩‍👧‍👦</div>
+                    <h3>Perfect for families and small crews</h3>
+                    <p>One 6-character code gets everyone in — kids, parents, grandparents, the college group chat. Country flags next to every name mean the competition works across borders, too. No friend requests, no public profiles, nothing to manage.</p>
+                </div>
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">🎉</div>
+                    <h3>It celebrates like it means it</h3>
+                    <p>Take first place and the screen erupts in fireworks. Yesterday's winner wears the crown all day. Cardio Clowns turns 8,000 steps into a story your group talks about at dinner.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="cc-section">
+        <div class="container">
+            <h2>How it works</h2>
+            <ol class="cc-steps">
+                <li><strong>Download</strong> on iPhone and Apple Watch.</li>
+                <li><strong>Create a group</strong> and share your code — or join with one.</li>
+                <li><strong>Walk.</strong> Steps sync automatically from Apple Health.</li>
+                <li><strong>Push each other,</strong> steal the crown, repeat tomorrow. 👑</li>
+            </ol>
+        </div>
+    </section>
+
+    <section class="cc-banner">
+        <div class="container">
+            <h2>Nothing gets a family moving like the fear of losing to each other.</h2>
+            <p>Grab your crew. The crown is waiting. 👑</p>
+            <!-- TODO: replace # with the App Store URL once the app is live -->
+            <a class="cc-cta" href="#">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                Download Cardio Clowns
+            </a>
+        </div>
+    </section>
+
+    <section id="privacy" class="cc-section">
+        <div class="container">
+            <h2>Privacy Policy</h2>
+            <p><strong>Effective Date:</strong> June 12, 2026</p>
+
+            <h3>Overview</h3>
+            <p>Your privacy is important to us. Cardio Clowns is designed to share as little as possible: just your step count, with just your group. This policy explains how the app handles your information.</p>
+
+            <div class="cc-info-box">
+                <p><strong>In short:</strong> Cardio Clowns has no accounts, no ads, and no tracking. Your daily step count and display name are shared only with the members of the group you join, so the leaderboard works. That's it.</p>
+            </div>
+
+            <h3>Data Collection</h3>
+            <p>Cardio Clowns collects only what the game needs to run:</p>
+            <ul class="cc-privacy-list">
+                <li>No account creation — no email, password, or phone number required</li>
+                <li>No usage analytics, advertising, or third-party tracking</li>
+                <li>No public profiles — your data is visible only to your group</li>
+                <li>Daily step counts are read from Apple Health (with your permission) and shared with your group to power the leaderboard</li>
+                <li>Your display name and optional country flag are visible to your group members only</li>
+            </ul>
+
+            <h3>Apple Health</h3>
+            <p>With your permission, Cardio Clowns reads your daily step count from Apple Health. Step data is used solely for the group leaderboard and head-to-head matchups. We never write to Apple Health, and we never share health data with third parties.</p>
+
+            <h3>Data Storage</h3>
+            <p>Daily step totals and group information are synced so your group's leaderboard stays live across devices. Leaving a group removes you from its leaderboard, and deleting the app removes all locally stored data.</p>
+
+            <h3>Third-Party Services</h3>
+            <p>Cardio Clowns does not integrate with any third-party analytics, advertising, or data brokers.</p>
+
+            <h3>Children's Privacy</h3>
+            <p>Cardio Clowns is designed for families. The app collects no personal information beyond a chosen display name and step counts, requires no account, and shares data only within private groups joined by invitation code. The app complies with the Children's Online Privacy Protection Act (COPPA) and similar regulations.</p>
+
+            <h3>Changes to This Policy</h3>
+            <p>If we ever update this privacy policy, changes will be reflected on this page with an updated effective date.</p>
+
+            <h3>Your Rights</h3>
+            <p>You can leave a group at any time to stop sharing your steps, revoke Apple Health access in iOS Settings, or contact us to have your data removed entirely.</p>
+        </div>
+    </section>
+
+    <section id="support" class="cc-section">
+        <div class="container">
+            <h2>Support</h2>
+            <p>Have questions, feedback, or need help with Cardio Clowns? We'd love to hear from you. (Trash talk about your leaderboard rank also accepted.)</p>
+            <div class="cc-info-box">
+                <p><strong>Email:</strong> <a href="mailto:hello@cardioclowns.com">hello@cardioclowns.com</a></p>
+            </div>
+            <p>We'll do our best to respond to your inquiry as soon as possible.</p>
+        </div>
+    </section>
+
+    <footer class="cc-footer">
+        <div class="container">
+            <p>&copy; 2026 Cardio Clowns. All rights reserved.</p>
+            <p>Made for the people you love just enough to never let win. 🤡👑</p>
+        </div>
+    </footer>
+
+</body>
+</html>
