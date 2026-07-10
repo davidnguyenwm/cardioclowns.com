@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["RXQ9K4L8WE.com.davidnguyen.Cardio-Clowns"],
+        "components": [
+          { "/": "/join", "comment": "Group invite links" },
+          { "/": "/join/*", "comment": "Group invite links (trailing slash or path code)" }
+        ]
+      }
+    ]
+  }
+}

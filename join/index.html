@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="You've been invited to a Cardio Clowns group — a daily step battle with family and friends. Grab the app, enter the code, steal the crown.">
+    <meta property="og:title" content="You're invited to a step battle 🤡👑">
+    <meta property="og:description" content="Join my Cardio Clowns group — a daily step race with the people you love just enough to never let win.">
+    <meta property="og:image" content="https://cardioclowns.com/og-image.png">
+    <meta property="og:url" content="https://cardioclowns.com/join/">
+    <meta name="robots" content="noindex">
+    <title>Join a Cardio Clowns group 🤡</title>
+    <script>
+        // Smart App Banner: app-argument carries this exact URL (with the
+        // group code) into the app when it's opened from the banner, so the
+        // invitee never has to retype the code.
+        // TODO: replace APP_STORE_ID with the numeric App Store ID once live.
+        (function () {
+            var meta = document.createElement('meta');
+            meta.name = 'apple-itunes-app';
+            meta.content = 'app-id=APP_STORE_ID, app-argument=' + location.href;
+            document.head.appendChild(meta);
+        })();
+    </script>
+    <style>
+        :root {
+            --cc-primary: #e84545;
+            --cc-accent: #ffc947;
+            --cc-accent-dark: #e6b33e;
+            --cc-text: #2c3e50;
+            --cc-text-light: #6c757d;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--cc-primary) 0%, #ff6b6b 50%, var(--cc-accent) 100%);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem 1.25rem;
+            line-height: 1.6;
+        }
+
+        .cc-card { max-width: 480px; width: 100%; }
+
+        .cc-icon {
+            width: 96px;
+            height: 96px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.25rem;
+            font-size: 3rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+            animation: cc-bounce 2.5s ease-in-out infinite;
+        }
+
+        @keyframes cc-bounce {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+
+        h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
+
+        .cc-sub { font-size: 1.05rem; opacity: 0.95; margin-bottom: 1.75rem; }
+
+        .cc-code-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+
+        .cc-code {
+            background: rgba(255,255,255,0.96);
+            color: var(--cc-text);
+            border-radius: 16px;
+            padding: 0.9rem 1rem;
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: 0.35em;
+            text-indent: 0.35em; /* recenter: letter-spacing adds a trailing gap */
+            font-variant-numeric: tabular-nums;
+            box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+            margin-bottom: 0.75rem;
+            user-select: all;
+            -webkit-user-select: all;
+        }
+
+        .cc-copy {
+            background: rgba(255,255,255,0.2);
+            border: 1.5px solid rgba(255,255,255,0.6);
+            color: #fff;
+            font: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 0.55rem 1.4rem;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-bottom: 2rem;
+            transition: all 0.2s ease;
+        }
+
+        .cc-copy:active { transform: scale(0.96); }
+
+        .cc-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: #1a2a3a;
+            color: #fff;
+            text-decoration: none;
+            padding: 0.9rem 1.75rem;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            transition: all 0.3s ease;
+        }
+
+        .cc-cta:hover { transform: translateY(-3px) scale(1.03); color: var(--cc-accent); }
+
+        .cc-steps {
+            list-style: none;
+            margin-top: 2rem;
+            text-align: left;
+            display: grid;
+            gap: 0.5rem;
+            counter-reset: step;
+            font-size: 0.95rem;
+        }
+
+        .cc-steps li {
+            counter-increment: step;
+            background: rgba(255,255,255,0.14);
+            border-radius: 12px;
+            padding: 0.7rem 0.9rem 0.7rem 2.9rem;
+            position: relative;
+        }
+
+        .cc-steps li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1.5rem;
+            height: 1.5rem;
+            background: rgba(255,255,255,0.95);
+            color: var(--cc-primary);
+            font-weight: 800;
+            font-size: 0.85rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cc-home { display: block; margin-top: 1.75rem; color: rgba(255,255,255,0.85); font-size: 0.9rem; }
+        .cc-home:hover { color: #fff; }
+
+        @media (prefers-reduced-motion: reduce) { .cc-icon { animation: none; } }
+    </style>
+</head>
+<body>
+    <main class="cc-card">
+        <div class="cc-icon" aria-hidden="true">🤡</div>
+        <h1>You're invited to a step battle!</h1>
+        <p class="cc-sub">A friend wants you in their Cardio Clowns group — a daily step race with live rankings, a crown to steal, and zero mercy. 👑</p>
+
+        <div id="code-block" hidden>
+            <div class="cc-code-label">Your group code</div>
+            <div class="cc-code" id="code">······</div>
+            <button class="cc-copy" id="copy" type="button">Copy code</button>
+        </div>
+        <p id="no-code" class="cc-sub" hidden>Ask your friend for their 6-character group code, then:</p>
+
+        <!-- TODO: replace # with the App Store URL once the app is live -->
+        <a class="cc-cta" href="#">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+            Get the free app
+        </a>
+
+        <ol class="cc-steps">
+            <li><strong>Download</strong> Cardio Clowns — free, no account needed.</li>
+            <li><strong>Enter your name</strong> and this group code.</li>
+            <li><strong>Walk.</strong> The crown is up for grabs at midnight. 👑</li>
+        </ol>
+
+        <a class="cc-home" href="/">What is Cardio Clowns? →</a>
+    </main>
+
+    <script>
+        (function () {
+            // Accept the code from ?code= / ?c= or a /join/CODE path segment.
+            var params = new URLSearchParams(location.search);
+            var raw = params.get('code') || params.get('c') || '';
+            if (!raw) {
+                var m = location.pathname.match(/^\/join\/([A-Za-z0-9]{6})\/?$/);
+                if (m) raw = m[1];
+            }
+            var code = raw.toUpperCase();
+            // Same alphabet the app generates from (no I, O, 0, 1).
+            var valid = /^[A-HJ-NP-Z2-9]{6}$/.test(code);
+
+            if (valid) {
+                document.getElementById('code').textContent = code;
+                document.getElementById('code-block').hidden = false;
+                document.title = 'Join group ' + code + ' on Cardio Clowns 🤡';
+            } else {
+                document.getElementById('no-code').hidden = false;
+            }
+
+            var btn = document.getElementById('copy');
+            btn.addEventListener('click', function () {
+                var done = function () {
+                    btn.textContent = 'Copied! ✓';
+                    setTimeout(function () { btn.textContent = 'Copy code'; }, 2000);
+                };
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(code).then(done);
+                } else {
+                    var range = document.createRange();
+                    range.selectNodeContents(document.getElementById('code'));
+                    var sel = getSelection();
+                    sel.removeAllRanges();
+                    sel.addRange(range);
+                    document.execCommand('copy');
+                    sel.removeAllRanges();
+                    done();
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
