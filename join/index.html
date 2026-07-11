@@ -13,12 +13,13 @@
     <script>
         // Smart App Banner: app-argument carries this exact URL (with the
         // group code) into the app when it's opened from the banner, so the
-        // invitee never has to retype the code.
+        // invitee never has to retype the code. app-clip-* upgrades the
+        // banner to the App Clip card for visitors without the app.
         // TODO: replace APP_STORE_ID with the numeric App Store ID once live.
         (function () {
             var meta = document.createElement('meta');
             meta.name = 'apple-itunes-app';
-            meta.content = 'app-id=APP_STORE_ID, app-argument=' + location.href;
+            meta.content = 'app-id=APP_STORE_ID, app-clip-bundle-id=com.davidnguyen.Cardio-Clowns.Clip, app-clip-display=card, app-argument=' + location.href;
             document.head.appendChild(meta);
         })();
     </script>
