@@ -1,0 +1,13 @@
+{
+  "name": "Cardio Clowns",
+  "short_name": "Cardio Clowns",
+  "description": "The daily step game that gets your family and friends moving — and laughing.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#E12D74",
+  "theme_color": "#E12D74",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -6,9 +6,22 @@
     <meta name="description" content="Cardio Clowns - The daily step game that gets your family and friends moving — and laughing. Create a group, share a code, steal the crown. For iPhone and Apple Watch.">
     <meta property="og:title" content="Cardio Clowns 🤡 — The Daily Step Game">
     <meta property="og:description" content="Nothing gets a family moving like the fear of losing to each other. Create a group, share a 6-character code, and battle for the daily crown.">
+    <meta property="og:type" content="website">
     <meta property="og:image" content="https://cardioclowns.com/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Cardio Clowns — The Daily Step Game">
     <meta property="og:url" content="https://cardioclowns.com/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Cardio Clowns 🤡 — The Daily Step Game">
+    <meta name="twitter:description" content="Nothing gets a family moving like the fear of losing to each other. Create a group, share a 6-character code, and battle for the daily crown.">
+    <meta name="twitter:image" content="https://cardioclowns.com/og-image.png">
     <link rel="canonical" href="https://cardioclowns.com/">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#E12D74">
     <!-- TODO: replace APP_STORE_ID with the numeric App Store ID once live -->
     <meta name="apple-itunes-app" content="app-id=APP_STORE_ID">
     <title>Cardio Clowns 🤡 — The Daily Step Game for Family & Friends</title>
@@ -86,16 +99,17 @@
         .cc-icon {
             width: 120px;
             height: 120px;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
             border-radius: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow: hidden;
             margin: 0 auto 1.5rem;
-            font-size: 3.5rem;
             box-shadow: 0 8px 32px rgba(0,0,0,0.15);
             animation: cc-bounce 2.5s ease-in-out infinite;
+        }
+        .cc-icon img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
         }
 
         @keyframes cc-bounce {
@@ -485,7 +499,7 @@
 
     <section class="cc-hero">
         <div class="cc-hero-content">
-            <div class="cc-icon" aria-hidden="true">🤡</div>
+            <div class="cc-icon"><img src="/icon-512.png" width="512" height="512" alt="Cardio Clowns app icon"></div>
             <h1>Cardio Clowns</h1>
             <p class="tagline">The daily step game that gets your family and friends moving — and laughing.</p>
             <p class="subtagline">Create a group, share a 6-character code, and every step you take becomes ammunition in a daily battle for the crown. 👑</p>
