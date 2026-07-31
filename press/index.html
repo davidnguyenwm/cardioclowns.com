@@ -163,6 +163,20 @@
             color: var(--cc-text-light);
             font-style: italic;
         }
+
+        /* Nothing here fixes an overflow — the layout already fits. It just
+           stops the hero from crowding and centres the video once the
+           preview block wraps to a single column. */
+        @media (max-width: 560px) {
+            .container { padding: 2rem 1.25rem 3rem; }
+            h1 { font-size: 1.6rem; }
+            .hero { gap: 1rem; }
+            .hero img { width: 64px; height: 64px; border-radius: 15px; }
+            .lede { font-size: 1.05rem; }
+            .preview { justify-content: center; gap: 1.25rem; }
+            .preview video { width: min(260px, 100%); }
+            .ecosystem { gap: 1.25rem; }
+        }
     </style>
 </head>
 <body>
