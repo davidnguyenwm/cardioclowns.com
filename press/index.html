@@ -27,13 +27,21 @@
     <title>Press — Cardio Clowns</title>
     <style>
         :root {
+            /* Same tokens as the homepage, including the crown gold accent. */
             --cc-primary: #e84545;
             --cc-primary-dark: #c73636;
+            --cc-accent: #ffc947;
+            --cc-accent-dark: #e6b33e;
             --cc-text: #2c3e50;
             --cc-text-light: #6c757d;
             --cc-bg: #ffffff;
             --cc-bg-light: #f8f9fa;
             --cc-border: #e9ecef;
+            --cc-radius: 12px;
+            --cc-shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --cc-shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --cc-shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+            --cc-transition: all 0.3s ease;
         }
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -56,15 +64,62 @@
         footer { border-top: 1px solid var(--cc-border); margin-top: 3rem; padding-top: 1.5rem; color: var(--cc-text-light); font-size: 0.9rem; }
 
         /* Press-page additions */
-        .lede { font-size: 1.15rem; line-height: 1.6; margin-bottom: 1.5rem; }
+        .hero { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 0.75rem; }
+        .hero img {
+            width: 88px; height: 88px; flex: none;
+            border-radius: 20px; box-shadow: var(--cc-shadow-lg);
+        }
+        .hero h1 { margin-bottom: 0.15rem; }
+        .lede {
+            font-size: 1.15rem; line-height: 1.6;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--cc-accent);
+            padding-left: 1rem;
+        }
         .facts {
             background: var(--cc-bg-light);
             border: 1px solid var(--cc-border);
-            border-radius: 10px;
+            border-radius: var(--cc-radius);
+            box-shadow: var(--cc-shadow-sm);
             padding: 1rem 1.25rem;
             margin-bottom: 2rem;
             font-size: 0.95rem;
             line-height: 1.9;
+        }
+
+        /* Screenshots — the actual argument that the app is fun. */
+        .shots {
+            display: flex; gap: 1rem;
+            overflow-x: auto;
+            padding: 0.5rem 0 1rem;
+            margin-bottom: 0.5rem;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+        .shot { flex: none; width: 210px; scroll-snap-align: start; }
+        .shot img {
+            width: 100%; height: auto; display: block;
+            border-radius: 18px;
+            box-shadow: var(--cc-shadow-lg);
+            border: 1px solid var(--cc-border);
+        }
+        .shot figcaption {
+            margin-top: 0.6rem; font-size: 0.85rem;
+            color: var(--cc-text-light); text-align: center;
+        }
+        .ecosystem { display: flex; gap: 1.5rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1rem; }
+        .ecosystem figure { flex: 1 1 240px; min-width: 0; }
+        .ecosystem img {
+            width: 100%; height: auto; display: block;
+            border-radius: var(--cc-radius);
+            box-shadow: var(--cc-shadow-md);
+            border: 1px solid var(--cc-border);
+        }
+        .ecosystem .watch { flex: 0 0 150px; }
+        .ecosystem .watch img { border-radius: 28px; }
+        .ecosystem figcaption {
+            margin-top: 0.6rem; font-size: 0.85rem;
+            color: var(--cc-text-light); text-align: center;
         }
         .facts strong { color: var(--cc-text); }
         .facts span { color: var(--cc-text-light); }
@@ -78,7 +133,8 @@
             border-radius: 999px;
             font-size: 1rem;
         }
-        .cta:hover { background: var(--cc-primary-dark); color: #fff; }
+        .cta { box-shadow: var(--cc-shadow-md); transition: var(--cc-transition); }
+        .cta:hover { background: var(--cc-primary-dark); color: #fff; box-shadow: var(--cc-shadow-lg); }
         .cta-note { display: block; margin-top: 0.6rem; color: var(--cc-text-light); font-size: 0.9rem; }
         .stack { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.95rem; }
         .stack th, .stack td { text-align: left; vertical-align: top; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--cc-border); }
@@ -96,8 +152,13 @@
 <body>
     <div class="container">
         <a class="back" href="/">&larr; Cardio Clowns</a>
-        <h1>Cardio Clowns — Press</h1>
-        <p class="meta">Information for App Store editors and press.</p>
+        <div class="hero">
+            <img src="/icon-512.png" alt="Cardio Clowns app icon" width="88" height="88">
+            <div>
+                <h1>Cardio Clowns — Press</h1>
+                <p class="meta" style="margin-bottom:0">Information for App Store editors and press.</p>
+            </div>
+        </div>
 
         <div class="facts">
             <strong>Category</strong> <span>Health &amp; Fitness</span><br>
@@ -113,6 +174,25 @@
         <h2>What it is</h2>
         <p>Create a group, share a six-character code, and every step you take becomes ammunition in a daily battle for the crown. Steps come straight from Apple Health. The leaderboard updates live and tells you exactly what it will take to pass the person ahead of you — <em>"Almost there! +312 to pass Mom."</em> Win the day and you wear the crown for the whole group to see, or resent.</p>
         <p>No accounts. No friend requests. No feed full of strangers. One code gets a whole family in — kids, parents, grandparents, the college group chat — and country flags next to every name mean it works across borders.</p>
+
+        <div class="shots">
+            <figure class="shot">
+                <img src="shots/iphone-leaderboard.png" alt="Cardio Clowns leaderboard showing today's standings, medals, and the daily crown" loading="lazy">
+                <figcaption>The daily race</figcaption>
+            </figure>
+            <figure class="shot">
+                <img src="shots/iphone-trashtalk.png" alt="The Trash Talk feed showing playful messages and reaction GIFs between group members" loading="lazy">
+                <figcaption>Trash Talk feed</figcaption>
+            </figure>
+            <figure class="shot">
+                <img src="shots/iphone-head-to-head.png" alt="Head-to-head view with win-loss records, streaks, and a tug-of-war bar" loading="lazy">
+                <figcaption>Head-to-head</figcaption>
+            </figure>
+            <figure class="shot">
+                <img src="shots/iphone-gifs.png" alt="The GIF picker showing a grid of captioned reaction GIFs" loading="lazy">
+                <figcaption>192 reaction GIFs</figcaption>
+            </figure>
+        </div>
 
         <div class="cta-wrap">
             <a class="cta" href="https://testflight.apple.com/join/PGwZJksx">Try it on TestFlight</a>
@@ -139,6 +219,17 @@
             <tr><th>Swift Charts</th><td>Daily step history with finishing ranks and medals.</td></tr>
         </table>
         </div>
+        <div class="ecosystem">
+            <figure>
+                <img src="shots/ipad-leaderboard.png" alt="Cardio Clowns on iPad, with the leaderboard and a full 30-day step history laid out across the width" loading="lazy">
+                <figcaption>iPad — the layout adapts, it doesn't stretch</figcaption>
+            </figure>
+            <figure class="watch">
+                <img src="shots/watch-leaderboard.png" alt="The Cardio Clowns leaderboard running natively on Apple Watch" loading="lazy">
+                <figcaption>Native on Apple Watch</figcaption>
+            </figure>
+        </div>
+
         <p>Few indie apps ship a Watch app, an App Clip, and widgets — and fewer do all three well.</p>
 
         <h2>Built for the world on day one</h2>
