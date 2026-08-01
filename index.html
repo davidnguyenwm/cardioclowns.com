@@ -247,9 +247,48 @@
 
         .cc-nav-inner {
             display: flex;
-            gap: 0.25rem;
+            align-items: center;
+            gap: 0.75rem;
             padding: 0.75rem 0;
+        }
+
+        /* Only the links scroll — the language picker stays put on the edge,
+           so it is reachable on a narrow phone without scrolling the nav. */
+        .cc-nav-links {
+            display: flex;
+            gap: 0.25rem;
             overflow-x: auto;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .cc-lang {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex: none;
+        }
+
+        .cc-lang label {
+            color: var(--cc-text-light);
+            font-size: 0.9rem;
+        }
+
+        .cc-lang select {
+            font: inherit;
+            font-size: 0.9rem;
+            color: var(--cc-text);
+            background: var(--cc-bg-light);
+            border: 1px solid var(--cc-border);
+            border-radius: 999px;
+            padding: 0.35rem 0.75rem;
+            max-width: 11rem;
+            cursor: pointer;
+        }
+
+        .cc-lang select:focus-visible {
+            outline: 2px solid var(--cc-primary);
+            outline-offset: 2px;
         }
 
         .cc-nav a {
@@ -476,6 +515,22 @@
             color: var(--cc-accent);
         }
 
+        /* Right-to-left (Arabic, Hebrew, Urdu). Flexbox and grid flip on their
+           own — these are the physical-side properties that don't. */
+        [dir="rtl"] .cc-leaderboard { text-align: right; transform: rotate(1.5deg); }
+        [dir="rtl"] .cc-steps li { padding-left: 1.25rem; padding-right: 4rem; }
+        [dir="rtl"] .cc-steps li::before { left: auto; right: 1.1rem; }
+        [dir="rtl"] .cc-steps li:hover { transform: translateX(-4px); }
+        [dir="rtl"] .cc-privacy-list li { padding-left: 0; padding-right: 2rem; }
+        [dir="rtl"] .cc-privacy-list li::before { left: auto; right: 0; }
+        [dir="rtl"] .cc-info-box {
+            border-left: none;
+            border-right: 4px solid var(--cc-primary);
+            border-radius: var(--cc-radius) 0 0 var(--cc-radius);
+        }
+        /* The step counter sits in a circle, so it must not mirror. */
+        [dir="rtl"] .cc-steps li::before { direction: ltr; }
+
         /* Responsive */
         @media (max-width: 768px) {
             .cc-hero { padding: 3rem 1rem 4rem; }
@@ -483,6 +538,13 @@
             .cc-icon { width: 90px; height: 90px; font-size: 2.5rem; border-radius: 22px; }
             .cc-section { padding: 3rem 0; }
             .cc-section h2 { font-size: 1.5rem; }
+        }
+
+        @media (max-width: 560px) {
+            /* Keep the select, drop its label — the globe-less picker still
+               reads as a language control because the options are native names. */
+            .cc-lang label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+            .cc-lang select { max-width: 8.5rem; }
         }
 
         @media (max-width: 480px) {
@@ -499,35 +561,35 @@
 
     <section class="cc-hero">
         <div class="cc-hero-content">
-            <div class="cc-icon"><img src="/icon-512.png" width="512" height="512" alt="Cardio Clowns app icon"></div>
+            <div class="cc-icon"><img src="/icon-512.png" width="512" height="512" alt="Cardio Clowns app icon" data-i18n-alt="iconAlt"></div>
             <h1>Cardio Clowns</h1>
-            <p class="tagline">The daily step game that gets your family and friends moving — and laughing.</p>
-            <p class="subtagline">Create a group, share a 6-character code, and every step you take becomes ammunition in a daily battle for the crown. 👑</p>
+            <p class="tagline" data-i18n="tagline">The daily step game that gets your family and friends moving — and laughing.</p>
+            <p class="subtagline" data-i18n="subtagline">Create a group, share a 6-character code, and every step you take becomes ammunition in a daily battle for the crown. 👑</p>
             <!-- TODO: at launch, swap back to <a class="cc-cta" href="APP_STORE_URL"> with "Download on the App Store" -->
             <span class="cc-cta cc-cta-soon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                Coming soon to the App Store
+                <span data-i18n="ctaSoon">Coming soon to the App Store</span>
             </span>
-            <span class="cc-cta-sub">Free to play · iPhone (Apple Watch optional) · No accounts, no ads</span>
+            <span class="cc-cta-sub" data-i18n="ctaSub">Free to play · iPhone (Apple Watch optional) · No accounts, no ads</span>
 
             <div class="cc-leaderboard" aria-hidden="true">
-                <div class="cc-leaderboard-title"><span>Today's Race</span><span class="cc-lb-live">● LIVE</span></div>
+                <div class="cc-leaderboard-title"><span data-i18n="lbTitle">Today's Race</span><span class="cc-lb-live" data-i18n="lbLive">● LIVE</span></div>
                 <div class="cc-lb-row">
                     <span class="cc-lb-rank">👑</span>
-                    <span class="cc-lb-name">Mom 🇻🇳</span>
+                    <span class="cc-lb-name" data-i18n="lbMom">Mom 🇻🇳</span>
                     <span class="cc-lb-steps">9,412</span>
                 </div>
                 <div class="cc-lb-row cc-lb-you">
                     <span class="cc-lb-rank">2</span>
-                    <span class="cc-lb-name">You 🇺🇸</span>
+                    <span class="cc-lb-name" data-i18n="lbYou">You 🇺🇸</span>
                     <span class="cc-lb-steps">9,100</span>
                 </div>
                 <div class="cc-lb-row">
                     <span class="cc-lb-rank">3</span>
-                    <span class="cc-lb-name">Dad 🇺🇸 <small>🔥 W3</small></span>
+                    <span class="cc-lb-name" data-i18n-html="lbDad">Dad 🇺🇸 <small>🔥 W3</small></span>
                     <span class="cc-lb-steps">8,856</span>
                 </div>
-                <div class="cc-lb-hint">Almost there! +312 to pass Mom 🏃</div>
+                <div class="cc-lb-hint" data-i18n="lbHint">Almost there! +312 to pass Mom 🏃</div>
             </div>
         </div>
     </section>
@@ -535,71 +597,77 @@
     <nav class="cc-nav">
         <div class="container">
             <div class="cc-nav-inner">
-                <a href="#about">About</a>
-                <a href="#features">Why It's Different</a>
-                <a href="#how-it-works">How It Works</a>
-                <a href="#privacy">Privacy Policy</a>
-                <a href="#support">Support</a>
+                <div class="cc-nav-links">
+                    <a href="#about" data-i18n="navAbout">About</a>
+                    <a href="#features" data-i18n="navFeatures">Why It's Different</a>
+                    <a href="#how-it-works" data-i18n="navHow">How It Works</a>
+                    <a href="#privacy" data-i18n="navPrivacy">Privacy Policy</a>
+                    <a href="#support" data-i18n="navSupport">Support</a>
+                </div>
+                <div class="cc-lang">
+                    <label for="lang-select" data-i18n="langLabel">Language</label>
+                    <select id="lang-select" aria-label="Language" data-i18n-label="langLabel"></select>
+                </div>
             </div>
         </div>
     </nav>
 
     <section id="about" class="cc-section">
         <div class="container">
-            <h2>About Cardio Clowns</h2>
-            <p class="cc-lead">Most fitness apps are about <strong>you</strong>: your goals, your streaks, your stats. Cardio Clowns is about <strong>them</strong> — the four or five people you love just enough to never, ever let win.</p>
-            <p>Create a group, share a 6-character code, and every step you take becomes ammunition in a daily battle for the crown. All you need is an iPhone — no Apple Watch required, no accounts, no feeds full of strangers. Just your people, a live leaderboard, and the perfect excuse to take the stairs.</p>
+            <h2 data-i18n="h2About">About Cardio Clowns</h2>
+            <p class="cc-lead" data-i18n-html="aboutLead">Most fitness apps are about <strong>you</strong>: your goals, your streaks, your stats. Cardio Clowns is about <strong>them</strong> — the four or five people you love just enough to never, ever let win.</p>
+            <p data-i18n="aboutP2">Create a group, share a 6-character code, and every step you take becomes ammunition in a daily battle for the crown. All you need is an iPhone — no Apple Watch required, no accounts, no feeds full of strangers. Just your people, a live leaderboard, and the perfect excuse to take the stairs.</p>
         </div>
     </section>
 
     <section id="features" class="cc-section">
         <div class="container">
-            <h2>Why it's not just another fitness app</h2>
+            <h2 data-i18n="h2Features">Why it's not just another fitness app</h2>
             <div class="cc-features">
                 <div class="cc-feature">
                     <div class="cc-feature-icon">🏆</div>
-                    <h3>A daily race, not a lonely goal</h3>
-                    <p>Every day is a fresh competition. Steps sync automatically from Apple Health on your iPhone, the leaderboard updates live, shows exactly how many steps you need to pass the person ahead of you — <span class="cc-quote">"Almost there! +312 to pass Mom"</span> — and crowns a daily winner 👑 for the whole group to see. Or resent.</p>
+                    <h3 data-i18n="f1Title">A daily race, not a lonely goal</h3>
+                    <p data-i18n-html="f1Body">Every day is a fresh competition. Steps sync automatically from Apple Health on your iPhone, the leaderboard updates live, shows exactly how many steps you need to pass the person ahead of you — <span class="cc-quote">"Almost there! +312 to pass Mom"</span> — and crowns a daily winner 👑 for the whole group to see. Or resent.</p>
                 </div>
                 <div class="cc-feature">
                     <div class="cc-feature-icon">💬</div>
-                    <h3>Push each other, built right in</h3>
-                    <p>Long-press anyone on the leaderboard to send a playful message — and the app knows the situation. Up by 1,000 steps? <span class="cc-quote">"Stay down there 😏"</span> About to get caught? <span class="cc-quote">"Don't choke now 👀"</span> Fire off a quick emoji reaction, pick from a library of nearly 200 reaction GIFs, or write your own message. It's the group chat energy fitness apps are missing.</p>
+                    <h3 data-i18n="f2Title">Push each other, built right in</h3>
+                    <p data-i18n-html="f2Body">Long-press anyone on the leaderboard to send a playful message — and the app knows the situation. Up by 1,000 steps? <span class="cc-quote">"Stay down there 😏"</span> About to get caught? <span class="cc-quote">"Don't choke now 👀"</span> Fire off a quick emoji reaction, pick from a library of nearly 200 reaction GIFs, or write your own message. It's the group chat energy fitness apps are missing.</p>
                 </div>
                 <div class="cc-feature">
                     <div class="cc-feature-icon">🥊</div>
-                    <h3>Head-to-Head rivalries</h3>
-                    <p>Every member of your group is a 7-day matchup: win–loss records, win streaks (🔥 W3), an animated tug-of-war rope showing who's pulling ahead, and stats like your biggest blowout and your most painful loss. You're not chasing an abstract goal — you're settling a score with your brother.</p>
+                    <h3 data-i18n="f3Title">Head-to-Head rivalries</h3>
+                    <p data-i18n="f3Body">Every member of your group is a 7-day matchup: win–loss records, win streaks (🔥 W3), an animated tug-of-war rope showing who's pulling ahead, and stats like your biggest blowout and your most painful loss. You're not chasing an abstract goal — you're settling a score with your brother.</p>
                 </div>
                 <div class="cc-feature">
                     <div class="cc-feature-icon">🔔</div>
-                    <h3>Notifications that talk like a rival, not a coach</h3>
-                    <p><span class="cc-quote">"Dad just passed you! Time to fight back! 😤"</span> Pick your intensity: Chill mode only pings you for the big moments and stays quiet at night, while All In mode keeps the pressure on all day.</p>
+                    <h3 data-i18n="f4Title">Notifications that talk like a rival, not a coach</h3>
+                    <p data-i18n-html="f4Body"><span class="cc-quote">"Dad just passed you! Time to fight back! 😤"</span> Pick your intensity: Chill mode only pings you for the big moments and stays quiet at night, while All In mode keeps the pressure on all day.</p>
                 </div>
                 <div class="cc-feature">
                     <div class="cc-feature-icon">📊</div>
-                    <h3>History that tells the story</h3>
-                    <p>Daily step charts, finishing ranks, and medals for every day — see who's been carrying the crown all week. Pro members get a full 30 days of history and head-to-head stats.</p>
+                    <h3 data-i18n="f5Title">History that tells the story</h3>
+                    <p data-i18n="f5Body">Daily step charts, finishing ranks, and medals for every day — see who's been carrying the crown all week. Pro members get a full 30 days of history and head-to-head stats.</p>
                 </div>
                 <div class="cc-feature">
                     <div class="cc-feature-icon">🤡</div>
-                    <h3>Make it yours</h3>
-                    <p>Build your own clown avatar — hair, eyes, outfit, the works — or pick an emoji. Add a home screen widget that shows your live standing at a glance, and dress up your leaderboard with themes.</p>
+                    <h3 data-i18n="f6Title">Make it yours</h3>
+                    <p data-i18n="f6Body">Build your own clown avatar — hair, eyes, outfit, the works — or pick an emoji. Add a home screen widget that shows your live standing at a glance, and dress up your leaderboard with themes.</p>
                 </div>
                 <div class="cc-feature">
                     <div class="cc-feature-icon">⌚</div>
-                    <h3>Apple Watch? A bonus, not a requirement</h3>
-                    <p>Cardio Clowns runs entirely on iPhone. But if you do wear an Apple Watch, you get the full app on your wrist — leaderboard, history, head-to-head matchups, and messaging — plus watch-face widgets showing your live rank, so one glance tells you whether it's time for a victory lap or a panic walk.</p>
+                    <h3 data-i18n="f7Title">Apple Watch? A bonus, not a requirement</h3>
+                    <p data-i18n="f7Body">Cardio Clowns runs entirely on iPhone. But if you do wear an Apple Watch, you get the full app on your wrist — leaderboard, history, head-to-head matchups, and messaging — plus watch-face widgets showing your live rank, so one glance tells you whether it's time for a victory lap or a panic walk.</p>
                 </div>
                 <div class="cc-feature">
                     <div class="cc-feature-icon">👨‍👩‍👧‍👦</div>
-                    <h3>Perfect for families and small crews</h3>
-                    <p>One 6-character code gets everyone in — kids, parents, grandparents, the college group chat. Country flags next to every name and support for 30 languages mean the competition works across borders, too. No friend requests, no public profiles, nothing to manage.</p>
+                    <h3 data-i18n="f8Title">Perfect for families and small crews</h3>
+                    <p data-i18n="f8Body">One 6-character code gets everyone in — kids, parents, grandparents, the college group chat. Country flags next to every name and support for 44 languages mean the competition works across borders, too. No friend requests, no public profiles, nothing to manage.</p>
                 </div>
                 <div class="cc-feature">
                     <div class="cc-feature-icon">🎉</div>
-                    <h3>It celebrates like it means it</h3>
-                    <p>Take first place and the screen erupts in fireworks. Yesterday's winner wears the crown all day. Cardio Clowns turns 8,000 steps into a story your group talks about at dinner.</p>
+                    <h3 data-i18n="f9Title">It celebrates like it means it</h3>
+                    <p data-i18n="f9Body">Take first place and the screen erupts in fireworks. Yesterday's winner wears the crown all day. Cardio Clowns turns 8,000 steps into a story your group talks about at dinner.</p>
                 </div>
             </div>
         </div>
@@ -607,88 +675,90 @@
 
     <section id="how-it-works" class="cc-section">
         <div class="container">
-            <h2>How it works</h2>
+            <h2 data-i18n="h2How">How it works</h2>
             <ol class="cc-steps">
-                <li><strong>Download</strong> on iPhone. (Have an Apple Watch? Great — but it's optional.)</li>
-                <li><strong>Create a group</strong> and share your code — or join with one.</li>
-                <li><strong>Walk.</strong> Steps sync automatically from Apple Health.</li>
-                <li><strong>Push each other,</strong> steal the crown, repeat tomorrow. 👑</li>
+                <li data-i18n-html="step1"><strong>Download</strong> on iPhone. (Have an Apple Watch? Great — but it's optional.)</li>
+                <li data-i18n-html="step2"><strong>Create a group</strong> and share your code — or join with one.</li>
+                <li data-i18n-html="step3"><strong>Walk.</strong> Steps sync automatically from Apple Health.</li>
+                <li data-i18n-html="step4"><strong>Push each other,</strong> steal the crown, repeat tomorrow. 👑</li>
             </ol>
-            <p>Free to play with your whole group. Cardio Clowns Pro unlocks GIFs, custom messages, custom avatars, themes, and 30 days of history.</p>
+            <p data-i18n="howP">Free to play with your whole group. Cardio Clowns Pro unlocks GIFs, custom messages, custom avatars, themes, and 30 days of history.</p>
         </div>
     </section>
 
     <section class="cc-banner">
         <div class="container">
-            <h2>Nothing gets a family moving like the fear of losing to each other.</h2>
-            <p>Grab your crew. The crown is waiting. 👑</p>
+            <h2 data-i18n="bannerH2">Nothing gets a family moving like the fear of losing to each other.</h2>
+            <p data-i18n="bannerP">Grab your crew. The crown is waiting. 👑</p>
             <!-- TODO: at launch, swap back to <a class="cc-cta" href="APP_STORE_URL"> with "Download Cardio Clowns" -->
             <span class="cc-cta cc-cta-soon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                Coming soon to the App Store
+                <span data-i18n="ctaSoon">Coming soon to the App Store</span>
             </span>
         </div>
     </section>
 
     <section id="privacy" class="cc-section">
         <div class="container">
-            <h2>Privacy Policy</h2>
-            <p><strong>Effective Date:</strong> June 12, 2026</p>
+            <h2 data-i18n="h2Privacy">Privacy Policy</h2>
+            <p data-i18n-html="privEffective"><strong>Effective Date:</strong> June 12, 2026</p>
 
-            <h3>Overview</h3>
-            <p>Your privacy is important to us. Cardio Clowns is designed to share as little as possible: just your step count, with just your group. This policy explains how the app handles your information.</p>
+            <h3 data-i18n="h3Overview">Overview</h3>
+            <p data-i18n="overviewP">Your privacy is important to us. Cardio Clowns is designed to share as little as possible: just your step count, with just your group. This policy explains how the app handles your information.</p>
 
             <div class="cc-info-box">
-                <p><strong>In short:</strong> Cardio Clowns has no accounts, no ads, and no tracking. Your daily step count and display name are shared only with the members of the group you join, so the leaderboard works. That's it.</p>
+                <p data-i18n-html="inShort"><strong>In short:</strong> Cardio Clowns has no accounts, no ads, and no tracking. Your daily step count and display name are shared only with the members of the group you join, so the leaderboard works. That's it.</p>
             </div>
 
-            <h3>Data Collection</h3>
-            <p>Cardio Clowns collects only what the game needs to run:</p>
+            <h3 data-i18n="h3Data">Data Collection</h3>
+            <p data-i18n="dataP">Cardio Clowns collects only what the game needs to run:</p>
             <ul class="cc-privacy-list">
-                <li>No account creation — no email, password, or phone number required</li>
-                <li>No usage analytics, advertising, or third-party tracking</li>
-                <li>No public profiles — your data is visible only to your group</li>
-                <li>Daily step counts are read from Apple Health (with your permission) and shared with your group to power the leaderboard</li>
-                <li>Your display name and optional country flag are visible to your group members only</li>
+                <li data-i18n="pl1">No account creation — no email, password, or phone number required</li>
+                <li data-i18n="pl2">No usage analytics, advertising, or third-party tracking</li>
+                <li data-i18n="pl3">No public profiles — your data is visible only to your group</li>
+                <li data-i18n="pl4">Daily step counts are read from Apple Health (with your permission) and shared with your group to power the leaderboard</li>
+                <li data-i18n="pl5">Your display name and optional country flag are visible to your group members only</li>
             </ul>
 
-            <h3>Apple Health</h3>
-            <p>With your permission, Cardio Clowns reads your daily step count from Apple Health. Step data is used solely for the group leaderboard and head-to-head matchups. We never write to Apple Health, and we never share health data with third parties.</p>
+            <h3 data-i18n="h3Health">Apple Health</h3>
+            <p data-i18n="healthP">With your permission, Cardio Clowns reads your daily step count from Apple Health. Step data is used solely for the group leaderboard and head-to-head matchups. We never write to Apple Health, and we never share health data with third parties.</p>
 
-            <h3>Data Storage</h3>
-            <p>To keep your group's leaderboard live across devices, your daily step total, your display name, and your country flag (if you set one) are stored in Apple's iCloud (CloudKit). That's the whole list. We don't run our own servers and have no database of our own — Apple hosts the data, and only members of your group can read it. Leaving a group removes you from its leaderboard, and deleting the app removes all locally stored data.</p>
+            <h3 data-i18n="h3Storage">Data Storage</h3>
+            <p data-i18n="storageP">To keep your group's leaderboard live across devices, your daily step total, your display name, and your country flag (if you set one) are stored in Apple's iCloud (CloudKit). That's the whole list. We don't run our own servers and have no database of our own — Apple hosts the data, and only members of your group can read it. Leaving a group removes you from its leaderboard, and deleting the app removes all locally stored data.</p>
 
-            <h3>Third-Party Services</h3>
-            <p>Cardio Clowns does not integrate with any third-party analytics, advertising, or data brokers.</p>
+            <h3 data-i18n="h3Third">Third-Party Services</h3>
+            <p data-i18n="thirdP">Cardio Clowns does not integrate with any third-party analytics, advertising, or data brokers.</p>
 
-            <h3>Children's Privacy</h3>
-            <p>Cardio Clowns is designed for families. The app collects no personal information beyond a chosen display name and step counts, requires no account, and shares data only within private groups joined by invitation code. The app complies with the Children's Online Privacy Protection Act (COPPA) and similar regulations.</p>
+            <h3 data-i18n="h3Children">Children's Privacy</h3>
+            <p data-i18n="childrenP">Cardio Clowns is designed for families. The app collects no personal information beyond a chosen display name and step counts, requires no account, and shares data only within private groups joined by invitation code. The app complies with the Children's Online Privacy Protection Act (COPPA) and similar regulations.</p>
 
-            <h3>Changes to This Policy</h3>
-            <p>If we ever update this privacy policy, changes will be reflected on this page with an updated effective date.</p>
+            <h3 data-i18n="h3Changes">Changes to This Policy</h3>
+            <p data-i18n="changesP">If we ever update this privacy policy, changes will be reflected on this page with an updated effective date.</p>
 
-            <h3>Your Rights</h3>
-            <p>You can leave a group at any time to stop sharing your steps, revoke Apple Health access in iOS Settings, or contact us to have your data removed entirely.</p>
+            <h3 data-i18n="h3Rights">Your Rights</h3>
+            <p data-i18n="rightsP">You can leave a group at any time to stop sharing your steps, revoke Apple Health access in iOS Settings, or contact us to have your data removed entirely.</p>
         </div>
     </section>
 
     <section id="support" class="cc-section">
         <div class="container">
-            <h2>Support</h2>
-            <p>Have questions, feedback, or need help with Cardio Clowns? We'd love to hear from you. (Trash talk about your leaderboard rank also accepted.)</p>
+            <h2 data-i18n="h2Support">Support</h2>
+            <p data-i18n="supportP1">Have questions, feedback, or need help with Cardio Clowns? We'd love to hear from you. (Bragging about your leaderboard rank also accepted.)</p>
             <div class="cc-info-box">
-                <p><strong>Email:</strong> <a href="mailto:hello@cardioclowns.com">hello@cardioclowns.com</a></p>
+                <p data-i18n-html="supportEmail"><strong>Email:</strong> <a href="mailto:hello@cardioclowns.com">hello@cardioclowns.com</a></p>
             </div>
-            <p>We'll do our best to respond to your inquiry as soon as possible.</p>
+            <p data-i18n="supportP2">We'll do our best to respond to your inquiry as soon as possible.</p>
         </div>
     </section>
 
     <footer class="cc-footer">
         <div class="container">
-            <p>&copy; 2026 Cardio Clowns</p>
-            <p>Made for the people you love just enough to never let win. 🤡👑</p>
+            <p data-i18n="footCopy">&copy; 2026 Cardio Clowns</p>
+            <p data-i18n="footMade">Made for the people you love just enough to never let win. 🤡👑</p>
         </div>
     </footer>
 
+    <script src="/lang.js"></script>
+    <script>CCLang.init({ dir: '/i18n/' });</script>
 </body>
 </html>

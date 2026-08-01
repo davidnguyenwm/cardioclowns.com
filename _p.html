@@ -1,0 +1,23 @@
+<!DOCTYPE html><html><body style="margin:0">
+<iframe id="f" src="/press/index.html?m=mx" style="width:900px;height:1200px;border:0"></iframe>
+<script>
+document.getElementById('f').addEventListener('load', function () {
+  var d = this.contentDocument;
+  setTimeout(function () {
+    var shot = d.querySelector('[data-shot="iphone-leaderboard"]');
+    var src  = d.querySelector('.preview source');
+    var vid  = d.querySelector('.preview video');
+    var dl   = d.getElementById('dl-preview');
+    var bad  = [];
+    d.querySelectorAll('img').forEach(function (i) {
+      if (i.complete && i.naturalWidth === 0) bad.push(i.getAttribute('src'));
+    });
+    document.title = 'lang=' + d.documentElement.lang +
+      ' h1=' + (d.querySelector('h1') ? d.querySelector('h1').textContent.slice(0,22) : '?') +
+      ' | shot=' + (shot ? shot.getAttribute('src').replace('shots/','').replace('/iphone-leaderboard.png','') : '?') +
+      ' | vid=' + (src ? src.getAttribute('src').replace('preview/','') : '?') +
+      ' | dl=' + (dl ? dl.getAttribute('href').replace('preview/','') : '?') +
+      ' | broken=' + (bad.length ? bad.join(',') : 'none');
+  }, 2500);
+});
+</script></body></html>

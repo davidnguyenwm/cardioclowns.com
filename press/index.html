@@ -216,7 +216,7 @@
 <body>
     <div class="container">
         <div class="topbar">
-            <a class="back" href="/" data-i18n="back">&larr; Cardio Clowns</a>
+            <a class="back" href="/" data-i18n-html="back">&larr; Cardio Clowns</a>
             <div class="lang-picker">
                 <label for="lang-select" data-i18n="langLabel">Language</label>
                 <select id="lang-select"></select>
@@ -248,11 +248,11 @@
 
         <h2 data-i18n="h2Preview">23 seconds of it</h2>
         <div class="preview">
-            <video controls playsinline preload="none" poster="preview-poster.jpg"
+            <video controls playsinline preload="none" poster="preview/en-US.jpg"
                    width="260" aria-label="Cardio Clowns app preview video" data-i18n-label="videoLabel">
-                <source src="preview.mp4" type="video/mp4">
+                <source src="preview/en-US.mp4" type="video/mp4">
                 <span data-i18n-html="videoFallback">Your browser can't play this video —
-                <a href="preview.mp4">download it instead</a>.</span>
+                <a href="preview/en-US.mp4" id="dl-fallback">download it instead</a>.</span>
             </video>
             <div class="preview-copy">
                 <p data-i18n="previewP1">The App Store preview: the leaderboard updating live, a rival's notification landing mid-scroll, the head-to-head tug-of-war, and the GIF picker.</p>
@@ -266,19 +266,19 @@
 
         <div class="shots">
             <figure class="shot">
-                <img src="shots/iphone-leaderboard.png" alt="Cardio Clowns leaderboard showing today's standings, medals, and the daily crown" loading="lazy" data-i18n-alt="shot1Alt">
+                <img src="shots/en-US/iphone-leaderboard.png" data-shot="iphone-leaderboard" alt="Cardio Clowns leaderboard showing today's standings, medals, and the daily crown" loading="lazy" data-i18n-alt="shot1Alt">
                 <figcaption data-i18n="shot1Cap">The daily race</figcaption>
             </figure>
             <figure class="shot">
-                <img src="shots/iphone-trashtalk.png" alt="The Trash Talk feed showing playful messages and reaction GIFs between group members" loading="lazy" data-i18n-alt="shot2Alt">
+                <img src="shots/en-US/iphone-trashtalk.png" data-shot="iphone-trashtalk" alt="The Trash Talk feed showing playful messages and reaction GIFs between group members" loading="lazy" data-i18n-alt="shot2Alt">
                 <figcaption data-i18n="shot2Cap">Trash Talk feed</figcaption>
             </figure>
             <figure class="shot">
-                <img src="shots/iphone-head-to-head.png" alt="Head-to-head view with win-loss records, streaks, and a tug-of-war bar" loading="lazy" data-i18n-alt="shot3Alt">
+                <img src="shots/en-US/iphone-head-to-head.png" data-shot="iphone-head-to-head" alt="Head-to-head view with win-loss records, streaks, and a tug-of-war bar" loading="lazy" data-i18n-alt="shot3Alt">
                 <figcaption data-i18n="shot3Cap">Head-to-head</figcaption>
             </figure>
             <figure class="shot">
-                <img src="shots/iphone-gifs.png" alt="The GIF picker showing a grid of captioned reaction GIFs" loading="lazy" data-i18n-alt="shot4Alt">
+                <img src="shots/en-US/iphone-gifs.png" data-shot="iphone-gifs" alt="The GIF picker showing a grid of captioned reaction GIFs" loading="lazy" data-i18n-alt="shot4Alt">
                 <figcaption data-i18n="shot4Cap">192 reaction GIFs</figcaption>
             </figure>
         </div>
@@ -305,11 +305,11 @@
         </div>
         <div class="ecosystem">
             <figure>
-                <img src="shots/ipad-leaderboard.png" alt="Cardio Clowns on iPad, with the leaderboard and a full 30-day step history laid out across the width" loading="lazy" data-i18n-alt="ipadAlt">
+                <img src="shots/en-US/ipad-leaderboard.png" data-shot="ipad-leaderboard" alt="Cardio Clowns on iPad, with the leaderboard and a full 30-day step history laid out across the width" loading="lazy" data-i18n-alt="ipadAlt">
                 <figcaption data-i18n="ipadCap">iPad — the layout adapts, it doesn't stretch</figcaption>
             </figure>
             <figure class="watch">
-                <img src="shots/watch-leaderboard.png" alt="The Cardio Clowns leaderboard running natively on Apple Watch" loading="lazy" data-i18n-alt="watchAlt">
+                <img src="shots/en-US/watch-leaderboard.png" data-shot="watch-leaderboard" alt="The Cardio Clowns leaderboard running natively on Apple Watch" loading="lazy" data-i18n-alt="watchAlt">
                 <figcaption data-i18n="watchCap">Native on Apple Watch</figcaption>
             </figure>
         </div>
@@ -348,7 +348,7 @@
         <h2 data-i18n="h2Assets">Assets</h2>
         <p data-i18n="assetsIntro">Free to use for coverage or editorial consideration:</p>
         <ul>
-            <li data-i18n-html="asset1"><a href="preview.mp4">App preview video</a> — 23s, 886×1920, H.264</li>
+            <li data-i18n-html="asset1"><a href="preview/en-US.mp4" id="dl-preview">App preview video</a> — 23s, 886×1920, H.264</li>
             <li data-i18n-html="asset2"><a href="/icon-512.png">App icon</a> — 512×512 PNG (1024 and vector available)</li>
             <li data-i18n-html="asset3"><a href="/og-image.png">Banner</a> — 1200×630 PNG</li>
             <li data-i18n-html="asset4">Screenshots — iPhone, iPad, and Apple Watch, <strong>localized in all 50 App Store locales</strong>. Ask and you'll have the full set in whichever languages you need.</li>
@@ -363,212 +363,79 @@
     </div>
 
     <script>
-        // Localization for the press page.
-        //
-        // English lives in the markup above, so the page is complete before a
-        // byte of JSON arrives (and stays complete with JS off). Every other
-        // language is a file in i18n/<code>.json holding only the strings —
-        // a visitor downloads their own language and nothing else.
-        //
-        // Language is picked automatically from the browser/device setting,
-        // which on iOS and macOS follows the system language. Two escapes for
-        // testing and for anyone who wants a different one: ?lang=<code> in
-        // the URL, and the picker at the top of the page (remembered in
-        // localStorage until you set it back to Auto).
-        (function () {
-            'use strict';
+    /*
+     * Localized assets. lang.js handles the copy; this swaps the screenshots
+     * and the App Store preview video to the matching storefront, so a
+     * Japanese editor sees the Japanese board with a Japanese flag on it.
+     *
+     * ?m=<market> deep-links a storefront — that is what the per-market App
+     * Store nominations link to, and it picks the language too, so ?m=jp is
+     * the whole URL. Where a market's language differs from its assets
+     * (en-GB vs en-US) the market wins until the visitor uses the picker.
+     */
+    (function () {
+        // market -> [language file, asset locale]
+        var MARKETS = {
+            us: ['en', 'en-US'],    gb: ['en', 'en-GB'],
+            ca: ['en', 'en-CA'],    au: ['en', 'en-AU'],
+            jp: ['ja', 'ja'],       de: ['de', 'de-DE'],
+            fr: ['fr', 'fr-FR'],    it: ['it', 'it'],
+            es: ['es', 'es-ES'],    mx: ['es', 'es-MX'],
+            br: ['pt-BR', 'pt-BR'], kr: ['ko', 'ko'],
+            nl: ['nl', 'nl-NL'],    tr: ['tr', 'tr'],
+            'in': ['hi', 'hi'],     tw: ['zh-Hant', 'zh-Hant'],
+            cn: ['zh-Hans', 'zh-Hans']
+        };
+        // Languages we shot assets for. Anything else falls back to the
+        // English set rather than a broken image.
+        var LANG_ASSETS = {
+            en: 'en-US', ja: 'ja', de: 'de-DE', fr: 'fr-FR', it: 'it',
+            es: 'es-ES', 'pt-BR': 'pt-BR', ko: 'ko', nl: 'nl-NL', tr: 'tr',
+            hi: 'hi', 'zh-Hant': 'zh-Hant', 'zh-Hans': 'zh-Hans'
+        };
 
-            // Native names, so the picker is readable in the language it
-            // selects. Order matches the app's own language list.
-            var LANGS = [
-                ['en', 'English'],
-                ['es', 'Español'],
-                ['fr', 'Français'],
-                ['it', 'Italiano'],
-                ['pt-BR', 'Português (Brasil)'],
-                ['ca', 'Català'],
-                ['de', 'Deutsch'],
-                ['nl', 'Nederlands'],
-                ['sv', 'Svenska'],
-                ['da', 'Dansk'],
-                ['nb', 'Norsk bokmål'],
-                ['fi', 'Suomi'],
-                ['ja', '日本語'],
-                ['zh-Hans', '简体中文'],
-                ['zh-Hant', '繁體中文'],
-                ['ko', '한국어'],
-                ['ru', 'Русский'],
-                ['uk', 'Українська'],
-                ['pl', 'Polski'],
-                ['cs', 'Čeština'],
-                ['sk', 'Slovenčina'],
-                ['hr', 'Hrvatski'],
-                ['sl', 'Slovenščina'],
-                ['hu', 'Magyar'],
-                ['ro', 'Română'],
-                ['el', 'Ελληνικά'],
-                ['tr', 'Türkçe'],
-                ['th', 'ไทย'],
-                ['id', 'Bahasa Indonesia'],
-                ['ms', 'Bahasa Melayu'],
-                ['vi', 'Tiếng Việt'],
-                ['ar', 'العربية'],
-                ['he', 'עברית'],
-                ['ur', 'اردو'],
-                ['hi', 'हिन्दी'],
-                ['bn', 'বাংলা'],
-                ['mr', 'मराठी'],
-                ['gu', 'ગુજરાતી'],
-                ['pa', 'ਪੰਜਾਬੀ'],
-                ['ta', 'தமிழ்'],
-                ['te', 'తెలుగు'],
-                ['kn', 'ಕನ್ನಡ'],
-                ['ml', 'മലയാളം'],
-                ['or', 'ଓଡ଼ିଆ']
-            ];
-            var RTL = { ar: 1, he: 1, ur: 1 };
-            // Retired ISO codes that some systems still report.
-            var LEGACY = { iw: 'he', in: 'id' };
-            var STORE_KEY = 'cc-press-lang';
+        var params = new URLSearchParams(location.search);
+        var market = (params.get('m') || '').toLowerCase();
+        if (!MARKETS[market]) market = null;
 
-            function isKnown(code) {
-                for (var i = 0; i < LANGS.length; i++) if (LANGS[i][0] === code) return true;
-                return false;
+        // Publish the market's language for the CCLang.init call below.
+        // Deliberately not rewriting the URL: history.replaceState throws on
+        // file://, which would take this whole script down with it.
+        window.CCMarketLang = market ? MARKETS[market][0] : null;
+
+        var video = document.querySelector('.preview video');
+        var source = video && video.querySelector('source');
+
+        function setAssets(locale) {
+            var shots = document.querySelectorAll('[data-shot]');
+            for (var i = 0; i < shots.length; i++) {
+                shots[i].src = 'shots/' + locale + '/' + shots[i].getAttribute('data-shot') + '.png';
             }
-
-            // Map a browser/BCP-47 tag onto one of our language files. Exact
-            // match first (pt-BR, zh-Hans), then case-insensitive, then the
-            // script/region-stripped base (es-419 -> es, zh-TW -> zh-Hant).
-            function resolve(raw) {
-                if (!raw) return null;
-                if (isKnown(raw)) return raw;
-                var lower = String(raw).toLowerCase();
-                for (var i = 0; i < LANGS.length; i++) {
-                    if (LANGS[i][0].toLowerCase() === lower) return LANGS[i][0];
-                }
-                if (LEGACY[lower.split('-')[0]]) return LEGACY[lower.split('-')[0]];
-                // Chinese needs script inference: the tag usually carries a
-                // region rather than Hans/Hant.
-                if (lower.indexOf('zh') === 0) {
-                    return /hant|tw|hk|mo/.test(lower) ? 'zh-Hant' : 'zh-Hans';
-                }
-                // Norwegian: no/nn/nb all land on the one file we ship.
-                if (lower.indexOf('nn') === 0 || lower.indexOf('no') === 0) return 'nb';
-                // Filipino/Tagalog, Portuguese from Portugal, etc. fall through
-                // to the base-language pass.
-                var base = lower.split('-')[0];
-                for (var j = 0; j < LANGS.length; j++) {
-                    if (LANGS[j][0].toLowerCase().split('-')[0] === base) return LANGS[j][0];
-                }
-                return null;
+            if (video && source) {
+                var playing = !video.paused;
+                video.poster = 'preview/' + locale + '.jpg';
+                source.src = 'preview/' + locale + '.mp4';
+                video.load();                    // required for a <source> swap
+                if (playing) { video.play().catch(function () {}); }
             }
-
-            // First browser preference we actually have a file for — not just
-            // navigator.language, so a device set to [ga, fr, en] gets French
-            // rather than English.
-            function fromBrowser() {
-                var list = navigator.languages && navigator.languages.length
-                    ? navigator.languages
-                    : [navigator.language];
-                for (var i = 0; i < list.length; i++) {
-                    var hit = resolve(list[i]);
-                    if (hit) return hit;
-                }
-                return 'en';
-            }
-
-            // Snapshot the English already in the DOM. Switching back to
-            // English restores from this, so English is never duplicated into
-            // a JSON file that could drift from the markup.
-            var EN = { title: document.title };
-            function collect(attr, read) {
-                var nodes = document.querySelectorAll('[' + attr + ']');
-                for (var i = 0; i < nodes.length; i++) {
-                    var key = nodes[i].getAttribute(attr);
-                    if (!(key in EN)) EN[key] = read(nodes[i]);
-                }
-            }
-            collect('data-i18n', function (el) { return el.textContent; });
-            collect('data-i18n-html', function (el) { return el.innerHTML; });
-            collect('data-i18n-alt', function (el) { return el.getAttribute('alt'); });
-            collect('data-i18n-label', function (el) { return el.getAttribute('aria-label'); });
-
-            function apply(code, strings) {
-                function write(attr, set) {
-                    var nodes = document.querySelectorAll('[' + attr + ']');
-                    for (var i = 0; i < nodes.length; i++) {
-                        var key = nodes[i].getAttribute(attr);
-                        // Fall back per-string, not per-page: a key missing
-                        // from a translation shows English rather than blank.
-                        var value = strings[key] != null ? strings[key] : EN[key];
-                        if (value != null) set(nodes[i], value);
-                    }
-                }
-                write('data-i18n', function (el, v) { el.textContent = v; });
-                write('data-i18n-html', function (el, v) { el.innerHTML = v; });
-                write('data-i18n-alt', function (el, v) { el.setAttribute('alt', v); });
-                write('data-i18n-label', function (el, v) { el.setAttribute('aria-label', v); });
-                document.title = strings.title != null ? strings.title : EN.title;
-                document.documentElement.lang = code;
-                document.documentElement.dir = RTL[code] ? 'rtl' : 'ltr';
-            }
-
-            var select = document.getElementById('lang-select');
-            var current = 'en';
-
-            function show(code) {
-                current = code;
-                if (code === 'en') { apply('en', EN); return; }
-                fetch('i18n/' + code + '.json', { cache: 'no-cache' })
-                    .then(function (r) {
-                        if (!r.ok) throw new Error('HTTP ' + r.status);
-                        return r.json();
-                    })
-                    .then(function (strings) {
-                        // A slow file that lost a race with a later click must
-                        // not overwrite the language now on screen.
-                        if (current === code) apply(code, strings);
-                    })
-                    .catch(function () {
-                        // Missing or unreachable translation: English is
-                        // already on the page, so there is nothing to undo.
-                        if (current === code) apply('en', EN);
-                    });
-            }
-
-            // Build the picker. "Auto" is the default and means "follow the
-            // device" — choosing a language pins it, choosing Auto unpins.
-            var auto = document.createElement('option');
-            auto.value = '';
-            auto.textContent = 'Auto (system)';
-            select.appendChild(auto);
-            for (var i = 0; i < LANGS.length; i++) {
-                var opt = document.createElement('option');
-                opt.value = LANGS[i][0];
-                opt.textContent = LANGS[i][1];
-                select.appendChild(opt);
-            }
-
-            var stored = null;
-            try { stored = localStorage.getItem(STORE_KEY); } catch (e) { /* private mode */ }
-            if (stored && !isKnown(stored)) stored = null;
-
-            // ?lang= wins over a stored pick, which wins over the device.
-            var forced = resolve(new URLSearchParams(location.search).get('lang'));
-            var pinned = forced || stored;
-
-            select.value = pinned || '';
-            show(pinned || fromBrowser());
-
-            select.addEventListener('change', function () {
-                var value = select.value;
-                try {
-                    if (value) localStorage.setItem(STORE_KEY, value);
-                    else localStorage.removeItem(STORE_KEY);
-                } catch (e) { /* private mode */ }
-                show(value || fromBrowser());
+            ['dl-preview', 'dl-fallback'].forEach(function (id) {
+                var a = document.getElementById(id);
+                if (a) { a.href = 'preview/' + locale + '.mp4'; }
             });
-        })();
+        }
+
+        document.addEventListener('cc:lang', function (e) {
+            var lang = e.detail && e.detail.lang;
+            // Stay on the market's assets while its language is still showing;
+            // once the visitor picks a different language, follow that.
+            var locale = (market && lang === MARKETS[market][0])
+                ? MARKETS[market][1]
+                : (LANG_ASSETS[lang] || 'en-US');
+            setAssets(locale);
+        });
+    })();
     </script>
+    <script src="/lang.js"></script>
+    <script>CCLang.init({ dir: '/press/i18n/', lang: window.CCMarketLang });</script>
 </body>
 </html>
