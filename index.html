@@ -22,8 +22,13 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#E12D74">
+    <!-- The banner below is the no-JS fallback; /appstore.js rewrites it with
+         campaign attribution (and points the download buttons at the store)
+         once the two placeholders in that file are filled in. -->
     <!-- TODO: replace APP_STORE_ID with the numeric App Store ID once live -->
     <meta name="apple-itunes-app" content="app-id=APP_STORE_ID">
+    <script src="/appstore.js"></script>
+    <script src="/analytics.js"></script>
     <title>Cardio Clowns 🤡 — The Daily Step Game for Family & Friends</title>
     <style>
         :root {
@@ -509,6 +514,26 @@
             margin-bottom: 0;
         }
 
+        /* Mail-to button (team plans) */
+        .cc-mail-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--cc-primary);
+            color: #fff;
+            padding: 0.8rem 1.6rem;
+            border-radius: 50px;
+            font-weight: 700;
+            box-shadow: var(--cc-shadow-md);
+            transition: var(--cc-transition);
+        }
+
+        .cc-mail-btn:hover {
+            background: var(--cc-primary-dark);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
         /* Footer */
         .cc-footer {
             background: #1a2a3a;
@@ -586,8 +611,12 @@
             <h1>Cardio Clowns</h1>
             <p class="tagline" data-i18n="tagline">The daily step game that gets your family and friends moving — and laughing.</p>
             <p class="subtagline" data-i18n="subtagline">Create a group, share a 6-character code, and every step you take becomes ammunition in a daily battle for the crown. 👑</p>
-            <!-- TODO: at launch, swap back to <a class="cc-cta" href="APP_STORE_URL"> with "Download on the App Store" -->
-            <span class="cc-cta cc-cta-soon">
+            <!-- TODO: at launch, swap this span for <a class="cc-cta" href="#">
+                 with "Download on the App Store". Keep data-cc-campaign — once
+                 it's an anchor, appstore.js fills in the href with the campaign
+                 token attached, so there's no second edit and no chance of
+                 shipping an untagged link. -->
+            <span class="cc-cta cc-cta-soon" data-cc-campaign="web_home">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
                 <span data-i18n="ctaSoon">Coming soon to the App Store</span>
             </span>
@@ -621,6 +650,7 @@
                 <a href="#about" data-i18n="navAbout">About</a>
                 <a href="#features" data-i18n="navFeatures">Why It's Different</a>
                 <a href="#how-it-works" data-i18n="navHow">How It Works</a>
+                <a href="#teams" data-i18n="navTeams">For Teams</a>
                 <a href="#privacy" data-i18n="navPrivacy">Privacy Policy</a>
                 <a href="#support" data-i18n="navSupport">Support</a>
             </div>
@@ -720,12 +750,39 @@
         </div>
     </section>
 
+    <!-- Company / employer sales. Deliberately NOT mirrored inside the app: a
+         "buy Pro for your company" link in-app is guideline 3.1.1 territory.
+         Fulfilment is manual and already built — an App Store Connect offer-code
+         batch, invoiced directly, redeemed with the paywall's "Redeem a Code"
+         button. The site's only job is to catch the inquiry, so the CTA is a
+         prefilled mailto that asks for everything needed to quote in one pass. -->
+    <section id="teams" class="cc-section">
+        <div class="container">
+            <h2 data-i18n="h2Teams">Cardio Clowns for teams</h2>
+            <p class="cc-lead" data-i18n-html="teamsLead">Want Pro for a whole company, team, or club? We do <strong>team plans</strong>. You pay once, we send you a batch of codes, and everyone unlocks Pro in the app with a tap.</p>
+            <ul class="cc-privacy-list">
+                <li data-i18n="teamsB1">One invoice for everyone — pay by card or purchase order, in the company's name</li>
+                <li data-i18n="teamsB2">One code per person, good for as long as you choose — six months, a year, or longer</li>
+                <li data-i18n="teamsB3">Nothing to install or set up: each person taps "Redeem a Code" in the app and they're done</li>
+                <li data-i18n="teamsB4">No accounts to create, no seats to manage, no dashboard to learn</li>
+                <li data-i18n="teamsB5">And no employer dashboard either — buying codes gives a company no view of anyone's steps. Numbers stay visible only inside the group a person joins</li>
+                <li data-i18n="teamsB6">Works the same for a team of five or a company of five hundred</li>
+            </ul>
+            <div class="cc-info-box">
+                <p data-i18n-html="teamsAsk"><strong>To get a quote,</strong> tell us the company, how many people, and how long you want it for. Rather write your own email? <a href="mailto:hello@cardioclowns.com">hello@cardioclowns.com</a></p>
+            </div>
+            <p><a class="cc-mail-btn" href="mailto:hello@cardioclowns.com?subject=Cardio%20Clowns%20team%20plan&amp;body=Company%3A%20%0ANumber%20of%20people%3A%20%0AHow%20long%20%28six%20months%2C%20a%20year%2C%20longer%29%3A%20%0ACountry%20and%20billing%20details%3A%20%0APurchase%20order%20needed%3A%20%0AAnything%20else%20we%20should%20know%3A%20%0A" data-i18n-html="teamsMail">✉️ Email us about a team plan</a></p>
+            <p data-i18n="teamsNote">Cardio Clowns lands on the App Store soon. Get in touch now and your codes will be ready the day it does.</p>
+        </div>
+    </section>
+
     <section class="cc-banner">
         <div class="container">
             <h2 data-i18n="bannerH2">Nothing gets a family moving like the fear of losing to each other.</h2>
             <p data-i18n="bannerP">Grab your crew. The crown is waiting. 👑</p>
-            <!-- TODO: at launch, swap back to <a class="cc-cta" href="APP_STORE_URL"> with "Download Cardio Clowns" -->
-            <span class="cc-cta cc-cta-soon">
+            <!-- TODO: at launch, swap this span for <a class="cc-cta" href="#">
+                 with "Download Cardio Clowns"; data-cc-campaign does the rest. -->
+            <span class="cc-cta cc-cta-soon" data-cc-campaign="web_home">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
                 <span data-i18n="ctaSoon">Coming soon to the App Store</span>
             </span>
@@ -748,7 +805,7 @@
             <p data-i18n="dataP">Cardio Clowns collects only what the game needs to run:</p>
             <ul class="cc-privacy-list">
                 <li data-i18n="pl1">No account creation — no email, password, or phone number required</li>
-                <li data-i18n="pl2">No usage analytics, advertising, or third-party tracking</li>
+                <li data-i18n="pl2">No advertising, no ad tracking, and no third-party tracking SDKs</li>
                 <li data-i18n="pl3">No public profiles — your data is visible only to your group</li>
                 <li data-i18n="pl4">Daily step counts are read from Apple Health (with your permission) and shared with your group to power the leaderboard</li>
                 <li data-i18n="pl5">Your display name and optional country flag are visible to your group members only</li>
@@ -761,7 +818,7 @@
             <p data-i18n="storageP">To keep your group's leaderboard live across devices, your daily step total, your display name, and your country flag (if you set one) are stored in Apple's iCloud (CloudKit). That's the whole list. We don't run our own servers and have no database of our own — Apple hosts the data, and only members of your group can read it. Leaving a group removes you from its leaderboard, and deleting the app removes all locally stored data.</p>
 
             <h3 data-i18n="h3Third">Third-Party Services</h3>
-            <p data-i18n="thirdP">Cardio Clowns does not integrate with any third-party analytics, advertising, or data brokers.</p>
+            <p data-i18n="thirdP">Cardio Clowns uses no third-party advertising, tracking SDKs, or data brokers. To see which features people actually use, the app records anonymous usage events — such as which screen was opened — in our own iCloud database, tied to a random device identifier rather than to you, and never sold or shared. This website counts page views without cookies.</p>
 
             <h3 data-i18n="h3Children">Children's Privacy</h3>
             <p data-i18n="childrenP">Cardio Clowns is designed for families. The app collects no personal information beyond a chosen display name and step counts, requires no account, and shares data only within private groups joined by invitation code. The app complies with the Children's Online Privacy Protection Act (COPPA) and similar regulations.</p>
@@ -787,6 +844,7 @@
 
     <footer class="cc-footer">
         <div class="container">
+            <p data-i18n-html="footTeams">Buying for a company or team? <a href="#teams">Cardio Clowns for teams</a></p>
             <p data-i18n="footCopy">&copy; 2026 Cardio Clowns</p>
             <p data-i18n="footMade">Made for the people you love just enough to never let win. 🤡👑</p>
         </div>
@@ -801,6 +859,10 @@
         CCMedia.apply(CCMedia.localeFor(e.detail && e.detail.lang));
     });
     CCLang.init({ dir: '/i18n/' });
+    // Campaign-tagged download links + Smart App Banner. No-ops until the
+    // App Store id lands in /appstore.js, so it's safe to run pre-launch.
+    CCStore.wireLinks();
+    CCStore.smartBanner({ campaign: 'web_home' });
     </script>
 </body>
 </html>

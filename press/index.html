@@ -26,6 +26,8 @@
     <meta name="twitter:description" content="The daily step game that turns your family group chat into a competition. iPhone, iPad, Apple Watch. 44 languages. No accounts, no ads.">
     <meta name="twitter:image" content="https://cardioclowns.com/og-image.png">
 
+    <script src="/appstore.js"></script>
+    <script src="/analytics.js"></script>
     <title>Press — Cardio Clowns</title>
     <style>
         :root {
@@ -405,5 +407,10 @@
     </script>
     <script src="/lang.js"></script>
     <script>CCLang.init({ dir: '/press/i18n/', lang: window.CCMarketLang });</script>
+    <!-- Smart App Banner with its own campaign, so downloads that came from an
+         editor or journalist reading this page are attributable in App Store
+         Connect rather than lumped in with the homepage. No-ops until the App
+         Store id is set in /appstore.js. -->
+    <script>CCStore.smartBanner({ campaign: 'web_press' });</script>
 </body>
 </html>

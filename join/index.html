@@ -22,17 +22,37 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#E12D74">
     <title>Join a Cardio Clowns group 🤡</title>
+    <script src="/appstore.js"></script>
+    <script src="/analytics.js"></script>
     <script>
         // Smart App Banner: app-argument carries this exact URL (with the
         // group code) into the app when it's opened from the banner, so the
         // invitee never has to retype the code. app-clip-* upgrades the
         // banner to the App Clip card for visitors without the app.
-        // TODO: replace APP_STORE_ID with the numeric App Store ID once live.
+        //
+        // The campaign splits on whether a code is present: a visitor who
+        // arrived on a real invite link is a referral, and someone who typed
+        // /join by hand is not. Lumping them together would make the referral
+        // loop look better or worse than it is. (App-store id and provider
+        // token live in /appstore.js — the only place to swap at launch.)
         (function () {
-            var meta = document.createElement('meta');
-            meta.name = 'apple-itunes-app';
-            meta.content = 'app-id=APP_STORE_ID, app-clip-bundle-id=com.davidnguyen.Cardio-Clowns.Clip, app-clip-display=card, app-argument=' + location.href;
-            document.head.appendChild(meta);
+            // Same code shapes the page itself accepts below: ?code=/?c= or a
+            // /join/CODE path segment, in the app's own alphabet (no I, O, 0, 1).
+            var params = new URLSearchParams(location.search);
+            var raw = params.get('code') || params.get('c') || '';
+            if (!raw) {
+                var m = location.pathname.match(/^\/join\/([A-Za-z0-9]{6})\/?$/);
+                if (m) raw = m[1];
+            }
+            var hasCode = /^[A-HJ-NP-Z2-9]{6}$/.test(raw.toUpperCase());
+            // Shared with the download button below so both report the same
+            // campaign.
+            window.CC_JOIN_CAMPAIGN = hasCode ? 'web_join_invite' : 'web_join_direct';
+            CCStore.smartBanner({
+                clipBundleID: 'com.davidnguyen.Cardio-Clowns.Clip',
+                appArgument: location.href,
+                campaign: window.CC_JOIN_CAMPAIGN
+            });
         })();
     </script>
     <style>
@@ -204,8 +224,10 @@
         </div>
         <p id="no-code" class="cc-sub" hidden>Ask your friend for their 6-character group code, then:</p>
 
-        <!-- TODO: replace # with the App Store URL once the app is live -->
-        <a class="cc-cta" href="#">
+        <!-- href is filled in by /appstore.js with the campaign token attached
+             (see the banner script above for which campaign). It stays "#"
+             until the App Store id is set there. -->
+        <a class="cc-cta" href="#" id="cta">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
             <span id="cta-text">Get the free app</span>
         </a>
@@ -327,6 +349,13 @@
             } else {
                 document.getElementById('no-code').hidden = false;
             }
+
+            // Point the download button at the App Store with this page's
+            // campaign attached, so App Store Connect can separate installs
+            // that came from a real invite from everything else. Left as "#"
+            // until the App Store id is filled in.
+            var storeURL = CCStore.url(window.CC_JOIN_CAMPAIGN);
+            if (storeURL) document.getElementById('cta').href = storeURL;
 
             var btn = document.getElementById('copy');
             btn.textContent = t.copy;
