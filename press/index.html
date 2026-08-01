@@ -13,7 +13,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <meta name="theme-color" content="#E12D74">
 
-    <!-- This page exists to be forwarded, so the link preview matters. -->
+    <!-- This page exists to be forwarded, so the link preview matters.
+         These stay English: crawlers read them before the localization
+         script runs, so they can't be localized client-side. -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://cardioclowns.com/press">
     <meta property="og:title" content="Cardio Clowns — Press">
@@ -60,8 +62,28 @@
         p, ul { margin-bottom: 1rem; }
         ul { padding-left: 1.5rem; }
         li { margin-bottom: 0.4rem; }
-        .back { display: inline-block; margin-bottom: 2rem; font-weight: 600; }
+        .back { display: inline-block; font-weight: 600; }
         footer { border-top: 1px solid var(--cc-border); margin-top: 3rem; padding-top: 1.5rem; color: var(--cc-text-light); font-size: 0.9rem; }
+
+        /* Top bar: the back link and the language picker share a row so the
+           picker is findable without stealing space from the hero. */
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem;
+        }
+        .lang-picker { display: flex; align-items: center; gap: 0.5rem; }
+        .lang-picker label { color: var(--cc-text-light); font-size: 0.9rem; }
+        .lang-picker select {
+            font: inherit; font-size: 0.9rem;
+            color: var(--cc-text);
+            background: var(--cc-bg-light);
+            border: 1px solid var(--cc-border);
+            border-radius: 999px;
+            padding: 0.35rem 0.75rem;
+            max-width: 12rem;
+            cursor: pointer;
+        }
+        .lang-picker select:focus-visible { outline: 2px solid var(--cc-primary); outline-offset: 2px; }
 
         /* Press-page additions */
         .hero { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 0.75rem; }
@@ -164,6 +186,17 @@
             font-style: italic;
         }
 
+        /* Right-to-left (Arabic, Hebrew, Urdu). Everything above is either
+           direction-agnostic or flexbox, which flips on its own — these are
+           the handful of physical-side properties that don't. */
+        [dir="rtl"] .lede { border-left: none; border-right: 4px solid var(--cc-accent); padding-left: 0; padding-right: 1rem; }
+        [dir="rtl"] ul { padding-left: 0; padding-right: 1.5rem; }
+        [dir="rtl"] blockquote { border-left: none; border-right: 3px solid var(--cc-primary); padding-left: 0; padding-right: 1rem; }
+        [dir="rtl"] .stack th, [dir="rtl"] .stack td { text-align: right; }
+        /* Product names in the stack table stay Latin — keep them LTR so
+           punctuation like "StoreKit 2" doesn't reorder. */
+        [dir="rtl"] .stack th { direction: ltr; text-align: right; }
+
         /* Nothing here fixes an overflow — the layout already fits. It just
            stops the hero from crowding and centres the video once the
            preview block wraps to a single column. */
@@ -176,149 +209,366 @@
             .preview { justify-content: center; gap: 1.25rem; }
             .preview video { width: min(260px, 100%); }
             .ecosystem { gap: 1.25rem; }
+            .topbar { margin-bottom: 1.5rem; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <a class="back" href="/">&larr; Cardio Clowns</a>
+        <div class="topbar">
+            <a class="back" href="/" data-i18n="back">&larr; Cardio Clowns</a>
+            <div class="lang-picker">
+                <label for="lang-select" data-i18n="langLabel">Language</label>
+                <select id="lang-select"></select>
+            </div>
+        </div>
+
         <div class="hero">
             <img src="/icon-512.png" alt="Cardio Clowns app icon" width="88" height="88">
             <div>
-                <h1>Cardio Clowns — Press</h1>
-                <p class="meta" style="margin-bottom:0">Information for App Store editors and press.</p>
+                <h1 data-i18n="h1">Cardio Clowns — Press</h1>
+                <p class="meta" style="margin-bottom:0" data-i18n="metaLine">Information for App Store editors and press.</p>
             </div>
         </div>
 
         <div class="facts">
-            <strong>Category</strong> <span>Health &amp; Fitness</span><br>
-            <strong>Platforms</strong> <span>iPhone, iPad, Apple Watch</span><br>
-            <strong>Launch</strong> <span>End of August 2026, worldwide</span><br>
-            <strong>Languages</strong> <span>44, across 50 App Store locales</span><br>
-            <strong>Price</strong> <span>Free, with an optional Cardio Clowns Pro subscription</span><br>
-            <strong>Built by</strong> <span>One developer</span>
+            <strong data-i18n="factCategory">Category</strong> <span data-i18n="factCategoryV">Health &amp; Fitness</span><br>
+            <strong data-i18n="factPlatforms">Platforms</strong> <span data-i18n="factPlatformsV">iPhone, iPad, Apple Watch</span><br>
+            <strong data-i18n="factLaunch">Launch</strong> <span data-i18n="factLaunchV">End of August 2026, worldwide</span><br>
+            <strong data-i18n="factLanguages">Languages</strong> <span data-i18n="factLanguagesV">44, across 50 App Store locales</span><br>
+            <strong data-i18n="factPrice">Price</strong> <span data-i18n="factPriceV">Free, with an optional Cardio Clowns Pro subscription</span><br>
+            <strong data-i18n="factBuilt">Built by</strong> <span data-i18n="factBuiltV">One developer</span>
         </div>
 
-        <p class="lede">Most fitness apps are about you: your goals, your streaks, your stats. Cardio Clowns is about <em>them</em> — the four or five people you love just enough to never, ever let win.</p>
+        <p class="lede" data-i18n-html="lede">Most fitness apps are about you: your goals, your streaks, your stats. Cardio Clowns is about <em>them</em> — the four or five people you love just enough to never, ever let win.</p>
 
-        <h2>What it is</h2>
-        <p>Create a group, share a six-character code, and every step you take becomes ammunition in a daily battle for the crown. Steps come straight from Apple Health. The leaderboard updates live and tells you exactly what it will take to pass the person ahead of you — <em>"Almost there! +312 to pass Mom."</em> Win the day and you wear the crown for the whole group to see, or resent.</p>
-        <p>No accounts. No friend requests. No feed full of strangers. One code gets a whole family in — kids, parents, grandparents, the college group chat — and country flags next to every name mean it works across borders.</p>
+        <h2 data-i18n="h2What">What it is</h2>
+        <p data-i18n-html="whatP1">Create a group, share a six-character code, and every step you take becomes ammunition in a daily battle for the crown. Steps come straight from Apple Health. The leaderboard updates live and tells you exactly what it will take to pass the person ahead of you — <em>"Almost there! +312 to pass Mom."</em> Win the day and you wear the crown for the whole group to see, or resent.</p>
+        <p data-i18n="whatP2">No accounts. No friend requests. No feed full of strangers. One code gets a whole family in — kids, parents, grandparents, the college group chat — and country flags next to every name mean it works across borders.</p>
 
-        <h2>23 seconds of it</h2>
+        <h2 data-i18n="h2Preview">23 seconds of it</h2>
         <div class="preview">
             <video controls playsinline preload="none" poster="preview-poster.jpg"
-                   width="260" aria-label="Cardio Clowns app preview video">
+                   width="260" aria-label="Cardio Clowns app preview video" data-i18n-label="videoLabel">
                 <source src="preview.mp4" type="video/mp4">
-                Your browser can't play this video —
-                <a href="preview.mp4">download it instead</a>.
+                <span data-i18n-html="videoFallback">Your browser can't play this video —
+                <a href="preview.mp4">download it instead</a>.</span>
             </video>
             <div class="preview-copy">
-                <p>The App Store preview: the leaderboard updating live, a rival's notification landing mid-scroll, the head-to-head tug-of-war, and the GIF picker.</p>
-                <p>The whole pitch is that a step counter can be funny, which is hard to prove in a paragraph and obvious in about ten seconds of watching it.</p>
+                <p data-i18n="previewP1">The App Store preview: the leaderboard updating live, a rival's notification landing mid-scroll, the head-to-head tug-of-war, and the GIF picker.</p>
+                <p data-i18n="previewP2">The whole pitch is that a step counter can be funny, which is hard to prove in a paragraph and obvious in about ten seconds of watching it.</p>
                 <div class="cta-wrap" style="margin:0">
-                    <a class="cta" href="https://testflight.apple.com/join/PGwZJksx">Try it on TestFlight</a>
-                    <span class="cta-note">Public link — no invite code needed.</span>
+                    <a class="cta" href="https://testflight.apple.com/join/PGwZJksx" data-i18n="cta">Try it on TestFlight</a>
+                    <span class="cta-note" data-i18n="ctaNote1">Public link — no invite code needed.</span>
                 </div>
             </div>
         </div>
 
         <div class="shots">
             <figure class="shot">
-                <img src="shots/iphone-leaderboard.png" alt="Cardio Clowns leaderboard showing today's standings, medals, and the daily crown" loading="lazy">
-                <figcaption>The daily race</figcaption>
+                <img src="shots/iphone-leaderboard.png" alt="Cardio Clowns leaderboard showing today's standings, medals, and the daily crown" loading="lazy" data-i18n-alt="shot1Alt">
+                <figcaption data-i18n="shot1Cap">The daily race</figcaption>
             </figure>
             <figure class="shot">
-                <img src="shots/iphone-trashtalk.png" alt="The Trash Talk feed showing playful messages and reaction GIFs between group members" loading="lazy">
-                <figcaption>Trash Talk feed</figcaption>
+                <img src="shots/iphone-trashtalk.png" alt="The Trash Talk feed showing playful messages and reaction GIFs between group members" loading="lazy" data-i18n-alt="shot2Alt">
+                <figcaption data-i18n="shot2Cap">Trash Talk feed</figcaption>
             </figure>
             <figure class="shot">
-                <img src="shots/iphone-head-to-head.png" alt="Head-to-head view with win-loss records, streaks, and a tug-of-war bar" loading="lazy">
-                <figcaption>Head-to-head</figcaption>
+                <img src="shots/iphone-head-to-head.png" alt="Head-to-head view with win-loss records, streaks, and a tug-of-war bar" loading="lazy" data-i18n-alt="shot3Alt">
+                <figcaption data-i18n="shot3Cap">Head-to-head</figcaption>
             </figure>
             <figure class="shot">
-                <img src="shots/iphone-gifs.png" alt="The GIF picker showing a grid of captioned reaction GIFs" loading="lazy">
-                <figcaption>192 reaction GIFs</figcaption>
+                <img src="shots/iphone-gifs.png" alt="The GIF picker showing a grid of captioned reaction GIFs" loading="lazy" data-i18n-alt="shot4Alt">
+                <figcaption data-i18n="shot4Cap">192 reaction GIFs</figcaption>
             </figure>
         </div>
 
-        <h2>Why it isn't another step tracker</h2>
-        <p><strong>It solves the retention problem fitness apps actually have.</strong> Solo goal-tracking gets abandoned. Social obligation doesn't. The app's entire design bet is that you'll take the stairs to avoid losing to your brother — a mechanic no step counter has made genuinely funny before.</p>
-        <p><strong>Push each other, built in.</strong> Long-press anyone on the leaderboard to send a jab, and the app knows the situation. Up by 1,000 steps? <em>"Stay down there."</em> About to get caught? <em>"Don't choke now."</em> Plus emoji reactions, a library of 192 reaction GIFs, and custom messages — delivered straight to your rival's wrist.</p>
-        <p><strong>Head-to-head rivalries.</strong> Every group member is a running matchup: win–loss record, win streaks, an animated tug-of-war rope showing who's pulling ahead, biggest blowout, most painful loss. You're not chasing an abstract number — you're settling a score.</p>
-        <p><strong>It celebrates like it means it.</strong> First place erupts in fireworks. Yesterday's winner wears the crown all day. 8,000 steps becomes a story the group brings up at dinner.</p>
+        <h2 data-i18n="h2Why">Why it isn't another step tracker</h2>
+        <p data-i18n-html="whyP1"><strong>It solves the retention problem fitness apps actually have.</strong> Solo goal-tracking gets abandoned. Social obligation doesn't. The app's entire design bet is that you'll take the stairs to avoid losing to your brother — a mechanic no step counter has made genuinely funny before.</p>
+        <p data-i18n-html="whyP2"><strong>Push each other, built in.</strong> Long-press anyone on the leaderboard to send a jab, and the app knows the situation. Up by 1,000 steps? <em>"Stay down there."</em> About to get caught? <em>"Don't choke now."</em> Plus emoji reactions, a library of 192 reaction GIFs, and custom messages — delivered straight to your rival's wrist.</p>
+        <p data-i18n-html="whyP3"><strong>Head-to-head rivalries.</strong> Every group member is a running matchup: win–loss record, win streaks, an animated tug-of-war rope showing who's pulling ahead, biggest blowout, most painful loss. You're not chasing an abstract number — you're settling a score.</p>
+        <p data-i18n-html="whyP4"><strong>It celebrates like it means it.</strong> First place erupts in fireworks. Yesterday's winner wears the crown all day. 8,000 steps becomes a story the group brings up at dinner.</p>
 
-        <h2>Built on Apple's stack</h2>
-        <p>Cardio Clowns is what one developer can do with the full Apple stack, and it uses each piece for a reason.</p>
+        <h2 data-i18n="h2Stack">Built on Apple's stack</h2>
+        <p data-i18n="stackIntro">Cardio Clowns is what one developer can do with the full Apple stack, and it uses each piece for a reason.</p>
         <div class="table-scroll">
         <table class="stack">
-            <tr><th>SwiftUI</th><td>Every screen, on iPhone, iPad, and Apple Watch — the iPad layout adapts rather than stretches.</td></tr>
-            <tr><th>Apple Watch</th><td>A full native app — leaderboard, history, head-to-head matchups, and messaging — not a viewer for the phone.</td></tr>
-            <tr><th>HealthKit</th><td>Steps read directly from Apple Health. Nothing is asked for that isn't used.</td></tr>
-            <tr><th>CloudKit</th><td>Sync with no account and no server of ours. Your leaderboard is visible only to people holding your group code.</td></tr>
-            <tr><th>Widgets</th><td>iPhone Home Screen widget with your live standing, plus watch-face complications showing rank and steps at a glance.</td></tr>
-            <tr><th>App Clip</th><td>A friend taps your invite link and is on the leaderboard before deciding whether to install.</td></tr>
-            <tr><th>StoreKit 2</th><td>Free and Pro, client-side entitlements, Family Sharing on.</td></tr>
-            <tr><th>Swift Charts</th><td>Daily step history with finishing ranks and medals.</td></tr>
+            <tr><th>SwiftUI</th><td data-i18n="stackSwiftUI">Every screen, on iPhone, iPad, and Apple Watch — the iPad layout adapts rather than stretches.</td></tr>
+            <tr><th>Apple Watch</th><td data-i18n="stackWatch">A full native app — leaderboard, history, head-to-head matchups, and messaging — not a viewer for the phone.</td></tr>
+            <tr><th>HealthKit</th><td data-i18n="stackHealthKit">Steps read directly from Apple Health. Nothing is asked for that isn't used.</td></tr>
+            <tr><th>CloudKit</th><td data-i18n="stackCloudKit">Sync with no account and no server of ours. Your leaderboard is visible only to people holding your group code.</td></tr>
+            <tr><th>Widgets</th><td data-i18n="stackWidgets">iPhone Home Screen widget with your live standing, plus watch-face complications showing rank and steps at a glance.</td></tr>
+            <tr><th>App Clip</th><td data-i18n="stackAppClip">A friend taps your invite link and is on the leaderboard before deciding whether to install.</td></tr>
+            <tr><th>StoreKit 2</th><td data-i18n="stackStoreKit">Free and Pro, client-side entitlements, Family Sharing on.</td></tr>
+            <tr><th>Swift Charts</th><td data-i18n="stackCharts">Daily step history with finishing ranks and medals.</td></tr>
         </table>
         </div>
         <div class="ecosystem">
             <figure>
-                <img src="shots/ipad-leaderboard.png" alt="Cardio Clowns on iPad, with the leaderboard and a full 30-day step history laid out across the width" loading="lazy">
-                <figcaption>iPad — the layout adapts, it doesn't stretch</figcaption>
+                <img src="shots/ipad-leaderboard.png" alt="Cardio Clowns on iPad, with the leaderboard and a full 30-day step history laid out across the width" loading="lazy" data-i18n-alt="ipadAlt">
+                <figcaption data-i18n="ipadCap">iPad — the layout adapts, it doesn't stretch</figcaption>
             </figure>
             <figure class="watch">
-                <img src="shots/watch-leaderboard.png" alt="The Cardio Clowns leaderboard running natively on Apple Watch" loading="lazy">
-                <figcaption>Native on Apple Watch</figcaption>
+                <img src="shots/watch-leaderboard.png" alt="The Cardio Clowns leaderboard running natively on Apple Watch" loading="lazy" data-i18n-alt="watchAlt">
+                <figcaption data-i18n="watchCap">Native on Apple Watch</figcaption>
             </figure>
         </div>
 
-        <p>Few indie apps ship a Watch app, an App Clip, and widgets — and fewer do all three well.</p>
+        <p data-i18n="fewIndie">Few indie apps ship a Watch app, an App Clip, and widgets — and fewer do all three well.</p>
 
-        <h2>Built for the world on day one</h2>
-        <p><strong>44 languages across 50 App Store locales</strong>, including Arabic and Hebrew with proper right-to-left layout, ten Indic languages, and both Chinese scripts. Not a retrofit — the localization architecture and an in-app language switcher were built before launch, and the app's terminology (the word for a "push," the phrase for "trash talk") was chosen deliberately per language rather than translated literally.</p>
-        <p>Screenshots and app preview videos are localized across all 50.</p>
+        <h2 data-i18n="h2World">Built for the world on day one</h2>
+        <p data-i18n-html="worldP1"><strong>44 languages across 50 App Store locales</strong>, including Arabic and Hebrew with proper right-to-left layout, ten Indic languages, and both Chinese scripts. Not a retrofit — the localization architecture and an in-app language switcher were built before launch, and the app's terminology (the word for a "push," the phrase for "trash talk") was chosen deliberately per language rather than translated literally.</p>
+        <p data-i18n="worldP2">Screenshots and app preview videos are localized across all 50.</p>
 
-        <h2>Accessibility</h2>
+        <h2 data-i18n="h2A11y">Accessibility</h2>
         <ul>
-            <li><strong>VoiceOver</strong> labels, values, and hints throughout, including the leaderboard, matchups, and the messaging flow.</li>
-            <li><strong>Dynamic Type</strong> — every screen scales to the largest text sizes.</li>
-            <li><strong>Reduce Motion</strong> honored: fireworks, the tug-of-war rope, and rank-change animations all quiet down.</li>
-            <li><strong>No color-only status</strong> — wins, losses, and rank changes carry text and shape cues, not just green and red.</li>
+            <li data-i18n-html="a11y1"><strong>VoiceOver</strong> labels, values, and hints throughout, including the leaderboard, matchups, and the messaging flow.</li>
+            <li data-i18n-html="a11y2"><strong>Dynamic Type</strong> — every screen scales to the largest text sizes.</li>
+            <li data-i18n-html="a11y3"><strong>Reduce Motion</strong> honored: fireworks, the tug-of-war rope, and rank-change animations all quiet down.</li>
+            <li data-i18n-html="a11y4"><strong>No color-only status</strong> — wins, losses, and rank changes carry text and shape cues, not just green and red.</li>
         </ul>
 
-        <h2>Privacy</h2>
-        <p>No account. No ads. No third-party trackers, analytics SDKs, or advertising identifiers. Steps come from Apple Health with explicit permission and are used for the leaderboard, nothing else. Group data syncs through the user's own iCloud.</p>
-        <p>Country flags are derived from the device's time zone — the app never asks for location.</p>
+        <h2 data-i18n="h2Privacy">Privacy</h2>
+        <p data-i18n="privacyP1">No account. No ads. No third-party trackers, analytics SDKs, or advertising identifiers. Steps come from Apple Health with explicit permission and are used for the leaderboard, nothing else. Group data syncs through the user's own iCloud.</p>
+        <p data-i18n="privacyP2">Country flags are derived from the device's time zone — the app never asks for location.</p>
 
-        <h2>Why now</h2>
-        <p>An end-of-August launch lands in the fresh-start window: back to school, the end-of-summer reset, the ramp toward New Year fitness resolutions. Cardio Clowns is the app that turns <em>"I should get back into it"</em> into <em>"my group is counting on me."</em></p>
+        <h2 data-i18n="h2WhyNow">Why now</h2>
+        <p data-i18n-html="whyNowP">An end-of-August launch lands in the fresh-start window: back to school, the end-of-summer reset, the ramp toward New Year fitness resolutions. Cardio Clowns is the app that turns <em>"I should get back into it"</em> into <em>"my group is counting on me."</em></p>
 
-        <h2>What's next</h2>
-        <p>A September update adds Live Activities and Siri actions built on App Intents. Beyond that: avatars on the leaderboard and feed, themes, and alternate app icons — all built on the shipped StoreKit 2 foundation.</p>
+        <h2 data-i18n="h2Next">What's next</h2>
+        <p data-i18n="nextP">A September update adds Live Activities and Siri actions built on App Intents. Beyond that: avatars on the leaderboard and feed, themes, and alternate app icons — all built on the shipped StoreKit 2 foundation.</p>
 
-        <h2>Try it</h2>
-        <p>A TestFlight public link is open — no invite code needed.</p>
+        <h2 data-i18n="h2Try">Try it</h2>
+        <p data-i18n="tryP">A TestFlight public link is open — no invite code needed.</p>
         <div class="cta-wrap">
-            <a class="cta" href="https://testflight.apple.com/join/PGwZJksx">Try it on TestFlight</a>
-            <span class="cta-note">Tip: create a group and share the code with one other person. The app is about the second player.</span>
+            <a class="cta" href="https://testflight.apple.com/join/PGwZJksx" data-i18n="cta">Try it on TestFlight</a>
+            <span class="cta-note" data-i18n="ctaNote2">Tip: create a group and share the code with one other person. The app is about the second player.</span>
         </div>
 
-        <h2>Assets</h2>
-        <p>Free to use for coverage or editorial consideration:</p>
+        <h2 data-i18n="h2Assets">Assets</h2>
+        <p data-i18n="assetsIntro">Free to use for coverage or editorial consideration:</p>
         <ul>
-            <li><a href="preview.mp4">App preview video</a> — 23s, 886×1920, H.264</li>
-            <li><a href="/icon-512.png">App icon</a> — 512×512 PNG (1024 and vector available)</li>
-            <li><a href="/og-image.png">Banner</a> — 1200×630 PNG</li>
-            <li>Screenshots — iPhone, iPad, and Apple Watch, <strong>localized in all 50 App Store locales</strong>. Ask and you'll have the full set in whichever languages you need.</li>
+            <li data-i18n-html="asset1"><a href="preview.mp4">App preview video</a> — 23s, 886×1920, H.264</li>
+            <li data-i18n-html="asset2"><a href="/icon-512.png">App icon</a> — 512×512 PNG (1024 and vector available)</li>
+            <li data-i18n-html="asset3"><a href="/og-image.png">Banner</a> — 1200×630 PNG</li>
+            <li data-i18n-html="asset4">Screenshots — iPhone, iPad, and Apple Watch, <strong>localized in all 50 App Store locales</strong>. Ask and you'll have the full set in whichever languages you need.</li>
         </ul>
 
-        <h2>Contact</h2>
-        <p>Email <a href="mailto:hello@cardioclowns.com">hello@cardioclowns.com</a>. Happy to provide additional assets, localized screenshots, or a walkthrough.</p>
+        <h2 data-i18n="h2Contact">Contact</h2>
+        <p data-i18n-html="contactP">Email <a href="mailto:hello@cardioclowns.com">hello@cardioclowns.com</a>. Happy to provide additional assets, localized screenshots, or a walkthrough.</p>
 
         <footer>
-            <p><a href="/">Home</a> &middot; <a href="/privacy">Privacy Policy</a> &middot; <a href="/terms">Terms of Use</a></p>
+            <p><a href="/" data-i18n="footHome">Home</a> &middot; <a href="/privacy" data-i18n="footPrivacy">Privacy Policy</a> &middot; <a href="/terms" data-i18n="footTerms">Terms of Use</a></p>
         </footer>
     </div>
+
+    <script>
+        // Localization for the press page.
+        //
+        // English lives in the markup above, so the page is complete before a
+        // byte of JSON arrives (and stays complete with JS off). Every other
+        // language is a file in i18n/<code>.json holding only the strings —
+        // a visitor downloads their own language and nothing else.
+        //
+        // Language is picked automatically from the browser/device setting,
+        // which on iOS and macOS follows the system language. Two escapes for
+        // testing and for anyone who wants a different one: ?lang=<code> in
+        // the URL, and the picker at the top of the page (remembered in
+        // localStorage until you set it back to Auto).
+        (function () {
+            'use strict';
+
+            // Native names, so the picker is readable in the language it
+            // selects. Order matches the app's own language list.
+            var LANGS = [
+                ['en', 'English'],
+                ['es', 'Español'],
+                ['fr', 'Français'],
+                ['it', 'Italiano'],
+                ['pt-BR', 'Português (Brasil)'],
+                ['ca', 'Català'],
+                ['de', 'Deutsch'],
+                ['nl', 'Nederlands'],
+                ['sv', 'Svenska'],
+                ['da', 'Dansk'],
+                ['nb', 'Norsk bokmål'],
+                ['fi', 'Suomi'],
+                ['ja', '日本語'],
+                ['zh-Hans', '简体中文'],
+                ['zh-Hant', '繁體中文'],
+                ['ko', '한국어'],
+                ['ru', 'Русский'],
+                ['uk', 'Українська'],
+                ['pl', 'Polski'],
+                ['cs', 'Čeština'],
+                ['sk', 'Slovenčina'],
+                ['hr', 'Hrvatski'],
+                ['sl', 'Slovenščina'],
+                ['hu', 'Magyar'],
+                ['ro', 'Română'],
+                ['el', 'Ελληνικά'],
+                ['tr', 'Türkçe'],
+                ['th', 'ไทย'],
+                ['id', 'Bahasa Indonesia'],
+                ['ms', 'Bahasa Melayu'],
+                ['vi', 'Tiếng Việt'],
+                ['ar', 'العربية'],
+                ['he', 'עברית'],
+                ['ur', 'اردو'],
+                ['hi', 'हिन्दी'],
+                ['bn', 'বাংলা'],
+                ['mr', 'मराठी'],
+                ['gu', 'ગુજરાતી'],
+                ['pa', 'ਪੰਜਾਬੀ'],
+                ['ta', 'தமிழ்'],
+                ['te', 'తెలుగు'],
+                ['kn', 'ಕನ್ನಡ'],
+                ['ml', 'മലയാളം'],
+                ['or', 'ଓଡ଼ିଆ']
+            ];
+            var RTL = { ar: 1, he: 1, ur: 1 };
+            // Retired ISO codes that some systems still report.
+            var LEGACY = { iw: 'he', in: 'id' };
+            var STORE_KEY = 'cc-press-lang';
+
+            function isKnown(code) {
+                for (var i = 0; i < LANGS.length; i++) if (LANGS[i][0] === code) return true;
+                return false;
+            }
+
+            // Map a browser/BCP-47 tag onto one of our language files. Exact
+            // match first (pt-BR, zh-Hans), then case-insensitive, then the
+            // script/region-stripped base (es-419 -> es, zh-TW -> zh-Hant).
+            function resolve(raw) {
+                if (!raw) return null;
+                if (isKnown(raw)) return raw;
+                var lower = String(raw).toLowerCase();
+                for (var i = 0; i < LANGS.length; i++) {
+                    if (LANGS[i][0].toLowerCase() === lower) return LANGS[i][0];
+                }
+                if (LEGACY[lower.split('-')[0]]) return LEGACY[lower.split('-')[0]];
+                // Chinese needs script inference: the tag usually carries a
+                // region rather than Hans/Hant.
+                if (lower.indexOf('zh') === 0) {
+                    return /hant|tw|hk|mo/.test(lower) ? 'zh-Hant' : 'zh-Hans';
+                }
+                // Norwegian: no/nn/nb all land on the one file we ship.
+                if (lower.indexOf('nn') === 0 || lower.indexOf('no') === 0) return 'nb';
+                // Filipino/Tagalog, Portuguese from Portugal, etc. fall through
+                // to the base-language pass.
+                var base = lower.split('-')[0];
+                for (var j = 0; j < LANGS.length; j++) {
+                    if (LANGS[j][0].toLowerCase().split('-')[0] === base) return LANGS[j][0];
+                }
+                return null;
+            }
+
+            // First browser preference we actually have a file for — not just
+            // navigator.language, so a device set to [ga, fr, en] gets French
+            // rather than English.
+            function fromBrowser() {
+                var list = navigator.languages && navigator.languages.length
+                    ? navigator.languages
+                    : [navigator.language];
+                for (var i = 0; i < list.length; i++) {
+                    var hit = resolve(list[i]);
+                    if (hit) return hit;
+                }
+                return 'en';
+            }
+
+            // Snapshot the English already in the DOM. Switching back to
+            // English restores from this, so English is never duplicated into
+            // a JSON file that could drift from the markup.
+            var EN = { title: document.title };
+            function collect(attr, read) {
+                var nodes = document.querySelectorAll('[' + attr + ']');
+                for (var i = 0; i < nodes.length; i++) {
+                    var key = nodes[i].getAttribute(attr);
+                    if (!(key in EN)) EN[key] = read(nodes[i]);
+                }
+            }
+            collect('data-i18n', function (el) { return el.textContent; });
+            collect('data-i18n-html', function (el) { return el.innerHTML; });
+            collect('data-i18n-alt', function (el) { return el.getAttribute('alt'); });
+            collect('data-i18n-label', function (el) { return el.getAttribute('aria-label'); });
+
+            function apply(code, strings) {
+                function write(attr, set) {
+                    var nodes = document.querySelectorAll('[' + attr + ']');
+                    for (var i = 0; i < nodes.length; i++) {
+                        var key = nodes[i].getAttribute(attr);
+                        // Fall back per-string, not per-page: a key missing
+                        // from a translation shows English rather than blank.
+                        var value = strings[key] != null ? strings[key] : EN[key];
+                        if (value != null) set(nodes[i], value);
+                    }
+                }
+                write('data-i18n', function (el, v) { el.textContent = v; });
+                write('data-i18n-html', function (el, v) { el.innerHTML = v; });
+                write('data-i18n-alt', function (el, v) { el.setAttribute('alt', v); });
+                write('data-i18n-label', function (el, v) { el.setAttribute('aria-label', v); });
+                document.title = strings.title != null ? strings.title : EN.title;
+                document.documentElement.lang = code;
+                document.documentElement.dir = RTL[code] ? 'rtl' : 'ltr';
+            }
+
+            var select = document.getElementById('lang-select');
+            var current = 'en';
+
+            function show(code) {
+                current = code;
+                if (code === 'en') { apply('en', EN); return; }
+                fetch('i18n/' + code + '.json', { cache: 'no-cache' })
+                    .then(function (r) {
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.json();
+                    })
+                    .then(function (strings) {
+                        // A slow file that lost a race with a later click must
+                        // not overwrite the language now on screen.
+                        if (current === code) apply(code, strings);
+                    })
+                    .catch(function () {
+                        // Missing or unreachable translation: English is
+                        // already on the page, so there is nothing to undo.
+                        if (current === code) apply('en', EN);
+                    });
+            }
+
+            // Build the picker. "Auto" is the default and means "follow the
+            // device" — choosing a language pins it, choosing Auto unpins.
+            var auto = document.createElement('option');
+            auto.value = '';
+            auto.textContent = 'Auto (system)';
+            select.appendChild(auto);
+            for (var i = 0; i < LANGS.length; i++) {
+                var opt = document.createElement('option');
+                opt.value = LANGS[i][0];
+                opt.textContent = LANGS[i][1];
+                select.appendChild(opt);
+            }
+
+            var stored = null;
+            try { stored = localStorage.getItem(STORE_KEY); } catch (e) { /* private mode */ }
+            if (stored && !isKnown(stored)) stored = null;
+
+            // ?lang= wins over a stored pick, which wins over the device.
+            var forced = resolve(new URLSearchParams(location.search).get('lang'));
+            var pinned = forced || stored;
+
+            select.value = pinned || '';
+            show(pinned || fromBrowser());
+
+            select.addEventListener('change', function () {
+                var value = select.value;
+                try {
+                    if (value) localStorage.setItem(STORE_KEY, value);
+                    else localStorage.removeItem(STORE_KEY);
+                } catch (e) { /* private mode */ }
+                show(value || fromBrowser());
+            });
+        })();
+    </script>
 </body>
 </html>
