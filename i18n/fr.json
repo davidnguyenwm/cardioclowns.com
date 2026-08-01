@@ -76,5 +76,10 @@
   "supportEmail": "<strong>E-mail :</strong> <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
   "supportP2": "Nous ferons de notre mieux pour vous répondre au plus vite.",
   "footCopy": "© 2026 Cardio Clowns",
-  "footMade": "Fait pour ceux qu'on aime juste assez pour ne jamais les laisser gagner. 🤡👑"
+  "footMade": "Fait pour ceux qu'on aime juste assez pour ne jamais les laisser gagner. 🤡👑",
+  "h2Preview": "23 secondes de l'appli",
+  "previewP1": "L'aperçu App Store : le classement qui se met à jour en direct, la notification d'un rival qui tombe en plein défilement, le duel en tir à la corde et le sélecteur de GIF.",
+  "previewP2": "Toute la promesse tient en une idée : un compteur de pas peut être drôle. Difficile à prouver en un paragraphe, évident après dix secondes de vidéo.",
+  "videoLabel": "Vidéo de présentation de l'application Cardio Clowns",
+  "videoFallback": "Votre navigateur ne peut pas lire cette vidéo — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>téléchargez-la</a>."
 }

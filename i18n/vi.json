@@ -76,5 +76,10 @@
   "supportEmail": "<strong>Email:</strong> <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
   "supportP2": "Chúng tôi sẽ cố gắng phản hồi sớm nhất có thể.",
   "footCopy": "© 2026 Cardio Clowns",
-  "footMade": "Làm ra cho những người bạn thương vừa đủ để không bao giờ để họ thắng. 🤡👑"
+  "footMade": "Làm ra cho những người bạn thương vừa đủ để không bao giờ để họ thắng. 🤡👑",
+  "h2Preview": "23 giây về ứng dụng",
+  "previewP1": "Video giới thiệu trên App Store: bảng xếp hạng cập nhật trực tiếp, thông báo của đối thủ ập đến giữa lúc đang cuộn, màn kéo co trong trận đối đầu và bảng chọn GIF.",
+  "previewP2": "Toàn bộ lời hứa nằm ở chỗ: một cái máy đếm bước chân cũng có thể hài hước. Điều đó khó chứng minh trong một đoạn văn, nhưng xem mười giây là hiểu ngay.",
+  "videoLabel": "Video giới thiệu ứng dụng Cardio Clowns",
+  "videoFallback": "Trình duyệt của bạn không phát được video này — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>hãy tải xuống</a>."
 }

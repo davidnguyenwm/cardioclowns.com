@@ -22,7 +22,7 @@
   "whatP2": "Inga konton. Inga vänförfrågningar. Inget flöde fullt av främlingar. En enda kod får in hela familjen — barn, föräldrar, mor- och farföräldrar, studentgruppchatten — och landsflaggorna vid varje namn gör att tävlingen fungerar över gränserna.",
   "h2Preview": "23 sekunder av den",
   "videoLabel": "Förhandsvisningsvideo för appen Cardio Clowns",
-  "videoFallback": "Din webbläsare kan inte spela upp videon — <a href=\"preview.mp4\">ladda ner den i stället</a>.",
+  "videoFallback": "Din webbläsare kan inte spela upp videon — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>ladda ner den i stället</a>.",
   "previewP1": "App Store-förhandsvisningen: topplistan som uppdateras live, en rivals avisering som landar mitt i skrollandet, dragkampen i den inbördes matchen och gif-väljaren.",
   "previewP2": "Hela poängen är att en stegräknare kan vara rolig, vilket är svårt att bevisa i ett stycke och uppenbart efter tio sekunders film.",
   "cta": "Testa den i TestFlight",

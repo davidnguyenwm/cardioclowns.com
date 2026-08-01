@@ -22,7 +22,7 @@
   "whatP2": "Keine Accounts. Keine Freundschaftsanfragen. Kein Feed voller Fremder. Ein Code holt die ganze Familie rein — Kinder, Eltern, Großeltern, den Uni-Gruppenchat — und die Länderflaggen neben jedem Namen sorgen dafür, dass der Wettkampf über Grenzen hinweg funktioniert.",
   "h2Preview": "23 Sekunden davon",
   "videoLabel": "Vorschauvideo der App Cardio Clowns",
-  "videoFallback": "Dein Browser kann dieses Video nicht abspielen — <a href=\"preview.mp4\">lade es stattdessen herunter</a>.",
+  "videoFallback": "Dein Browser kann dieses Video nicht abspielen — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>lade es stattdessen herunter</a>.",
   "previewP1": "Die App-Store-Vorschau: die Rangliste, die sich live aktualisiert, die Nachricht eines Rivalen mitten im Scrollen, das Tauziehen im direkten Duell und die GIF-Auswahl.",
   "previewP2": "Der ganze Pitch lautet: Ein Schrittzähler kann witzig sein. Das lässt sich in einem Absatz schwer beweisen und ist nach zehn Sekunden Video offensichtlich.",
   "cta": "Über TestFlight ausprobieren",

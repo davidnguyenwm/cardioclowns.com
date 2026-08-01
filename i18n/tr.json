@@ -76,5 +76,10 @@
   "supportEmail": "<strong>E-posta:</strong> <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
   "supportP2": "Sorunuza en kısa sürede yanıt vermek için elimizden geleni yapacağız.",
   "footCopy": "© 2026 Cardio Clowns",
-  "footMade": "Kazanmalarına asla izin vermeyecek kadar sevdiğin insanlar için yapıldı. 🤡👑"
+  "footMade": "Kazanmalarına asla izin vermeyecek kadar sevdiğin insanlar için yapıldı. 🤡👑",
+  "h2Preview": "23 saniyede",
+  "previewP1": "App Store önizlemesi: canlı güncellenen sıralama, kaydırmanın ortasında düşen rakip bildirimi, birebir kapışmadaki halat çekme ve GIF seçici.",
+  "previewP2": "Tüm iddia şu: adımsayar komik olabilir. Bunu bir paragrafta kanıtlamak zor, on saniyelik videoda ise apaçık.",
+  "videoLabel": "Cardio Clowns uygulama önizleme videosu",
+  "videoFallback": "Tarayıcın bu videoyu oynatamıyor — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>bunun yerine indir</a>."
 }

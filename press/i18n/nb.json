@@ -22,7 +22,7 @@
   "whatP2": "Ingen kontoer. Ingen venneforespørsler. Ingen strøm full av fremmede. Én kode får med hele familien — barn, foreldre, besteforeldre, studiegruppa — og landsflaggene ved hvert navn gjør at konkurransen fungerer på tvers av landegrenser.",
   "h2Preview": "23 sekunder av den",
   "videoLabel": "Forhåndsvisningsvideo av appen Cardio Clowns",
-  "videoFallback": "Nettleseren din kan ikke spille av videoen — <a href=\"preview.mp4\">last den ned i stedet</a>.",
+  "videoFallback": "Nettleseren din kan ikke spille av videoen — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>last den ned i stedet</a>.",
   "previewP1": "App Store-forhåndsvisningen: resultatlisten som oppdateres direkte, varselet fra en rival som lander midt i scrollingen, tautrekkingen i den innbyrdes duellen og gif-velgeren.",
   "previewP2": "Hele poenget er at en skritteller kan være morsom — vanskelig å bevise i et avsnitt og innlysende etter ti sekunder med video.",
   "cta": "Prøv den i TestFlight",

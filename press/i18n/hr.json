@@ -22,7 +22,7 @@
   "whatP2": "Bez računa. Bez zahtjeva za prijateljstvo. Bez feeda punog stranaca. Jedan kôd uvodi cijelu obitelj — djecu, roditelje, bake i djedove, grupu s faksa — a zastave uz svako ime čine da natjecanje radi i preko granica.",
   "h2Preview": "23 sekunde aplikacije",
   "videoLabel": "Videopregled aplikacije Cardio Clowns",
-  "videoFallback": "Tvoj preglednik ne može reproducirati ovaj videozapis — <a href=\"preview.mp4\">preuzmi ga</a>.",
+  "videoFallback": "Tvoj preglednik ne može reproducirati ovaj videozapis — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>preuzmi ga</a>.",
   "previewP1": "Pregled za App Store: ljestvica koja se osvježava uživo, obavijest suparnika usred listanja, potezanje užeta u međusobnom dvoboju i birač GIF-ova.",
   "previewP2": "Cijela je poanta da brojač koraka može biti smiješan. To je teško dokazati u jednom odlomku, a očito je nakon desetak sekundi videa.",
   "cta": "Isprobaj u TestFlightu",

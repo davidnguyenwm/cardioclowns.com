@@ -76,5 +76,10 @@
   "supportEmail": "<strong>E-mail:</strong> <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
   "supportP2": "Vom face tot posibilul să îți răspundem cât mai repede.",
   "footCopy": "© 2026 Cardio Clowns",
-  "footMade": "Făcut pentru oamenii pe care îi iubești exact cât să nu îi lași niciodată să câștige. 🤡👑"
+  "footMade": "Făcut pentru oamenii pe care îi iubești exact cât să nu îi lași niciodată să câștige. 🤡👑",
+  "h2Preview": "23 de secunde din ea",
+  "previewP1": "Prezentarea din App Store: clasamentul actualizat în direct, notificarea unui rival care apare în mijlocul derulării, trasul de funie din duelul direct și selectorul de GIF-uri.",
+  "previewP2": "Toată ideea e că un pedometru poate fi amuzant — greu de demonstrat într-un paragraf și evident după zece secunde de video.",
+  "videoLabel": "Videoclip de prezentare a aplicației Cardio Clowns",
+  "videoFallback": "Browserul tău nu poate reda acest videoclip — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>descarcă-l</a>."
 }

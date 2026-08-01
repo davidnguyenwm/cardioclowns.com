@@ -248,11 +248,11 @@
 
         <h2 data-i18n="h2Preview">23 seconds of it</h2>
         <div class="preview">
-            <video controls playsinline preload="none" poster="preview/en-US.jpg"
+            <video data-preview-video controls playsinline preload="none" poster="/media/preview/en-US.jpg"
                    width="260" aria-label="Cardio Clowns app preview video" data-i18n-label="videoLabel">
-                <source src="preview/en-US.mp4" type="video/mp4">
+                <source src="/media/preview/en-US.mp4" type="video/mp4">
                 <span data-i18n-html="videoFallback">Your browser can't play this video —
-                <a href="preview/en-US.mp4" id="dl-fallback">download it instead</a>.</span>
+                <a href="/media/preview/en-US.mp4" data-preview-dl>download it instead</a>.</span>
             </video>
             <div class="preview-copy">
                 <p data-i18n="previewP1">The App Store preview: the leaderboard updating live, a rival's notification landing mid-scroll, the head-to-head tug-of-war, and the GIF picker.</p>
@@ -266,19 +266,19 @@
 
         <div class="shots">
             <figure class="shot">
-                <img src="shots/en-US/iphone-leaderboard.png" data-shot="iphone-leaderboard" alt="Cardio Clowns leaderboard showing today's standings, medals, and the daily crown" loading="lazy" data-i18n-alt="shot1Alt">
+                <img src="/media/shots/en-US/iphone-leaderboard.png" data-shot="iphone-leaderboard" alt="Cardio Clowns leaderboard showing today's standings, medals, and the daily crown" loading="lazy" data-i18n-alt="shot1Alt">
                 <figcaption data-i18n="shot1Cap">The daily race</figcaption>
             </figure>
             <figure class="shot">
-                <img src="shots/en-US/iphone-trashtalk.png" data-shot="iphone-trashtalk" alt="The Trash Talk feed showing playful messages and reaction GIFs between group members" loading="lazy" data-i18n-alt="shot2Alt">
+                <img src="/media/shots/en-US/iphone-trashtalk.png" data-shot="iphone-trashtalk" alt="The Trash Talk feed showing playful messages and reaction GIFs between group members" loading="lazy" data-i18n-alt="shot2Alt">
                 <figcaption data-i18n="shot2Cap">Trash Talk feed</figcaption>
             </figure>
             <figure class="shot">
-                <img src="shots/en-US/iphone-head-to-head.png" data-shot="iphone-head-to-head" alt="Head-to-head view with win-loss records, streaks, and a tug-of-war bar" loading="lazy" data-i18n-alt="shot3Alt">
+                <img src="/media/shots/en-US/iphone-head-to-head.png" data-shot="iphone-head-to-head" alt="Head-to-head view with win-loss records, streaks, and a tug-of-war bar" loading="lazy" data-i18n-alt="shot3Alt">
                 <figcaption data-i18n="shot3Cap">Head-to-head</figcaption>
             </figure>
             <figure class="shot">
-                <img src="shots/en-US/iphone-gifs.png" data-shot="iphone-gifs" alt="The GIF picker showing a grid of captioned reaction GIFs" loading="lazy" data-i18n-alt="shot4Alt">
+                <img src="/media/shots/en-US/iphone-gifs.png" data-shot="iphone-gifs" alt="The GIF picker showing a grid of captioned reaction GIFs" loading="lazy" data-i18n-alt="shot4Alt">
                 <figcaption data-i18n="shot4Cap">192 reaction GIFs</figcaption>
             </figure>
         </div>
@@ -305,11 +305,11 @@
         </div>
         <div class="ecosystem">
             <figure>
-                <img src="shots/en-US/ipad-leaderboard.png" data-shot="ipad-leaderboard" alt="Cardio Clowns on iPad, with the leaderboard and a full 30-day step history laid out across the width" loading="lazy" data-i18n-alt="ipadAlt">
+                <img src="/media/shots/en-US/ipad-leaderboard.png" data-shot="ipad-leaderboard" alt="Cardio Clowns on iPad, with the leaderboard and a full 30-day step history laid out across the width" loading="lazy" data-i18n-alt="ipadAlt">
                 <figcaption data-i18n="ipadCap">iPad — the layout adapts, it doesn't stretch</figcaption>
             </figure>
             <figure class="watch">
-                <img src="shots/en-US/watch-leaderboard.png" data-shot="watch-leaderboard" alt="The Cardio Clowns leaderboard running natively on Apple Watch" loading="lazy" data-i18n-alt="watchAlt">
+                <img src="/media/shots/en-US/watch-leaderboard.png" data-shot="watch-leaderboard" alt="The Cardio Clowns leaderboard running natively on Apple Watch" loading="lazy" data-i18n-alt="watchAlt">
                 <figcaption data-i18n="watchCap">Native on Apple Watch</figcaption>
             </figure>
         </div>
@@ -348,7 +348,7 @@
         <h2 data-i18n="h2Assets">Assets</h2>
         <p data-i18n="assetsIntro">Free to use for coverage or editorial consideration:</p>
         <ul>
-            <li data-i18n-html="asset1"><a href="preview/en-US.mp4" id="dl-preview">App preview video</a> — 23s, 886×1920, H.264</li>
+            <li data-i18n-html="asset1"><a href="/media/preview/en-US.mp4" data-preview-dl>App preview video</a> — 23s, 886×1920, H.264</li>
             <li data-i18n-html="asset2"><a href="/icon-512.png">App icon</a> — 512×512 PNG (1024 and vector available)</li>
             <li data-i18n-html="asset3"><a href="/og-image.png">Banner</a> — 1200×630 PNG</li>
             <li data-i18n-html="asset4">Screenshots — iPhone, iPad, and Apple Watch, <strong>localized in all 50 App Store locales</strong>. Ask and you'll have the full set in whichever languages you need.</li>
@@ -362,19 +362,16 @@
         </footer>
     </div>
 
+    <script src="/media.js"></script>
     <script>
     /*
-     * Localized assets. lang.js handles the copy; this swaps the screenshots
-     * and the App Store preview video to the matching storefront, so a
-     * Japanese editor sees the Japanese board with a Japanese flag on it.
-     *
-     * ?m=<market> deep-links a storefront — that is what the per-market App
-     * Store nominations link to, and it picks the language too, so ?m=jp is
-     * the whole URL. Where a market's language differs from its assets
-     * (en-GB vs en-US) the market wins until the visitor uses the picker.
+     * Market deep links. ?m=<market> is what the per-market App Store
+     * nominations point at: it picks the language AND the storefront's
+     * assets, so ?m=jp is the whole URL. A market is narrower than a
+     * language — gb, au and ca are all English but show different flags.
+     * Everything else is handled by media.js keyed on language alone.
      */
     (function () {
-        // market -> [language file, asset locale]
         var MARKETS = {
             us: ['en', 'en-US'],    gb: ['en', 'en-GB'],
             ca: ['en', 'en-CA'],    au: ['en', 'en-AU'],
@@ -386,53 +383,14 @@
             'in': ['hi', 'hi'],     tw: ['zh-Hant', 'zh-Hant'],
             cn: ['zh-Hans', 'zh-Hans']
         };
-        // Every language in the picker has its own shot set and preview.
-        // Keys match lang.js LANGS; values are the App Store locale folders.
-        // Anything unmapped falls back to English rather than a broken image.
-        var LANG_ASSETS = {
-            en: 'en-US',      es: 'es-ES',      fr: 'fr-FR',    it: 'it',
-            'pt-BR': 'pt-BR', ca: 'ca',         de: 'de-DE',    nl: 'nl-NL',
-            sv: 'sv',         da: 'da',         nb: 'no',       fi: 'fi',
-            ja: 'ja',         'zh-Hans': 'zh-Hans',             'zh-Hant': 'zh-Hant',
-            ko: 'ko',         ru: 'ru',         uk: 'uk',       pl: 'pl',
-            cs: 'cs',         sk: 'sk',         hr: 'hr',       sl: 'sl-SI',
-            hu: 'hu',         ro: 'ro',         el: 'el',       tr: 'tr',
-            th: 'th',         id: 'id',         ms: 'ms',       vi: 'vi',
-            ar: 'ar-SA',      he: 'he',         ur: 'ur-PK',    hi: 'hi',
-            bn: 'bn-BD',      mr: 'mr-IN',      gu: 'gu-IN',    pa: 'pa-IN',
-            ta: 'ta-IN',      te: 'te-IN',      kn: 'kn-IN',    ml: 'ml-IN',
-            or: 'or-IN'
-        };
 
-        var params = new URLSearchParams(location.search);
-        var market = (params.get('m') || '').toLowerCase();
+        var market = (new URLSearchParams(location.search).get('m') || '').toLowerCase();
         if (!MARKETS[market]) market = null;
 
-        // Publish the market's language for the CCLang.init call below.
-        // Deliberately not rewriting the URL: history.replaceState throws on
-        // file://, which would take this whole script down with it.
+        // Read by the CCLang.init call below. Deliberately not rewriting the
+        // URL: history.replaceState throws on file://, which would take this
+        // whole script down with it.
         window.CCMarketLang = market ? MARKETS[market][0] : null;
-
-        var video = document.querySelector('.preview video');
-        var source = video && video.querySelector('source');
-
-        function setAssets(locale) {
-            var shots = document.querySelectorAll('[data-shot]');
-            for (var i = 0; i < shots.length; i++) {
-                shots[i].src = 'shots/' + locale + '/' + shots[i].getAttribute('data-shot') + '.png';
-            }
-            if (video && source) {
-                var playing = !video.paused;
-                video.poster = 'preview/' + locale + '.jpg';
-                source.src = 'preview/' + locale + '.mp4';
-                video.load();                    // required for a <source> swap
-                if (playing) { video.play().catch(function () {}); }
-            }
-            ['dl-preview', 'dl-fallback'].forEach(function (id) {
-                var a = document.getElementById(id);
-                if (a) { a.href = 'preview/' + locale + '.mp4'; }
-            });
-        }
 
         document.addEventListener('cc:lang', function (e) {
             var lang = e.detail && e.detail.lang;
@@ -440,8 +398,8 @@
             // once the visitor picks a different language, follow that.
             var locale = (market && lang === MARKETS[market][0])
                 ? MARKETS[market][1]
-                : (LANG_ASSETS[lang] || 'en-US');
-            setAssets(locale);
+                : CCMedia.localeFor(lang);
+            CCMedia.apply(locale);
         });
     })();
     </script>

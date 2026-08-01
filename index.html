@@ -306,6 +306,27 @@
             padding: 4rem 0;
         }
 
+        /* Localized App Store preview. Vertical video, so it sits beside its
+           copy on desktop and stacks on mobile. media.js swaps the source to
+           the visitor's language. */
+        .cc-preview {
+            display: flex; gap: 2rem; align-items: center;
+            flex-wrap: wrap; justify-content: center;
+        }
+        .cc-preview video {
+            width: 260px; height: auto; flex: none; display: block;
+            border-radius: 26px;
+            box-shadow: var(--cc-shadow-lg);
+            border: 1px solid var(--cc-border);
+            background: #000;
+        }
+        .cc-preview-copy { flex: 1 1 300px; min-width: 0; max-width: 34rem; }
+        @media (max-width: 560px) {
+            .cc-preview { gap: 1.5rem; }
+            .cc-preview video { width: min(260px, 100%); }
+        }
+
+
         .cc-section:nth-of-type(even) {
             background: var(--cc-bg-light);
         }
@@ -614,6 +635,25 @@
         </div>
     </section>
 
+    <section id="preview" class="cc-section">
+        <div class="container">
+            <h2 data-i18n="h2Preview">23 seconds of it</h2>
+            <div class="cc-preview">
+                <video data-preview-video controls playsinline preload="none"
+                       poster="/media/preview/en-US.jpg" width="260"
+                       aria-label="Cardio Clowns app preview video" data-i18n-label="videoLabel">
+                    <source src="/media/preview/en-US.mp4" type="video/mp4">
+                    <span data-i18n-html="videoFallback">Your browser can't play this video —
+                    <a href="/media/preview/en-US.mp4" data-preview-dl>download it instead</a>.</span>
+                </video>
+                <div class="cc-preview-copy">
+                    <p data-i18n="previewP1">The App Store preview: the leaderboard updating live, a rival's notification landing mid-scroll, the head-to-head tug-of-war, and the GIF picker.</p>
+                    <p data-i18n="previewP2">The whole pitch is that a step counter can be funny, which is hard to prove in a paragraph and obvious in about ten seconds of watching it.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section id="features" class="cc-section">
         <div class="container">
             <h2 data-i18n="h2Features">Why it's not just another fitness app</h2>
@@ -753,6 +793,14 @@
     </footer>
 
     <script src="/lang.js"></script>
-    <script>CCLang.init({ dir: '/i18n/' });</script>
+    <script src="/media.js"></script>
+    <script>
+    // Screenshots and the preview video follow the detected language, so a
+    // visitor sees the app in their own language rather than English footage.
+    document.addEventListener('cc:lang', function (e) {
+        CCMedia.apply(CCMedia.localeFor(e.detail && e.detail.lang));
+    });
+    CCLang.init({ dir: '/i18n/' });
+    </script>
 </body>
 </html>

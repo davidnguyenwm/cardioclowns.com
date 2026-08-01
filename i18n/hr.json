@@ -76,5 +76,10 @@
   "supportEmail": "<strong>E-pošta:</strong> <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
   "supportP2": "Potrudit ćemo se odgovoriti što prije.",
   "footCopy": "© 2026 Cardio Clowns",
-  "footMade": "Napravljeno za ljude koje voliš taman toliko da ih nikad ne pustiš da pobijede. 🤡👑"
+  "footMade": "Napravljeno za ljude koje voliš taman toliko da ih nikad ne pustiš da pobijede. 🤡👑",
+  "h2Preview": "23 sekunde aplikacije",
+  "previewP1": "Pregled za App Store: ljestvica koja se osvježava uživo, obavijest suparnika usred listanja, potezanje užeta u međusobnom dvoboju i birač GIF-ova.",
+  "previewP2": "Cijela je poanta da brojač koraka može biti smiješan. To je teško dokazati u jednom odlomku, a očito je nakon desetak sekundi videa.",
+  "videoLabel": "Videopregled aplikacije Cardio Clowns",
+  "videoFallback": "Tvoj preglednik ne može reproducirati ovaj videozapis — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>preuzmi ga</a>."
 }

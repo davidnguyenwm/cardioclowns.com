@@ -76,5 +76,10 @@
   "supportEmail": "<strong>E-mail:</strong> <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
   "supportP2": "Igyekszünk a lehető leghamarabb válaszolni.",
   "footCopy": "© 2026 Cardio Clowns",
-  "footMade": "Azoknak készült, akiket épp csak annyira szeretsz, hogy soha ne hagyd őket nyerni. 🤡👑"
+  "footMade": "Azoknak készült, akiket épp csak annyira szeretsz, hogy soha ne hagyd őket nyerni. 🤡👑",
+  "h2Preview": "23 másodperc belőle",
+  "previewP1": "Az App Store-előzetes: az élőben frissülő ranglista, egy rivális értesítése görgetés közben, a párharc kötélhúzása és a GIF-választó.",
+  "previewP2": "Az egész ígéret annyi, hogy egy lépésszámláló lehet vicces. Ezt egy bekezdésben nehéz bizonyítani, tíz másodperc videó után viszont nyilvánvaló.",
+  "videoLabel": "Cardio Clowns app-előzetes videó",
+  "videoFallback": "A böngésződ nem tudja lejátszani ezt a videót — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>töltsd le inkább</a>."
 }

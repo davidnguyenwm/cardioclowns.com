@@ -22,7 +22,7 @@
   "whatP2": "Nincs fiók. Nincs ismerősnek jelölés. Nincs idegenekkel teli hírfolyam. Egyetlen kóddal bekerül az egész család — a gyerekek, a szülők, a nagyszülők, az egyetemi csoport is —, a nevek melletti országzászlók pedig azt jelentik, hogy a verseny határokon át is működik.",
   "h2Preview": "23 másodperc belőle",
   "videoLabel": "Cardio Clowns app-előzetes videó",
-  "videoFallback": "A böngésződ nem tudja lejátszani ezt a videót — <a href=\"preview.mp4\">töltsd le inkább</a>.",
+  "videoFallback": "A böngésződ nem tudja lejátszani ezt a videót — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>töltsd le inkább</a>.",
   "previewP1": "Az App Store-előzetes: az élőben frissülő ranglista, egy rivális értesítése görgetés közben, a párharc kötélhúzása és a GIF-választó.",
   "previewP2": "Az egész ígéret annyi, hogy egy lépésszámláló lehet vicces. Ezt egy bekezdésben nehéz bizonyítani, tíz másodperc videó után viszont nyilvánvaló.",
   "cta": "Kipróbálom a TestFlighton",

@@ -22,7 +22,7 @@
   "whatP2": "Ingen konti. Ingen venneanmodninger. Intet feed fyldt med fremmede. Én kode får hele familien med — børn, forældre, bedsteforældre, studiegruppen — og landeflagene ved hvert navn får konkurrencen til at fungere på tværs af grænser.",
   "h2Preview": "23 sekunder af den",
   "videoLabel": "Videoeksempel på appen Cardio Clowns",
-  "videoFallback": "Din browser kan ikke afspille videoen — <a href=\"preview.mp4\">hent den i stedet</a>.",
+  "videoFallback": "Din browser kan ikke afspille videoen — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>hent den i stedet</a>.",
   "previewP1": "App Store-eksemplet: ranglisten der opdateres live, en rivals notifikation der lander midt i scrollet, tovtrækningen i den indbyrdes duel og gif-vælgeren.",
   "previewP2": "Hele pointen er, at en skridttæller kan være sjov — svært at bevise i et afsnit og indlysende efter ti sekunders video.",
   "cta": "Prøv den i TestFlight",

@@ -76,5 +76,10 @@
   "supportEmail": "<strong>E-post:</strong> <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
   "supportP2": "Vi gör vårt bästa för att svara så snart vi kan.",
   "footCopy": "© 2026 Cardio Clowns",
-  "footMade": "Gjord för dem du tycker precis tillräckligt mycket om för att aldrig låta vinna. 🤡👑"
+  "footMade": "Gjord för dem du tycker precis tillräckligt mycket om för att aldrig låta vinna. 🤡👑",
+  "h2Preview": "23 sekunder av den",
+  "previewP1": "App Store-förhandsvisningen: topplistan som uppdateras live, en rivals avisering som landar mitt i skrollandet, dragkampen i den inbördes matchen och gif-väljaren.",
+  "previewP2": "Hela poängen är att en stegräknare kan vara rolig, vilket är svårt att bevisa i ett stycke och uppenbart efter tio sekunders film.",
+  "videoLabel": "Förhandsvisningsvideo för appen Cardio Clowns",
+  "videoFallback": "Din webbläsare kan inte spela upp videon — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>ladda ner den i stället</a>."
 }

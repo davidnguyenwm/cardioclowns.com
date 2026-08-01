@@ -22,7 +22,7 @@
   "whatP2": "Sem contas. Sem pedidos de amizade. Sem feed cheio de desconhecidos. Um código coloca a família toda dentro — filhos, pais, avós, o grupo da faculdade — e as bandeiras ao lado de cada nome fazem a disputa funcionar entre países.",
   "h2Preview": "23 segundos do app",
   "videoLabel": "Vídeo de prévia do app Cardio Clowns",
-  "videoFallback": "Seu navegador não consegue reproduzir este vídeo — <a href=\"preview.mp4\">baixe o arquivo</a>.",
+  "videoFallback": "Seu navegador não consegue reproduzir este vídeo — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>baixe o arquivo</a>.",
   "previewP1": "A prévia da App Store: o ranking atualizando ao vivo, a notificação de um rival chegando no meio da rolagem, o cabo de guerra do confronto direto e o seletor de GIFs.",
   "previewP2": "A ideia toda é que um contador de passos pode ser engraçado — difícil de provar em um parágrafo e óbvio em uns dez segundos de vídeo.",
   "cta": "Testar no TestFlight",

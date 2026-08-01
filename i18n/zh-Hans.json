@@ -76,5 +76,10 @@
   "supportEmail": "<strong>邮箱：</strong><a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
   "supportP2": "我们会尽快回复你。",
   "footCopy": "© 2026 Cardio Clowns",
-  "footMade": "献给那些你爱得刚刚好、却绝不会让他们赢的人。🤡👑"
+  "footMade": "献给那些你爱得刚刚好、却绝不会让他们赢的人。🤡👑",
+  "h2Preview": "23 秒看懂",
+  "previewP1": "App Store 预览视频：实时刷新的排行榜、滑动到一半冒出来的对手通知、一对一的拔河进度条，还有 GIF 选择器。",
+  "previewP2": "整个卖点就是：计步这件事可以很好笑。用一段文字很难说清，看十秒视频就一目了然。",
+  "videoLabel": "Cardio Clowns App 预览视频",
+  "videoFallback": "你的浏览器无法播放此视频——<a href=\"/media/preview/en-US.mp4\" data-preview-dl>请下载观看</a>。"
 }

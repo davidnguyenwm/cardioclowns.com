@@ -22,7 +22,7 @@
   "whatP2": "Żadnych kont. Żadnych zaproszeń do znajomych. Żadnego strumienia pełnego obcych ludzi. Jeden kod wciąga całą rodzinę — dzieci, rodziców, dziadków, grupę ze studiów — a flagi państw przy każdym imieniu sprawiają, że rywalizacja działa ponad granicami.",
   "h2Preview": "23 sekundy",
   "videoLabel": "Wideo z zapowiedzią aplikacji Cardio Clowns",
-  "videoFallback": "Twoja przeglądarka nie odtworzy tego wideo — <a href=\"preview.mp4\">pobierz je</a>.",
+  "videoFallback": "Twoja przeglądarka nie odtworzy tego wideo — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>pobierz je</a>.",
   "previewP1": "Zapowiedź z App Store: ranking odświeżający się na żywo, powiadomienie od rywala w środku przewijania, przeciąganie liny w pojedynku i wybór GIF-ów.",
   "previewP2": "Cała obietnica sprowadza się do tego, że krokomierz może być zabawny. Trudno to udowodnić w akapicie, a po dziesięciu sekundach wideo staje się oczywiste.",
   "cta": "Wypróbuj w TestFlight",

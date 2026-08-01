@@ -22,7 +22,7 @@
   "whatP2": "Hesap yok. Arkadaşlık isteği yok. Yabancılarla dolu akış yok. Tek bir kod bütün aileyi içeri alır — çocuklar, anne baba, büyükanne büyükbaba, üniversite grubu — ve her ismin yanındaki ülke bayrakları sayesinde rekabet sınırları da aşar.",
   "h2Preview": "23 saniyede",
   "videoLabel": "Cardio Clowns uygulama önizleme videosu",
-  "videoFallback": "Tarayıcın bu videoyu oynatamıyor — <a href=\"preview.mp4\">bunun yerine indir</a>.",
+  "videoFallback": "Tarayıcın bu videoyu oynatamıyor — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>bunun yerine indir</a>.",
   "previewP1": "App Store önizlemesi: canlı güncellenen sıralama, kaydırmanın ortasında düşen rakip bildirimi, birebir kapışmadaki halat çekme ve GIF seçici.",
   "previewP2": "Tüm iddia şu: adımsayar komik olabilir. Bunu bir paragrafta kanıtlamak zor, on saniyelik videoda ise apaçık.",
   "cta": "TestFlight'ta dene",

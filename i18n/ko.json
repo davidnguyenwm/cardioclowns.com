@@ -76,5 +76,10 @@
   "supportEmail": "<strong>이메일:</strong> <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
   "supportP2": "최대한 빨리 답변드리도록 하겠습니다.",
   "footCopy": "© 2026 Cardio Clowns",
-  "footMade": "절대 이기게 두고 싶지는 않을 만큼만 좋아하는 사람들을 위해. 🤡👑"
+  "footMade": "절대 이기게 두고 싶지는 않을 만큼만 좋아하는 사람들을 위해. 🤡👑",
+  "h2Preview": "23초로 보기",
+  "previewP1": "App Store 미리보기 영상입니다. 실시간으로 갱신되는 순위표, 스크롤 도중 도착하는 라이벌의 알림, 일대일 줄다리기, 그리고 GIF 선택기.",
+  "previewP2": "이 앱의 주장은 하나입니다. 만보기도 웃길 수 있다는 것. 글 한 문단으로는 증명하기 어렵지만, 10초쯤 보면 바로 이해됩니다.",
+  "videoLabel": "Cardio Clowns 앱 미리보기 영상",
+  "videoFallback": "브라우저에서 이 영상을 재생할 수 없습니다 — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>파일을 내려받아 보세요</a>."
 }

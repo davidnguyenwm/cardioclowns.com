@@ -76,5 +76,10 @@
   "supportEmail": "<strong>E-Mail:</strong> <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
   "supportP2": "Wir antworten so schnell wir können.",
   "footCopy": "© 2026 Cardio Clowns",
-  "footMade": "Gemacht für die Menschen, die man gerade genug mag, um sie nie gewinnen zu lassen. 🤡👑"
+  "footMade": "Gemacht für die Menschen, die man gerade genug mag, um sie nie gewinnen zu lassen. 🤡👑",
+  "h2Preview": "23 Sekunden davon",
+  "previewP1": "Die App-Store-Vorschau: die Rangliste, die sich live aktualisiert, die Nachricht eines Rivalen mitten im Scrollen, das Tauziehen im direkten Duell und die GIF-Auswahl.",
+  "previewP2": "Der ganze Pitch lautet: Ein Schrittzähler kann witzig sein. Das lässt sich in einem Absatz schwer beweisen und ist nach zehn Sekunden Video offensichtlich.",
+  "videoLabel": "Vorschauvideo der App Cardio Clowns",
+  "videoFallback": "Dein Browser kann dieses Video nicht abspielen — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>lade es stattdessen herunter</a>."
 }

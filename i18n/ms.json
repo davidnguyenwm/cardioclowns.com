@@ -76,5 +76,10 @@
   "supportEmail": "<strong>E-mel:</strong> <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
   "supportP2": "Kami akan cuba sedaya upaya membalas secepat mungkin.",
   "footCopy": "© 2026 Cardio Clowns",
-  "footMade": "Dibuat untuk orang yang anda sayang secukupnya sahaja untuk tidak sesekali membiarkan mereka menang. 🤡👑"
+  "footMade": "Dibuat untuk orang yang anda sayang secukupnya sahaja untuk tidak sesekali membiarkan mereka menang. 🤡👑",
+  "h2Preview": "23 saat sahaja",
+  "previewP1": "Pratonton App Store: papan pendahulu yang berubah secara langsung, pemberitahuan pesaing yang tiba di tengah tatalan, tarik tali dalam pertarungan sesama sendiri, dan pemilih GIF.",
+  "previewP2": "Seluruh hujahnya ialah pembilang langkah boleh jadi kelakar — susah dibuktikan dalam satu perenggan, jelas sekali selepas sepuluh saat menonton.",
+  "videoLabel": "Video pratonton apl Cardio Clowns",
+  "videoFallback": "Pelayar anda tidak dapat memainkan video ini — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>muat turun sahaja</a>."
 }

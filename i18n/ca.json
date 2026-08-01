@@ -76,5 +76,10 @@
   "supportEmail": "<strong>Correu:</strong> <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
   "supportP2": "Farem tot el possible per respondre't com abans millor.",
   "footCopy": "© 2026 Cardio Clowns",
-  "footMade": "Fet per a les persones que estimes just prou per no deixar-les guanyar mai. 🤡👑"
+  "footMade": "Fet per a les persones que estimes just prou per no deixar-les guanyar mai. 🤡👑",
+  "h2Preview": "23 segons de l'app",
+  "previewP1": "La previsualització de l'App Store: la classificació actualitzant-se en directe, la notificació d'un rival que arriba enmig del desplaçament, l'estira-i-arronsa del duel i el selector de GIF.",
+  "previewP2": "Tota la proposta és que un comptador de passos pot ser divertit: difícil de demostrar en un paràgraf i evident en uns deu segons de vídeo.",
+  "videoLabel": "Vídeo de presentació de l'app Cardio Clowns",
+  "videoFallback": "El teu navegador no pot reproduir aquest vídeo: <a href=\"/media/preview/en-US.mp4\" data-preview-dl>descarrega'l</a>."
 }

@@ -22,7 +22,7 @@
   "whatP2": "Žádné účty. Žádné žádosti o přátelství. Žádný feed plný cizích lidí. Jeden kód dostane dovnitř celou rodinu — děti, rodiče, prarodiče i skupinový chat ze školy — a vlajky u každého jména zajistí, že soutěž funguje i přes hranice.",
   "h2Preview": "23 sekund z aplikace",
   "videoLabel": "Ukázkové video aplikace Cardio Clowns",
-  "videoFallback": "Tvůj prohlížeč toto video nepřehraje — <a href=\"preview.mp4\">stáhni si ho</a>.",
+  "videoFallback": "Tvůj prohlížeč toto video nepřehraje — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>stáhni si ho</a>.",
   "previewP1": "Ukázka pro App Store: žebříček aktualizovaný naživo, upozornění od soupeře uprostřed rolování, přetahování lanem ve vzájemném souboji a výběr GIFů.",
   "previewP2": "Celý příslib zní: krokoměr může být vtipný. V odstavci se to dokazuje těžko, po deseti sekundách videa je to zřejmé.",
   "cta": "Vyzkoušet v TestFlightu",

@@ -22,7 +22,7 @@
   "whatP2": "Niente account. Niente richieste di amicizia. Niente feed pieno di sconosciuti. Un solo codice fa entrare tutta la famiglia — figli, genitori, nonni, la chat dell'università — e le bandiere accanto a ogni nome fanno funzionare la sfida anche tra Paesi diversi.",
   "h2Preview": "23 secondi dell'app",
   "videoLabel": "Video di anteprima dell'app Cardio Clowns",
-  "videoFallback": "Il tuo browser non riesce a riprodurre questo video — <a href=\"preview.mp4\">scaricalo</a>.",
+  "videoFallback": "Il tuo browser non riesce a riprodurre questo video — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>scaricalo</a>.",
   "previewP1": "L'anteprima dell'App Store: la classifica che si aggiorna in diretta, la notifica di un rivale che arriva mentre scorri, il tiro alla fune del testa a testa e il selettore di GIF.",
   "previewP2": "Tutta la promessa è che un contapassi possa far ridere: difficile da dimostrare in un paragrafo, ovvio dopo dieci secondi di video.",
   "cta": "Provala su TestFlight",

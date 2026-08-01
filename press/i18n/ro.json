@@ -22,7 +22,7 @@
   "whatP2": "Fără conturi. Fără cereri de prietenie. Fără un flux plin de necunoscuți. Un singur cod aduce toată familia înăuntru — copii, părinți, bunici, grupul din facultate — iar steagurile de lângă fiecare nume fac competiția să funcționeze peste granițe.",
   "h2Preview": "23 de secunde din ea",
   "videoLabel": "Videoclip de prezentare a aplicației Cardio Clowns",
-  "videoFallback": "Browserul tău nu poate reda acest videoclip — <a href=\"preview.mp4\">descarcă-l</a>.",
+  "videoFallback": "Browserul tău nu poate reda acest videoclip — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>descarcă-l</a>.",
   "previewP1": "Prezentarea din App Store: clasamentul actualizat în direct, notificarea unui rival care apare în mijlocul derulării, trasul de funie din duelul direct și selectorul de GIF-uri.",
   "previewP2": "Toată ideea e că un pedometru poate fi amuzant — greu de demonstrat într-un paragraf și evident după zece secunde de video.",
   "cta": "Încearc-o pe TestFlight",
