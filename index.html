@@ -96,6 +96,40 @@
             z-index: 1;
         }
 
+        /* The nav picker sits below the hero, so on landing there is nothing
+           to click. This one rides in the hero corner and is visible the
+           moment the page opens. Both stay in sync. */
+        .cc-hero-lang {
+            position: absolute;
+            top: 1rem;
+            right: 1.25rem;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .cc-hero-lang select {
+            font: inherit;
+            font-size: 0.85rem;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            border-radius: 999px;
+            padding: 0.3rem 0.7rem;
+            max-width: 10rem;
+            cursor: pointer;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        /* The closed control is dark-on-gradient, but the open menu is drawn
+           by the OS in its own colours — so the options need readable ones. */
+        .cc-hero-lang select option { color: var(--cc-text); background: #fff; }
+        .cc-hero-lang select:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+        [dir="rtl"] .cc-hero-lang { right: auto; left: 1.25rem; }
+
         .cc-icon {
             width: 120px;
             height: 120px;
@@ -560,6 +594,9 @@
 <body>
 
     <section class="cc-hero">
+        <div class="cc-hero-lang">
+            <select id="lang-select-hero" data-lang-picker aria-label="Language" data-i18n-label="langLabel"></select>
+        </div>
         <div class="cc-hero-content">
             <div class="cc-icon"><img src="/icon-512.png" width="512" height="512" alt="Cardio Clowns app icon" data-i18n-alt="iconAlt"></div>
             <h1>Cardio Clowns</h1>
@@ -606,7 +643,7 @@
                 </div>
                 <div class="cc-lang">
                     <label for="lang-select" data-i18n="langLabel">Language</label>
-                    <select id="lang-select" aria-label="Language" data-i18n-label="langLabel"></select>
+                    <select id="lang-select" data-lang-picker aria-label="Language" data-i18n-label="langLabel"></select>
                 </div>
             </div>
         </div>

@@ -219,7 +219,7 @@
             <a class="back" href="/" data-i18n-html="back">&larr; Cardio Clowns</a>
             <div class="lang-picker">
                 <label for="lang-select" data-i18n="langLabel">Language</label>
-                <select id="lang-select"></select>
+                <select id="lang-select" data-lang-picker aria-label="Language" data-i18n-label="langLabel"></select>
             </div>
         </div>
 
@@ -386,12 +386,22 @@
             'in': ['hi', 'hi'],     tw: ['zh-Hant', 'zh-Hant'],
             cn: ['zh-Hans', 'zh-Hans']
         };
-        // Languages we shot assets for. Anything else falls back to the
-        // English set rather than a broken image.
+        // Every language in the picker has its own shot set and preview.
+        // Keys match lang.js LANGS; values are the App Store locale folders.
+        // Anything unmapped falls back to English rather than a broken image.
         var LANG_ASSETS = {
-            en: 'en-US', ja: 'ja', de: 'de-DE', fr: 'fr-FR', it: 'it',
-            es: 'es-ES', 'pt-BR': 'pt-BR', ko: 'ko', nl: 'nl-NL', tr: 'tr',
-            hi: 'hi', 'zh-Hant': 'zh-Hant', 'zh-Hans': 'zh-Hans'
+            en: 'en-US',      es: 'es-ES',      fr: 'fr-FR',    it: 'it',
+            'pt-BR': 'pt-BR', ca: 'ca',         de: 'de-DE',    nl: 'nl-NL',
+            sv: 'sv',         da: 'da',         nb: 'no',       fi: 'fi',
+            ja: 'ja',         'zh-Hans': 'zh-Hans',             'zh-Hant': 'zh-Hant',
+            ko: 'ko',         ru: 'ru',         uk: 'uk',       pl: 'pl',
+            cs: 'cs',         sk: 'sk',         hr: 'hr',       sl: 'sl-SI',
+            hu: 'hu',         ro: 'ro',         el: 'el',       tr: 'tr',
+            th: 'th',         id: 'id',         ms: 'ms',       vi: 'vi',
+            ar: 'ar-SA',      he: 'he',         ur: 'ur-PK',    hi: 'hi',
+            bn: 'bn-BD',      mr: 'mr-IN',      gu: 'gu-IN',    pa: 'pa-IN',
+            ta: 'ta-IN',      te: 'te-IN',      kn: 'kn-IN',    ml: 'ml-IN',
+            or: 'or-IN'
         };
 
         var params = new URLSearchParams(location.search);

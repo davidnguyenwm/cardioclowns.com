@@ -131,7 +131,15 @@
     function init(opts) {
         opts = opts || {};
         var dir = opts.dir || '/i18n/';
-        var select = document.getElementById(opts.selectId || 'lang-select');
+
+        // A page may show more than one picker — the homepage has one in the
+        // hero (visible on landing) and one in the sticky nav (reachable after
+        // you scroll past the hero). They are kept in sync below.
+        var selects = document.querySelectorAll(opts.selector || '[data-lang-picker]');
+        if (!selects.length) {
+            var legacy = document.getElementById(opts.selectId || 'lang-select');
+            selects = legacy ? [legacy] : [];
+        }
 
         // Snapshot the English already in the DOM. Switching back to English
         // restores from this, so English is never duplicated into a JSON file
@@ -190,9 +198,9 @@
                 });
         }
 
-        // Build the picker. "Auto" is the default and means "follow the
+        // Build every picker. "Auto" is the default and means "follow the
         // device" — choosing a language pins it, choosing Auto unpins.
-        if (select) {
+        function fill(select) {
             var auto = document.createElement('option');
             auto.value = '';
             auto.textContent = opts.autoLabel || 'Auto (system)';
@@ -204,6 +212,7 @@
                 select.appendChild(opt);
             }
         }
+        for (var s = 0; s < selects.length; s++) fill(selects[s]);
 
         var stored = null;
         try { stored = localStorage.getItem(STORE_KEY); } catch (e) { /* private mode */ }
@@ -215,14 +224,20 @@
         var forced = resolve(new URLSearchParams(location.search).get('lang'));
         var pinned = forced || resolve(opts.lang) || stored;
 
-        if (select) {
-            select.value = pinned || '';
-            select.addEventListener('change', function () {
-                var value = select.value;
+        function setAll(value) {
+            for (var i = 0; i < selects.length; i++) selects[i].value = value;
+        }
+        setAll(pinned || '');
+
+        for (var k = 0; k < selects.length; k++) {
+            selects[k].addEventListener('change', function () {
+                var value = this.value;
                 try {
                     if (value) localStorage.setItem(STORE_KEY, value);
                     else localStorage.removeItem(STORE_KEY);
                 } catch (e) { /* private mode */ }
+                // Move the other pickers with this one so they never disagree.
+                setAll(value);
                 show(value || fromBrowser());
             });
         }
