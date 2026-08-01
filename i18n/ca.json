@@ -81,5 +81,18 @@
   "previewP1": "La previsualització de l'App Store: la classificació actualitzant-se en directe, la notificació d'un rival que arriba enmig del desplaçament, l'estira-i-arronsa del duel i el selector de GIF.",
   "previewP2": "Tota la proposta és que un comptador de passos pot ser divertit: difícil de demostrar en un paràgraf i evident en uns deu segons de vídeo.",
   "videoLabel": "Vídeo de presentació de l'app Cardio Clowns",
-  "videoFallback": "El teu navegador no pot reproduir aquest vídeo: <a href=\"/media/preview/en-US.mp4\" data-preview-dl>descarrega'l</a>."
+  "videoFallback": "El teu navegador no pot reproduir aquest vídeo: <a href=\"/media/preview/en-US.mp4\" data-preview-dl>descarrega'l</a>.",
+  "navTeams": "Per a equips",
+  "h2Teams": "Cardio Clowns per a equips",
+  "teamsLead": "Vols Pro per a tota una empresa, un equip o un club? Tenim <strong>plans per a equips</strong>. Pagues una vegada, t'enviem un lot de codis i cadascú desbloqueja Pro a l'app amb un toc.",
+  "teamsB1": "Una sola factura per a tothom — targeta o ordre de compra, a nom de l'empresa",
+  "teamsB2": "Un codi per persona, vàlid el temps que triïs — sis mesos, un any o més",
+  "teamsB3": "Res per instal·lar ni configurar: cadascú toca «Bescanviar un codi» a l'app i llest",
+  "teamsB4": "Cap compte per crear, cap llicència per gestionar, cap tauler per aprendre",
+  "teamsB5": "Tampoc hi ha tauler per a l'empresa: comprar codis no li dona accés als passos de ningú. Les xifres només es veuen dins del grup on entra cada persona",
+  "teamsB6": "Funciona igual per a un equip de cinc que per a una empresa de cinc-centes persones",
+  "teamsAsk": "<strong>Per demanar pressupost,</strong> digues-nos l'empresa, quantes persones i per quant de temps el vols. Prefereixes escriure el teu propi correu? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Escriu-nos sobre un pla per a equips",
+  "teamsNote": "Cardio Clowns arriba aviat a l'App Store. Escriu-nos ara i els teus codis estaran a punt el mateix dia del llançament.",
+  "footTeams": "Ho compres per a una empresa o un equip? <a href=\"#teams\">Cardio Clowns per a equips</a>"
 }

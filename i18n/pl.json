@@ -81,5 +81,18 @@
   "previewP1": "Zapowiedź z App Store: ranking odświeżający się na żywo, powiadomienie od rywala w środku przewijania, przeciąganie liny w pojedynku i wybór GIF-ów.",
   "previewP2": "Cała obietnica sprowadza się do tego, że krokomierz może być zabawny. Trudno to udowodnić w akapicie, a po dziesięciu sekundach wideo staje się oczywiste.",
   "videoLabel": "Wideo z zapowiedzią aplikacji Cardio Clowns",
-  "videoFallback": "Twoja przeglądarka nie odtworzy tego wideo — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>pobierz je</a>."
+  "videoFallback": "Twoja przeglądarka nie odtworzy tego wideo — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>pobierz je</a>.",
+  "navTeams": "Dla firm",
+  "h2Teams": "Cardio Clowns dla zespołów",
+  "teamsLead": "Chcesz Pro dla całej firmy, zespołu albo klubu? Mamy <strong>plany zespołowe</strong>. Płacisz raz, wysyłamy paczkę kodów, a każdy odblokowuje Pro w aplikacji jednym dotknięciem.",
+  "teamsB1": "Jedna faktura dla wszystkich — kartą albo na zamówienie, na dane firmy",
+  "teamsB2": "Jeden kod na osobę, ważny tak długo, jak chcesz — pół roku, rok albo dłużej",
+  "teamsB3": "Nic do instalowania ani ustawiania: każdy dotyka w aplikacji „Zrealizuj kod“ i gotowe",
+  "teamsB4": "Żadnych kont do zakładania, miejsc do zarządzania ani panelu do nauki",
+  "teamsB5": "Nie ma też panelu dla pracodawcy — kupno kodów nie daje firmie wglądu w niczyje kroki. Liczby widać tylko w grupie, do której ktoś dołączył",
+  "teamsB6": "Działa tak samo dla zespołu pięciu osób i dla firmy na pięćset",
+  "teamsAsk": "<strong>Po wycenę</strong> napisz nam, jaka firma, ile osób i na jak długo. Wolisz napisać własnego maila? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Napisz do nas o planie zespołowym",
+  "teamsNote": "Cardio Clowns niedługo trafi do App Store. Odezwij się teraz, a kody będą gotowe w dniu premiery.",
+  "footTeams": "Kupujesz dla firmy albo zespołu? <a href=\"#teams\">Cardio Clowns dla zespołów</a>"
 }

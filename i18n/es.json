@@ -81,5 +81,18 @@
   "previewP1": "La vista previa del App Store: la clasificación actualizándose en directo, la notificación de un rival cayendo a mitad de scroll, el duelo cara a cara y el selector de GIF.",
   "previewP2": "Toda la propuesta es que un contador de pasos puede ser divertido, algo difícil de demostrar en un párrafo y evidente en unos diez segundos de vídeo.",
   "videoLabel": "Vídeo de presentación de la app Cardio Clowns",
-  "videoFallback": "Tu navegador no puede reproducir este vídeo: <a href=\"/media/preview/en-US.mp4\" data-preview-dl>descárgalo aquí</a>."
+  "videoFallback": "Tu navegador no puede reproducir este vídeo: <a href=\"/media/preview/en-US.mp4\" data-preview-dl>descárgalo aquí</a>.",
+  "navTeams": "Para equipos",
+  "h2Teams": "Cardio Clowns para equipos",
+  "teamsLead": "¿Quieres Pro para toda una empresa, un equipo o un club? Tenemos <strong>planes para equipos</strong>. Pagas una vez, te enviamos un lote de códigos y cada persona desbloquea Pro en la app con un toque.",
+  "teamsB1": "Una sola factura para todos: paga con tarjeta o con orden de compra, a nombre de la empresa",
+  "teamsB2": "Un código por persona, válido el tiempo que elijas: seis meses, un año o más",
+  "teamsB3": "Nada que instalar ni configurar: cada persona toca «Canjear un código» en la app y listo",
+  "teamsB4": "Sin cuentas que crear, sin licencias que gestionar, sin panel que aprender",
+  "teamsB5": "Tampoco hay panel para la empresa: comprar códigos no le da acceso a los pasos de nadie. Las cifras solo se ven dentro del grupo al que cada persona se une",
+  "teamsB6": "Funciona igual para un equipo de cinco que para una empresa de quinientas personas",
+  "teamsAsk": "<strong>Para pedir presupuesto,</strong> cuéntanos la empresa, cuántas personas y para cuánto tiempo lo quieres. ¿Prefieres escribir tu propio correo? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Escríbenos sobre un plan para equipos",
+  "teamsNote": "Cardio Clowns llega pronto a la App Store. Escríbenos ahora y tus códigos estarán listos el mismo día del lanzamiento.",
+  "footTeams": "¿Lo compras para una empresa o un equipo? <a href=\"#teams\">Cardio Clowns para equipos</a>"
 }

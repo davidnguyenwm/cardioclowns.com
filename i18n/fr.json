@@ -81,5 +81,18 @@
   "previewP1": "L'aperçu App Store : le classement qui se met à jour en direct, la notification d'un rival qui tombe en plein défilement, le duel en tir à la corde et le sélecteur de GIF.",
   "previewP2": "Toute la promesse tient en une idée : un compteur de pas peut être drôle. Difficile à prouver en un paragraphe, évident après dix secondes de vidéo.",
   "videoLabel": "Vidéo de présentation de l'application Cardio Clowns",
-  "videoFallback": "Votre navigateur ne peut pas lire cette vidéo — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>téléchargez-la</a>."
+  "videoFallback": "Votre navigateur ne peut pas lire cette vidéo — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>téléchargez-la</a>.",
+  "navTeams": "Pour les équipes",
+  "h2Teams": "Cardio Clowns pour les équipes",
+  "teamsLead": "Vous voulez Pro pour toute une entreprise, une équipe ou un club ? Nous proposons des <strong>forfaits équipe</strong>. Vous payez une fois, nous vous envoyons un lot de codes, et chacun débloque Pro dans l'app en un seul appui.",
+  "teamsB1": "Une seule facture pour tout le monde — par carte ou sur bon de commande, au nom de l'entreprise",
+  "teamsB2": "Un code par personne, valable aussi longtemps que vous le souhaitez — six mois, un an ou plus",
+  "teamsB3": "Rien à installer ni à configurer : chacun appuie sur « Utiliser un code » dans l'app, et c'est réglé",
+  "teamsB4": "Aucun compte à créer, aucune licence à gérer, aucun tableau de bord à apprendre",
+  "teamsB5": "Et pas de tableau de bord employeur non plus — acheter des codes ne donne à l'entreprise aucune vue sur les pas de qui que ce soit. Les chiffres restent visibles uniquement au sein du groupe que chacun rejoint",
+  "teamsB6": "Cela fonctionne pareil pour une équipe de cinq ou une entreprise de cinq cents personnes",
+  "teamsAsk": "<strong>Pour obtenir un devis,</strong> indiquez-nous l'entreprise, le nombre de personnes et la durée souhaitée. Vous préférez écrire votre propre e-mail ? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Écrivez-nous pour un forfait équipe",
+  "teamsNote": "Cardio Clowns arrive bientôt sur l'App Store. Contactez-nous dès maintenant et vos codes seront prêts le jour du lancement.",
+  "footTeams": "Vous achetez pour une entreprise ou une équipe ? <a href=\"#teams\">Cardio Clowns pour les équipes</a>"
 }

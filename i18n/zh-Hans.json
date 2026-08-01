@@ -81,5 +81,18 @@
   "previewP1": "App Store 预览视频：实时刷新的排行榜、滑动到一半冒出来的对手通知、一对一的拔河进度条，还有 GIF 选择器。",
   "previewP2": "整个卖点就是：计步这件事可以很好笑。用一段文字很难说清，看十秒视频就一目了然。",
   "videoLabel": "Cardio Clowns App 预览视频",
-  "videoFallback": "你的浏览器无法播放此视频——<a href=\"/media/preview/en-US.mp4\" data-preview-dl>请下载观看</a>。"
+  "videoFallback": "你的浏览器无法播放此视频——<a href=\"/media/preview/en-US.mp4\" data-preview-dl>请下载观看</a>。",
+  "navTeams": "团队方案",
+  "h2Teams": "Cardio Clowns 团队方案",
+  "teamsLead": "想让整个公司、团队或俱乐部都用上 Pro？我们有<strong>团队方案</strong>。你付一次款，我们发给你一批兑换码，每个人在 App 里轻点一下就能解锁 Pro。",
+  "teamsB1": "所有人一张发票 — 可用信用卡或采购单，开具公司抬头",
+  "teamsB2": "每人一个码，有效期由你决定 — 六个月、一年或更久",
+  "teamsB3": "无需安装或设置：每个人在 App 里点一下「兑换代码」就完成了",
+  "teamsB4": "不用注册账号，不用管理席位，也没有后台需要学",
+  "teamsB5": "同样没有雇主后台 — 购买兑换码不会让公司看到任何人的步数。数字只在本人加入的群组里可见",
+  "teamsB6": "五人小队和五百人公司，用起来完全一样",
+  "teamsAsk": "<strong>索取报价时，</strong>请告诉我们公司名称、人数和希望使用的时长。想自己写邮件？<a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ 来信咨询团队方案",
+  "teamsNote": "Cardio Clowns 即将登陆 App Store。现在联系我们，上线当天就能拿到兑换码。",
+  "footTeams": "为公司或团队购买？<a href=\"#teams\">Cardio Clowns 团队方案</a>"
 }

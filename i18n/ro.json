@@ -81,5 +81,18 @@
   "previewP1": "Prezentarea din App Store: clasamentul actualizat în direct, notificarea unui rival care apare în mijlocul derulării, trasul de funie din duelul direct și selectorul de GIF-uri.",
   "previewP2": "Toată ideea e că un pedometru poate fi amuzant — greu de demonstrat într-un paragraf și evident după zece secunde de video.",
   "videoLabel": "Videoclip de prezentare a aplicației Cardio Clowns",
-  "videoFallback": "Browserul tău nu poate reda acest videoclip — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>descarcă-l</a>."
+  "videoFallback": "Browserul tău nu poate reda acest videoclip — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>descarcă-l</a>.",
+  "navTeams": "Pentru echipe",
+  "h2Teams": "Cardio Clowns pentru echipe",
+  "teamsLead": "Vrei Pro pentru o firmă întreagă, o echipă sau un club? Avem <strong>planuri pentru echipe</strong>. Plătești o dată, îți trimitem un pachet de coduri, iar fiecare deblochează Pro în aplicație cu o singură atingere.",
+  "teamsB1": "O singură factură pentru toți — card sau comandă, pe numele firmei",
+  "teamsB2": "Un cod de persoană, valabil cât alegi tu — șase luni, un an sau mai mult",
+  "teamsB3": "Nimic de instalat sau de configurat: fiecare apasă în aplicație pe „Valorifică un cod“ și gata",
+  "teamsB4": "Fără conturi de creat, fără locuri de administrat, fără panou de învățat",
+  "teamsB5": "Și nici panou pentru angajator — cumpărarea codurilor nu îi arată firmei pașii nimănui. Cifrele rămân vizibile doar în grupul în care intră fiecare",
+  "teamsB6": "Funcționează la fel pentru o echipă de cinci și pentru o firmă de cinci sute",
+  "teamsAsk": "<strong>Pentru o ofertă,</strong> spune-ne firma, câți oameni și pe ce perioadă. Preferi să scrii tu e-mailul? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Scrie-ne despre un plan pentru echipe",
+  "teamsNote": "Cardio Clowns ajunge în curând în App Store. Ia legătura acum și codurile vor fi gata chiar din ziua lansării.",
+  "footTeams": "Cumperi pentru o firmă sau o echipă? <a href=\"#teams\">Cardio Clowns pentru echipe</a>"
 }

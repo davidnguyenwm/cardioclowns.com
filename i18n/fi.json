@@ -81,5 +81,18 @@
   "previewP1": "App Storen esittely: tulostaulu päivittymässä reaaliajassa, kilpakumppanin ilmoitus kesken selaamisen, kaksinkamppailun köydenveto ja GIF-valitsin.",
   "previewP2": "Koko lupaus on, että askelmittari voi olla hauska. Sitä on vaikea todistaa kappaleessa ja ilmeistä kymmenen videosekunnin jälkeen.",
   "videoLabel": "Cardio Clowns -sovelluksen esittelyvideo",
-  "videoFallback": "Selaimesi ei voi toistaa tätä videota — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>lataa se sen sijaan</a>."
+  "videoFallback": "Selaimesi ei voi toistaa tätä videota — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>lataa se sen sijaan</a>.",
+  "navTeams": "Tiimeille",
+  "h2Teams": "Cardio Clowns tiimeille",
+  "teamsLead": "Haluatko Pron koko yritykselle, tiimille tai seuralle? Meillä on <strong>tiimipaketit</strong>. Maksat kerran, lähetämme sinulle nipun koodeja, ja jokainen avaa Pron sovelluksessa yhdellä napautuksella.",
+  "teamsB1": "Yksi lasku kaikille — kortilla tai ostotilauksella, yrityksen nimiin",
+  "teamsB2": "Yksi koodi henkilöä kohti, voimassa niin kauan kuin haluat — puoli vuotta, vuoden tai pidempään",
+  "teamsB3": "Ei mitään asennettavaa tai asetettavaa: jokainen napauttaa sovelluksessa ”Lunasta koodi”, ja se on siinä",
+  "teamsB4": "Ei tilejä luotavaksi, ei paikkoja hallittavaksi, ei hallintanäkymää opeteltavaksi",
+  "teamsB5": "Eikä työnantajan näkymää — koodien ostaminen ei anna yritykselle näkymää kenenkään askeliin. Luvut näkyvät vain siinä ryhmässä, johon ihminen liittyy",
+  "teamsB6": "Toimii samalla tavalla viiden hengen tiimille ja viidensadan hengen yritykselle",
+  "teamsAsk": "<strong>Tarjousta varten</strong> kerro yritys, montako henkeä ja kuinka pitkäksi aikaa. Kirjoitatko mieluummin oman viestin? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Kysy meiltä tiimipakettia",
+  "teamsNote": "Cardio Clowns saapuu pian App Storeen. Ota yhteyttä nyt, niin koodit ovat valmiina heti julkaisupäivänä.",
+  "footTeams": "Ostatko yritykselle tai tiimille? <a href=\"#teams\">Cardio Clowns tiimeille</a>"
 }

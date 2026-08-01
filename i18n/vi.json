@@ -81,5 +81,18 @@
   "previewP1": "Video giới thiệu trên App Store: bảng xếp hạng cập nhật trực tiếp, thông báo của đối thủ ập đến giữa lúc đang cuộn, màn kéo co trong trận đối đầu và bảng chọn GIF.",
   "previewP2": "Toàn bộ lời hứa nằm ở chỗ: một cái máy đếm bước chân cũng có thể hài hước. Điều đó khó chứng minh trong một đoạn văn, nhưng xem mười giây là hiểu ngay.",
   "videoLabel": "Video giới thiệu ứng dụng Cardio Clowns",
-  "videoFallback": "Trình duyệt của bạn không phát được video này — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>hãy tải xuống</a>."
+  "videoFallback": "Trình duyệt của bạn không phát được video này — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>hãy tải xuống</a>.",
+  "navTeams": "Cho doanh nghiệp",
+  "h2Teams": "Cardio Clowns cho đội nhóm",
+  "teamsLead": "Bạn muốn Pro cho cả công ty, đội nhóm hay câu lạc bộ? Chúng tôi có <strong>gói cho đội nhóm</strong>. Bạn trả tiền một lần, chúng tôi gửi cho bạn một loạt mã, và mỗi người chỉ cần chạm một cái là mở khóa Pro trong ứng dụng.",
+  "teamsB1": "Một hóa đơn cho tất cả — thẻ hoặc đơn đặt hàng, đứng tên công ty",
+  "teamsB2": "Mỗi người một mã, dùng được bao lâu tùy bạn chọn — sáu tháng, một năm hoặc lâu hơn",
+  "teamsB3": "Không phải cài đặt hay thiết lập gì: mỗi người chạm “Đổi mã” trong ứng dụng là xong",
+  "teamsB4": "Không cần tạo tài khoản, không phải quản lý chỗ, không có bảng điều khiển nào để học",
+  "teamsB5": "Cũng không có bảng điều khiển cho công ty — mua mã không cho công ty thấy số bước của bất kỳ ai. Các con số chỉ hiển thị trong nhóm mà mỗi người tham gia",
+  "teamsB6": "Đội năm người hay công ty năm trăm người đều dùng như nhau",
+  "teamsAsk": "<strong>Để nhận báo giá,</strong> hãy cho chúng tôi biết tên công ty, bao nhiêu người và trong bao lâu. Bạn muốn tự viết email? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Gửi email hỏi về gói đội nhóm",
+  "teamsNote": "Cardio Clowns sắp có mặt trên App Store. Liên hệ ngay để mã của bạn sẵn sàng đúng ngày ra mắt.",
+  "footTeams": "Mua cho công ty hoặc đội nhóm? <a href=\"#teams\">Cardio Clowns cho đội nhóm</a>"
 }

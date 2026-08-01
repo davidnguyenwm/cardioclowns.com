@@ -81,5 +81,18 @@
   "previewP1": "App Store 用プレビュー動画です。リアルタイムで動くランキング、スクロール中に届くライバルからの通知、一対一の綱引き、そしてGIFピッカー。",
   "previewP2": "「歩数計は笑える」——このアプリの主張はそれに尽きます。文章で証明するのは難しいのですが、10秒ほど見ればすぐに伝わります。",
   "videoLabel": "Cardio Clowns アプリのプレビュー動画",
-  "videoFallback": "お使いのブラウザではこの動画を再生できません。<a href=\"/media/preview/en-US.mp4\" data-preview-dl>ダウンロードしてご覧ください</a>。"
+  "videoFallback": "お使いのブラウザではこの動画を再生できません。<a href=\"/media/preview/en-US.mp4\" data-preview-dl>ダウンロードしてご覧ください</a>。",
+  "navTeams": "法人・チーム",
+  "h2Teams": "Cardio Clowns をチームで",
+  "teamsLead": "会社やチーム、クラブ全体で Pro を使いたいですか？<strong>チームプラン</strong>があります。一度お支払いいただければコードをまとめてお送りします。あとは各自がアプリでタップするだけで Pro が使えます。",
+  "teamsB1": "請求は一括 — カードまたは発注書で、会社名義でお支払いいただけます",
+  "teamsB2": "コードは1人に1つ。期間はご希望どおり — 6か月、1年、それ以上も",
+  "teamsB3": "インストールも設定も不要。各自がアプリで「コードを使う」をタップすれば完了です",
+  "teamsB4": "アカウント作成なし、席数の管理なし、覚えるための管理画面もなし",
+  "teamsB5": "雇用主向けの管理画面もありません。コードを買っても、会社が誰かの歩数を見られるようにはなりません。数字は本人が参加したグループの中だけで見えます",
+  "teamsB6": "5人のチームでも500人の会社でも、使い方は同じです",
+  "teamsAsk": "<strong>お見積もりには、</strong>会社名、人数、ご希望の期間をお知らせください。ご自身でメールを書く場合はこちらへ: <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ チームプランについて問い合わせる",
+  "teamsNote": "Cardio Clowns はまもなく App Store に登場します。今ご連絡いただければ、配信初日にコードをご用意します。",
+  "footTeams": "会社やチームでの購入をお考えですか？ <a href=\"#teams\">Cardio Clowns をチームで</a>"
 }

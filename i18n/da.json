@@ -81,5 +81,18 @@
   "previewP1": "App Store-eksemplet: ranglisten der opdateres live, en rivals notifikation der lander midt i scrollet, tovtrækningen i den indbyrdes duel og gif-vælgeren.",
   "previewP2": "Hele pointen er, at en skridttæller kan være sjov — svært at bevise i et afsnit og indlysende efter ti sekunders video.",
   "videoLabel": "Videoeksempel på appen Cardio Clowns",
-  "videoFallback": "Din browser kan ikke afspille videoen — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>hent den i stedet</a>."
+  "videoFallback": "Din browser kan ikke afspille videoen — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>hent den i stedet</a>.",
+  "navTeams": "Til teams",
+  "h2Teams": "Cardio Clowns til teams",
+  "teamsLead": "Vil du have Pro til en hel virksomhed, et team eller en klub? Vi har <strong>teamplaner</strong>. Du betaler én gang, vi sender dig en stak koder, og alle låser Pro op i appen med ét tryk.",
+  "teamsB1": "Én faktura til alle — kort eller indkøbsordre, i virksomhedens navn",
+  "teamsB2": "Én kode pr. person, gyldig så længe du vælger — seks måneder, et år eller længere",
+  "teamsB3": "Intet at installere eller sætte op: hver person trykker på “Indløs en kode” i appen, og så er det klaret",
+  "teamsB4": "Ingen konti at oprette, ingen pladser at styre, intet dashboard at lære",
+  "teamsB5": "Og heller intet arbejdsgiver-dashboard — at købe koder giver ikke virksomheden indblik i nogens skridt. Tallene ses kun inde i den gruppe, man er med i",
+  "teamsB6": "Virker på samme måde for et team på fem som for en virksomhed på fem hundrede",
+  "teamsAsk": "<strong>For at få et tilbud</strong> skal du bare fortælle os virksomheden, hvor mange personer og hvor længe. Vil du hellere skrive din egen mail? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Skriv til os om en teamplan",
+  "teamsNote": "Cardio Clowns lander snart i App Store. Kontakt os nu, så er dine koder klar på lanceringsdagen.",
+  "footTeams": "Køber du til en virksomhed eller et team? <a href=\"#teams\">Cardio Clowns til teams</a>"
 }

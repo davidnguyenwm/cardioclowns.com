@@ -81,5 +81,18 @@
   "previewP1": "L'anteprima dell'App Store: la classifica che si aggiorna in diretta, la notifica di un rivale che arriva mentre scorri, il tiro alla fune del testa a testa e il selettore di GIF.",
   "previewP2": "Tutta la promessa è che un contapassi possa far ridere: difficile da dimostrare in un paragrafo, ovvio dopo dieci secondi di video.",
   "videoLabel": "Video di anteprima dell'app Cardio Clowns",
-  "videoFallback": "Il tuo browser non riesce a riprodurre questo video — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>scaricalo</a>."
+  "videoFallback": "Il tuo browser non riesce a riprodurre questo video — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>scaricalo</a>.",
+  "navTeams": "Per i team",
+  "h2Teams": "Cardio Clowns per i team",
+  "teamsLead": "Vuoi Pro per un'intera azienda, un team o un club? Abbiamo i <strong>piani per team</strong>. Paghi una volta, ti mandiamo un lotto di codici e ognuno sblocca Pro nell'app con un tocco.",
+  "teamsB1": "Una sola fattura per tutti — carta o ordine d'acquisto, intestata all'azienda",
+  "teamsB2": "Un codice a testa, valido per il tempo che scegli — sei mesi, un anno o più",
+  "teamsB3": "Niente da installare o configurare: ognuno tocca «Riscatta un codice» nell'app e ha finito",
+  "teamsB4": "Nessun account da creare, nessuna licenza da gestire, nessun pannello da imparare",
+  "teamsB5": "E nessun pannello per il datore di lavoro: comprare i codici non dà all'azienda alcuna visibilità sui passi di nessuno. I numeri restano visibili solo dentro il gruppo a cui ciascuno si unisce",
+  "teamsB6": "Funziona allo stesso modo per un team di cinque o un'azienda di cinquecento persone",
+  "teamsAsk": "<strong>Per un preventivo,</strong> scrivici il nome dell'azienda, quante persone e per quanto tempo lo vuoi. Preferisci scrivere un'email tua? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Scrivici per un piano team",
+  "teamsNote": "Cardio Clowns arriva presto su App Store. Contattaci ora e i tuoi codici saranno pronti il giorno del lancio.",
+  "footTeams": "Compri per un'azienda o un team? <a href=\"#teams\">Cardio Clowns per i team</a>"
 }

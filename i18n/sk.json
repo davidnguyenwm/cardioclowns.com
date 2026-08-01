@@ -81,5 +81,18 @@
   "previewP1": "Ukážka pre App Store: rebríček aktualizovaný naživo, upozornenie od súpera uprostred rolovania, preťahovanie lanom vo vzájomnom súboji a výber GIFov.",
   "previewP2": "Celý prísľub znie: krokomer môže byť vtipný. V odseku sa to dokazuje ťažko, po desiatich sekundách videa je to zjavné.",
   "videoLabel": "Ukážkové video aplikácie Cardio Clowns",
-  "videoFallback": "Tvoj prehliadač toto video neprehrá — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>stiahni si ho</a>."
+  "videoFallback": "Tvoj prehliadač toto video neprehrá — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>stiahni si ho</a>.",
+  "navTeams": "Pre firmy",
+  "h2Teams": "Cardio Clowns pre tímy",
+  "teamsLead": "Chceš Pro pre celú firmu, tím alebo klub? Máme <strong>tímové plány</strong>. Zaplatíš raz, pošleme ti balík kódov a každý si Pro v aplikácii odomkne jedným ťuknutím.",
+  "teamsB1": "Jedna faktúra za všetkých — kartou alebo na objednávku, na meno firmy",
+  "teamsB2": "Jeden kód na osobu, platný tak dlho, ako si vyberieš — pol roka, rok alebo dlhšie",
+  "teamsB3": "Nič sa neinštaluje ani nenastavuje: každý v aplikácii ťukne na „Uplatniť kód“ a je hotovo",
+  "teamsB4": "Žiadne účty na zakladanie, žiadne miesta na správu, žiadny panel na učenie",
+  "teamsB5": "A ani žiadny panel pre zamestnávateľa — nákup kódov firme neukáže ničie kroky. Čísla vidno len vnútri skupiny, do ktorej sa človek pridá",
+  "teamsB6": "Funguje rovnako pre tím piatich aj pre firmu s päťsto ľuďmi",
+  "teamsAsk": "<strong>Pre ponuku</strong> nám napíš firmu, koľko ľudí a na ako dlho. Radšej napíšeš vlastný e-mail? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Napíš nám o tímovom pláne",
+  "teamsNote": "Cardio Clowns čoskoro príde do App Storu. Ozvi sa teraz a kódy budeš mať pripravené v deň vydania.",
+  "footTeams": "Kupuješ pre firmu alebo tím? <a href=\"#teams\">Cardio Clowns pre tímy</a>"
 }

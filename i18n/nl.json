@@ -81,5 +81,18 @@
   "previewP1": "De App Store-preview: het klassement dat live bijwerkt, de melding van een rivaal die midden in het scrollen binnenkomt, het touwtrekken van het onderlinge duel en de gif-kiezer.",
   "previewP2": "De hele belofte is dat een stappenteller grappig kan zijn. In een alinea moeilijk te bewijzen, na tien seconden video overduidelijk.",
   "videoLabel": "Voorvertoningsvideo van de app Cardio Clowns",
-  "videoFallback": "Je browser kan deze video niet afspelen — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>download hem</a>."
+  "videoFallback": "Je browser kan deze video niet afspelen — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>download hem</a>.",
+  "navTeams": "Voor teams",
+  "h2Teams": "Cardio Clowns voor teams",
+  "teamsLead": "Wil je Pro voor een heel bedrijf, team of club? Wij hebben <strong>teamplannen</strong>. Je betaalt één keer, wij sturen je een reeks codes en iedereen ontgrendelt Pro in de app met één tik.",
+  "teamsB1": "Eén factuur voor iedereen — per kaart of inkooporder, op naam van het bedrijf",
+  "teamsB2": "Eén code per persoon, geldig zo lang je wilt — zes maanden, een jaar of langer",
+  "teamsB3": "Niets te installeren of in te stellen: iedereen tikt in de app op ‘Code inwisselen’ en klaar",
+  "teamsB4": "Geen accounts aanmaken, geen plaatsen beheren, geen dashboard leren",
+  "teamsB5": "En ook geen werkgeversdashboard — codes kopen geeft een bedrijf geen inzicht in iemands stappen. Cijfers blijven alleen zichtbaar binnen de groep waar iemand aan meedoet",
+  "teamsB6": "Werkt hetzelfde voor een team van vijf als voor een bedrijf van vijfhonderd",
+  "teamsAsk": "<strong>Voor een offerte</strong> laat je ons weten om welk bedrijf het gaat, om hoeveel mensen en voor hoe lang. Liever zelf een mail schrijven? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Mail ons over een teamplan",
+  "teamsNote": "Cardio Clowns komt binnenkort in de App Store. Neem nu contact op, dan liggen je codes klaar op de dag van de lancering.",
+  "footTeams": "Koop je voor een bedrijf of team? <a href=\"#teams\">Cardio Clowns voor teams</a>"
 }

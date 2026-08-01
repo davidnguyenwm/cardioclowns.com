@@ -81,5 +81,18 @@
   "previewP1": "Pratinjau App Store: papan peringkat yang berubah langsung, notifikasi rival yang mendarat di tengah gulir, tarik tambang di duel satu lawan satu, dan pemilih GIF.",
   "previewP2": "Seluruh pitch-nya adalah bahwa penghitung langkah bisa lucu — sulit dibuktikan lewat satu paragraf, jelas sekali setelah sepuluh detik menonton.",
   "videoLabel": "Video pratinjau aplikasi Cardio Clowns",
-  "videoFallback": "Peramban kamu tidak bisa memutar video ini — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>unduh saja</a>."
+  "videoFallback": "Peramban kamu tidak bisa memutar video ini — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>unduh saja</a>.",
+  "navTeams": "Untuk tim",
+  "h2Teams": "Cardio Clowns untuk tim",
+  "teamsLead": "Mau Pro untuk satu perusahaan, tim, atau klub? Kami punya <strong>paket tim</strong>. Kamu bayar sekali, kami kirim sekumpulan kode, dan tiap orang membuka Pro di aplikasi dengan sekali ketuk.",
+  "teamsB1": "Satu tagihan untuk semua — kartu atau pesanan pembelian, atas nama perusahaan",
+  "teamsB2": "Satu kode per orang, berlaku selama yang kamu pilih — enam bulan, setahun, atau lebih",
+  "teamsB3": "Tidak ada yang perlu dipasang atau diatur: tiap orang mengetuk “Tukarkan Kode” di aplikasi dan selesai",
+  "teamsB4": "Tidak ada akun yang perlu dibuat, kursi yang perlu diatur, atau dasbor yang perlu dipelajari",
+  "teamsB5": "Tidak ada dasbor untuk perusahaan juga — membeli kode tidak memberi perusahaan akses ke langkah siapa pun. Angkanya hanya terlihat di dalam grup yang diikuti orang itu",
+  "teamsB6": "Sama saja untuk tim lima orang atau perusahaan lima ratus orang",
+  "teamsAsk": "<strong>Untuk penawaran,</strong> beri tahu kami nama perusahaan, berapa orang, dan untuk berapa lama. Lebih suka menulis email sendiri? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Email kami soal paket tim",
+  "teamsNote": "Cardio Clowns segera hadir di App Store. Hubungi kami sekarang dan kodemu siap di hari peluncuran.",
+  "footTeams": "Membeli untuk perusahaan atau tim? <a href=\"#teams\">Cardio Clowns untuk tim</a>"
 }

@@ -81,5 +81,18 @@
   "previewP1": "Die App-Store-Vorschau: die Rangliste, die sich live aktualisiert, die Nachricht eines Rivalen mitten im Scrollen, das Tauziehen im direkten Duell und die GIF-Auswahl.",
   "previewP2": "Der ganze Pitch lautet: Ein Schrittzähler kann witzig sein. Das lässt sich in einem Absatz schwer beweisen und ist nach zehn Sekunden Video offensichtlich.",
   "videoLabel": "Vorschauvideo der App Cardio Clowns",
-  "videoFallback": "Dein Browser kann dieses Video nicht abspielen — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>lade es stattdessen herunter</a>."
+  "videoFallback": "Dein Browser kann dieses Video nicht abspielen — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>lade es stattdessen herunter</a>.",
+  "navTeams": "Für Teams",
+  "h2Teams": "Cardio Clowns für Teams",
+  "teamsLead": "Du willst Pro für eine ganze Firma, ein Team oder einen Verein? Wir haben <strong>Team-Pakete</strong>. Du zahlst einmal, wir schicken dir einen Satz Codes, und alle schalten Pro in der App mit einem Tippen frei.",
+  "teamsB1": "Eine Rechnung für alle — per Karte oder Bestellung, auf den Namen der Firma",
+  "teamsB2": "Ein Code pro Person, gültig so lange du willst — sechs Monate, ein Jahr oder länger",
+  "teamsB3": "Nichts zu installieren, nichts einzurichten: Jede Person tippt in der App auf „Code einlösen“ und ist fertig",
+  "teamsB4": "Keine Konten anlegen, keine Plätze verwalten, kein Dashboard lernen",
+  "teamsB5": "Und auch kein Arbeitgeber-Dashboard — wer Codes kauft, bekommt keinen Einblick in die Schritte von irgendjemandem. Die Zahlen bleiben nur in der Gruppe sichtbar, der jemand beitritt",
+  "teamsB6": "Funktioniert für ein Team aus fünf Leuten genauso wie für eine Firma mit fünfhundert",
+  "teamsAsk": "<strong>Für ein Angebot</strong> sag uns die Firma, wie viele Leute und für wie lange. Lieber eine eigene E-Mail schreiben? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Schreib uns wegen eines Team-Pakets",
+  "teamsNote": "Cardio Clowns kommt bald in den App Store. Melde dich jetzt, dann sind deine Codes zum Start bereit.",
+  "footTeams": "Kaufst du für eine Firma oder ein Team? <a href=\"#teams\">Cardio Clowns für Teams</a>"
 }

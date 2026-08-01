@@ -81,5 +81,18 @@
   "previewP1": "App Store önizlemesi: canlı güncellenen sıralama, kaydırmanın ortasında düşen rakip bildirimi, birebir kapışmadaki halat çekme ve GIF seçici.",
   "previewP2": "Tüm iddia şu: adımsayar komik olabilir. Bunu bir paragrafta kanıtlamak zor, on saniyelik videoda ise apaçık.",
   "videoLabel": "Cardio Clowns uygulama önizleme videosu",
-  "videoFallback": "Tarayıcın bu videoyu oynatamıyor — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>bunun yerine indir</a>."
+  "videoFallback": "Tarayıcın bu videoyu oynatamıyor — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>bunun yerine indir</a>.",
+  "navTeams": "Ekipler için",
+  "h2Teams": "Ekipler için Cardio Clowns",
+  "teamsLead": "Bütün bir şirket, ekip ya da kulüp için Pro mu istiyorsun? <strong>Ekip paketlerimiz</strong> var. Bir kez ödüyorsun, sana bir deste kod gönderiyoruz, herkes uygulamada tek dokunuşla Pro'yu açıyor.",
+  "teamsB1": "Herkes için tek fatura — kartla ya da satın alma siparişiyle, şirket adına",
+  "teamsB2": "Kişi başı bir kod, istediğin süre kadar geçerli — altı ay, bir yıl ya da daha uzun",
+  "teamsB3": "Kurulacak ya da ayarlanacak bir şey yok: herkes uygulamada “Kod Kullan”a dokunuyor ve iş bitiyor",
+  "teamsB4": "Açılacak hesap, yönetilecek koltuk, öğrenilecek panel yok",
+  "teamsB5": "İşveren paneli de yok — kod satın almak şirkete kimsenin adımlarını göstermez. Sayılar yalnızca kişinin katıldığı grubun içinde görünür",
+  "teamsB6": "Beş kişilik ekipte de beş yüz kişilik şirkette de aynı şekilde çalışır",
+  "teamsAsk": "<strong>Teklif için</strong> şirketi, kaç kişi olduğunu ve ne kadar süre istediğini yaz. Kendi e-postanı yazmayı mı tercih edersin? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Ekip paketi için bize yaz",
+  "teamsNote": "Cardio Clowns yakında App Store'da. Şimdi yaz, kodların çıktığı gün hazır olsun.",
+  "footTeams": "Şirket ya da ekip için mi alıyorsun? <a href=\"#teams\">Ekipler için Cardio Clowns</a>"
 }

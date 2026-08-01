@@ -81,5 +81,18 @@
   "previewP1": "Pregled za App Store: ljestvica koja se osvježava uživo, obavijest suparnika usred listanja, potezanje užeta u međusobnom dvoboju i birač GIF-ova.",
   "previewP2": "Cijela je poanta da brojač koraka može biti smiješan. To je teško dokazati u jednom odlomku, a očito je nakon desetak sekundi videa.",
   "videoLabel": "Videopregled aplikacije Cardio Clowns",
-  "videoFallback": "Tvoj preglednik ne može reproducirati ovaj videozapis — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>preuzmi ga</a>."
+  "videoFallback": "Tvoj preglednik ne može reproducirati ovaj videozapis — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>preuzmi ga</a>.",
+  "navTeams": "Za timove",
+  "h2Teams": "Cardio Clowns za timove",
+  "teamsLead": "Želiš Pro za cijelu tvrtku, tim ili klub? Imamo <strong>timske pakete</strong>. Platiš jednom, pošaljemo ti hrpu kodova, a svatko otključa Pro u aplikaciji jednim dodirom.",
+  "teamsB1": "Jedan račun za sve — karticom ili po narudžbenici, na ime tvrtke",
+  "teamsB2": "Jedan kôd po osobi, vrijedi koliko odabereš — pola godine, godinu ili duže",
+  "teamsB3": "Nema se što instalirati ni postavljati: svatko u aplikaciji dodirne „Iskoristi kôd“ i gotovo",
+  "teamsB4": "Nema računa za otvaranje, mjesta za upravljanje ni nadzorne ploče za učenje",
+  "teamsB5": "Nema ni poslodavčeve nadzorne ploče — kupnja kodova tvrtki ne otkriva ničije korake. Brojke se vide samo unutar grupe kojoj se netko pridruži",
+  "teamsB6": "Jednako radi za tim od pet ljudi i za tvrtku od petsto",
+  "teamsAsk": "<strong>Za ponudu</strong> nam javi tvrtku, koliko ljudi i na koliko dugo. Radije pišeš vlastiti e-mail? <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ Piši nam o timskom paketu",
+  "teamsNote": "Cardio Clowns uskoro stiže na App Store. Javi se sad i kodovi će biti spremni na dan izlaska.",
+  "footTeams": "Kupuješ za tvrtku ili tim? <a href=\"#teams\">Cardio Clowns za timove</a>"
 }

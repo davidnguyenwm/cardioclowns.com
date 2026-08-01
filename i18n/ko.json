@@ -81,5 +81,18 @@
   "previewP1": "App Store 미리보기 영상입니다. 실시간으로 갱신되는 순위표, 스크롤 도중 도착하는 라이벌의 알림, 일대일 줄다리기, 그리고 GIF 선택기.",
   "previewP2": "이 앱의 주장은 하나입니다. 만보기도 웃길 수 있다는 것. 글 한 문단으로는 증명하기 어렵지만, 10초쯤 보면 바로 이해됩니다.",
   "videoLabel": "Cardio Clowns 앱 미리보기 영상",
-  "videoFallback": "브라우저에서 이 영상을 재생할 수 없습니다 — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>파일을 내려받아 보세요</a>."
+  "videoFallback": "브라우저에서 이 영상을 재생할 수 없습니다 — <a href=\"/media/preview/en-US.mp4\" data-preview-dl>파일을 내려받아 보세요</a>.",
+  "navTeams": "팀 플랜",
+  "h2Teams": "팀을 위한 Cardio Clowns",
+  "teamsLead": "회사나 팀, 동호회 전체가 Pro를 쓰고 싶으신가요? <strong>팀 플랜</strong>이 있습니다. 한 번만 결제하시면 코드를 묶음으로 보내드리고, 각자 앱에서 한 번만 누르면 Pro가 열립니다.",
+  "teamsB1": "청구서는 하나로 — 카드나 발주서로, 회사 명의로 결제할 수 있습니다",
+  "teamsB2": "1인당 코드 하나, 기간은 원하는 대로 — 6개월, 1년, 그 이상도 가능합니다",
+  "teamsB3": "설치하거나 설정할 것이 없습니다. 각자 앱에서 ‘코드 사용’을 누르면 끝입니다",
+  "teamsB4": "만들 계정도, 관리할 좌석도, 익혀야 할 관리 화면도 없습니다",
+  "teamsB5": "고용주용 관리 화면도 없습니다. 코드를 사도 회사가 누군가의 걸음 수를 볼 수는 없습니다. 숫자는 본인이 들어간 그룹 안에서만 보입니다",
+  "teamsB6": "다섯 명 팀이든 오백 명 회사든 쓰는 방법은 똑같습니다",
+  "teamsAsk": "<strong>견적을 받으시려면</strong> 회사 이름, 인원 수, 이용 기간을 알려주세요. 직접 메일을 쓰고 싶으시면 <a href=\"mailto:hello@cardioclowns.com\">hello@cardioclowns.com</a>",
+  "teamsMail": "✉️ 팀 플랜 문의하기",
+  "teamsNote": "Cardio Clowns가 곧 App Store에 나옵니다. 지금 연락 주시면 출시 당일에 코드를 준비해 드립니다.",
+  "footTeams": "회사나 팀을 위해 구매하시나요? <a href=\"#teams\">팀을 위한 Cardio Clowns</a>"
 }
