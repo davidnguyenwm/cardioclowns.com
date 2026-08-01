@@ -281,48 +281,9 @@
 
         .cc-nav-inner {
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            padding: 0.75rem 0;
-        }
-
-        /* Only the links scroll — the language picker stays put on the edge,
-           so it is reachable on a narrow phone without scrolling the nav. */
-        .cc-nav-links {
-            display: flex;
             gap: 0.25rem;
+            padding: 0.75rem 0;
             overflow-x: auto;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .cc-lang {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            flex: none;
-        }
-
-        .cc-lang label {
-            color: var(--cc-text-light);
-            font-size: 0.9rem;
-        }
-
-        .cc-lang select {
-            font: inherit;
-            font-size: 0.9rem;
-            color: var(--cc-text);
-            background: var(--cc-bg-light);
-            border: 1px solid var(--cc-border);
-            border-radius: 999px;
-            padding: 0.35rem 0.75rem;
-            max-width: 11rem;
-            cursor: pointer;
-        }
-
-        .cc-lang select:focus-visible {
-            outline: 2px solid var(--cc-primary);
-            outline-offset: 2px;
         }
 
         .cc-nav a {
@@ -575,10 +536,12 @@
         }
 
         @media (max-width: 560px) {
-            /* Keep the select, drop its label — the globe-less picker still
-               reads as a language control because the options are native names. */
-            .cc-lang label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-            .cc-lang select { max-width: 8.5rem; }
+            /* The centred icon reaches the picker once the screen narrows, and
+               it bounces 10px, so give the hero enough headroom for the icon to
+               pass under the picker without ever touching it. */
+            .cc-hero { padding-top: 4.75rem; }
+            .cc-hero-lang { top: 0.75rem; right: 0.9rem; }
+            .cc-hero-lang select { max-width: 8.5rem; }
         }
 
         @media (max-width: 480px) {
@@ -634,17 +597,11 @@
     <nav class="cc-nav">
         <div class="container">
             <div class="cc-nav-inner">
-                <div class="cc-nav-links">
-                    <a href="#about" data-i18n="navAbout">About</a>
-                    <a href="#features" data-i18n="navFeatures">Why It's Different</a>
-                    <a href="#how-it-works" data-i18n="navHow">How It Works</a>
-                    <a href="#privacy" data-i18n="navPrivacy">Privacy Policy</a>
-                    <a href="#support" data-i18n="navSupport">Support</a>
-                </div>
-                <div class="cc-lang">
-                    <label for="lang-select" data-i18n="langLabel">Language</label>
-                    <select id="lang-select" data-lang-picker aria-label="Language" data-i18n-label="langLabel"></select>
-                </div>
+                <a href="#about" data-i18n="navAbout">About</a>
+                <a href="#features" data-i18n="navFeatures">Why It's Different</a>
+                <a href="#how-it-works" data-i18n="navHow">How It Works</a>
+                <a href="#privacy" data-i18n="navPrivacy">Privacy Policy</a>
+                <a href="#support" data-i18n="navSupport">Support</a>
             </div>
         </div>
     </nav>
