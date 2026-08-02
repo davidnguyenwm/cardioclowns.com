@@ -383,7 +383,20 @@
             br: ['pt-BR', 'pt-BR'], kr: ['ko', 'ko'],
             nl: ['nl', 'nl-NL'],    tr: ['tr', 'tr'],
             'in': ['hi', 'hi'],     tw: ['zh-Hant', 'zh-Hant'],
-            cn: ['zh-Hans', 'zh-Hans']
+            cn: ['zh-Hans', 'zh-Hans'],
+            // Second wave. One storefront per language, so market code and
+            // language mostly coincide; the pairs that differ are the ones
+            // where App Store locale naming diverges from the i18n key.
+            pl: ['pl', 'pl'],       ar: ['ar', 'ar-SA'],
+            th: ['th', 'th'],       id: ['id', 'id'],
+            vi: ['vi', 'vi'],       sv: ['sv', 'sv'],
+            nb: ['nb', 'no'],       da: ['da', 'da'],
+            fi: ['fi', 'fi'],       he: ['he', 'he'],
+            cs: ['cs', 'cs'],       hu: ['hu', 'hu'],
+            ro: ['ro', 'ro'],       uk: ['uk', 'uk'],
+            ms: ['ms', 'ms'],       el: ['el', 'el'],
+            sk: ['sk', 'sk'],       hr: ['hr', 'hr'],
+            sl: ['sl', 'sl-SI'],    ru: ['ru', 'ru']
         };
 
         var market = (new URLSearchParams(location.search).get('m') || '').toLowerCase();
