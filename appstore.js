@@ -14,12 +14,22 @@
  * before launch and the two placeholders below are the only thing left to
  * swap.
  *
- * TO GO LIVE:
- *   1. APP_STORE_ID   — the numeric id from App Store Connect (Apple ID).
- *   2. PROVIDER_TOKEN — App Store Connect → Users and Access → the numeric
- *                       "Provider ID"/campaign token used for campaign links.
- * Until both are real numbers, `CCStore.isLive()` is false, links are left
- * alone, and the "Coming soon" CTAs stay as they are.
+ * TO GO LIVE: flip `LAUNCHED` to true and deploy. That is the whole step.
+ *
+ * The id and the launch moment are deliberately separate switches. Knowing the
+ * App Store id is not the same as being on sale, and tying the two together
+ * would mean pasting a ten-digit number into a live site under time pressure —
+ * the worst possible moment to be editing anything. Everything below is already
+ * real and verifiable in the console; `LAUNCHED` alone decides whether the
+ * "Coming soon" CTAs become download links.
+ *
+ * PROVIDER_TOKEN is still a placeholder: App Store Connect → Users and Access →
+ * the numeric "Provider ID"/campaign token. Links work without it, they just
+ * lose campaign attribution — and attribution is not retroactive, so fill it in
+ * before launch, not after.
+ *
+ * Verify the app is actually live before flipping — resultCount goes 0 → 1:
+ *   https://itunes.apple.com/lookup?id=6761773257
  *
  * CAMPAIGN NAMES (keep these stable — ASC groups by exact string):
  *   web_home          the homepage download buttons
@@ -35,16 +45,19 @@
 (function (global) {
     'use strict';
 
-    var APP_STORE_ID = 'APP_STORE_ID';
+    var APP_STORE_ID = '6761773257';
     var PROVIDER_TOKEN = 'PROVIDER_TOKEN';
+
+    /** The one launch-day switch. See the header. */
+    var LAUNCHED = false;
 
     function isNumeric(value) {
         return /^[0-9]+$/.test(value);
     }
 
-    /** True once the placeholders above have been replaced with real values. */
+    /** True once the app is on sale and this site is meant to link to it. */
     function isLive() {
-        return isNumeric(APP_STORE_ID);
+        return LAUNCHED && isNumeric(APP_STORE_ID);
     }
 
     /**
