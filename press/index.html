@@ -396,7 +396,17 @@
             ro: ['ro', 'ro'],       uk: ['uk', 'uk'],
             ms: ['ms', 'ms'],       el: ['el', 'el'],
             sk: ['sk', 'sk'],       hr: ['hr', 'hr'],
-            sl: ['sl', 'sl-SI'],    ru: ['ru', 'ru']
+            sl: ['sl', 'sl-SI'],    ru: ['ru', 'ru'],
+            // Third wave. India is one storefront but eleven languages, so
+            // 'in' (Hindi) alone can't address it — sending a Tamil channel a
+            // Hindi page is worse than sending it the English one. Every locale
+            // below already has i18n copy and screenshots; only the map entry
+            // was missing. See marketing/press/outreach-list.md in the app repo.
+            ta: ['ta', 'ta-IN'],    te: ['te', 'te-IN'],
+            ml: ['ml', 'ml-IN'],    kn: ['kn', 'kn-IN'],
+            bn: ['bn', 'bn-BD'],    mr: ['mr', 'mr-IN'],
+            gu: ['gu', 'gu-IN'],    pa: ['pa', 'pa-IN'],
+            or: ['or', 'or-IN'],    ur: ['ur', 'ur-PK']
         };
 
         var market = (new URLSearchParams(location.search).get('m') || '').toLowerCase();
