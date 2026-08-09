@@ -406,7 +406,12 @@
             ml: ['ml', 'ml-IN'],    kn: ['kn', 'kn-IN'],
             bn: ['bn', 'bn-BD'],    mr: ['mr', 'mr-IN'],
             gu: ['gu', 'gu-IN'],    pa: ['pa', 'pa-IN'],
-            or: ['or', 'or-IN'],    ur: ['ur', 'ur-PK']
+            or: ['or', 'or-IN'],    ur: ['ur', 'ur-PK'],
+            // Catalan can't use 'ca' — Canada took it, and a market code is a
+            // storefront before it is a language. Without an alias, Catalan is
+            // reachable only by hand through the language picker, never by a
+            // link in an email.
+            cat: ['ca', 'ca']
         };
 
         var market = (new URLSearchParams(location.search).get('m') || '').toLowerCase();

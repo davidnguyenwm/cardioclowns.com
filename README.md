@@ -46,6 +46,30 @@ Keep these strings stable; App Store Connect groups on the exact value.
 Anything published anywhere else should get its own name rather than reusing one
 of these — a campaign that can't be told apart from another isn't measurable.
 
+## Tests
+
+```
+node tests/press-locales.test.js
+```
+
+No dependencies and no package.json — plain Node against the checked-in files.
+Exits non-zero on failure.
+
+It checks that the press page's locale wiring is consistent across the three
+places a language has to be registered: `press/i18n/*.json` (the copy),
+`MARKETS` in `press/index.html` (the `?m=` codes), and `LANG_ASSETS` in
+`media.js` (the screenshot and video folders).
+
+Worth running because none of these failures surface at runtime. `?m=` falls
+back to English on an unknown code **by design**, so that a junk URL still
+renders a working page — which also means a half-registered language looks
+identical to a correct one. Tamil shipped with copy at `press/i18n/ta.json` and
+screenshots at `media/shots/ta-IN/` but no `MARKETS` entry, so
+`/press?m=ta` quietly served English for weeks. Nothing threw and nothing 404'd.
+
+The same gap caught Catalan, which cannot use `ca` because Canada owns that
+code — hence the `cat` alias.
+
 ## Analytics
 
 [`analytics.js`](analytics.js) adds cookieless page-view counting (Cloudflare Web
