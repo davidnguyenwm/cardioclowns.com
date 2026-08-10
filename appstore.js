@@ -22,11 +22,14 @@
  * affiliate data. No markup edit, no second file, nothing to remember at the
  * one moment there is least attention to spare.
  *
- * The two API tokens below are NOT launch-day work — fill them in whenever
- * they're available, before or after, and nothing about the flip depends on
- * them. Missing ones cost attribution, never a working download.
+ * PROVIDER_TOKEN below is not launch-day work and cannot be: App Store Connect
+ * answers "This app is currently unavailable for Analytics" until the app has
+ * been released, and the campaign link carrying `pt` is generated inside App
+ * Analytics. So it is the first thing to fill in once live, not a prerequisite
+ * — every install before then reports as an anonymous "Web Referrer" and never
+ * backfills. CF_BEACON_TOKEN in analytics.js, by contrast, can be had today.
  * `node tests/launch-readiness.test.js` reports exactly what is still open and
- * fails hard if the flag flips with anything unfinished.
+ * fails hard if the flag flips with anything that could have been done first.
  *
  * The id and the launch moment are deliberately separate switches. Knowing the
  * App Store id is not the same as being on sale, and tying the two together
@@ -194,6 +197,31 @@
     }
 
     /**
+     * The URL handed to the app when it opens from the Smart App Banner, made
+     * safe to sit inside the banner's comma-separated field list. Returns ''
+     * for anything that isn't a plain https URL.
+     *
+     * The third lock on the door `sourceToken` and `affiliateData` guard, and
+     * the one that was actually standing open: /join passes `location.href`,
+     * which is the whole URL including whatever query anyone chose to put in
+     * the link they sent. A comma is legal in a query string and browsers keep
+     * it literal, so `?code=CLWNS7&x=,app-id=999999999` was not a mangled
+     * app-argument — it was a *second* `app-id` field, appended to the banner
+     * by whoever wrote the invite. The banner is how an invitee gets to the
+     * App Store, so a link that can retarget it points them at another app
+     * entirely.
+     *
+     * Commas are encoded rather than dropped: %2C round-trips back to a comma
+     * through URLComponents in the app, so the deep link keeps working and the
+     * invitee still lands on their group code. Nothing legitimate is lost.
+     */
+    function appArgument(raw) {
+        if (!raw || typeof raw !== 'string') return '';
+        if (!/^https:\/\/[^\s]+$/.test(raw)) return '';
+        return raw.replace(/,/g, '%2C');
+    }
+
+    /**
      * Writes the Smart App Banner meta tag. `extra` carries the App Clip
      * fields the invite page needs; `appArgument` is the URL handed to the app
      * when it opens from the banner.
@@ -207,7 +235,8 @@
             content.push('app-clip-bundle-id=' + options.clipBundleID);
             content.push('app-clip-display=card');
         }
-        if (options.appArgument) content.push('app-argument=' + options.appArgument);
+        var argument = appArgument(options.appArgument);
+        if (argument) content.push('app-argument=' + argument);
         var affiliate = affiliateData(options.campaign);
         if (affiliate) content.push('affiliate-data=' + affiliate);
 

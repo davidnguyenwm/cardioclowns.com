@@ -35,26 +35,32 @@ What the flag does on its own:
 The CTA stays a `<span>` until then on purpose: it is not a link, not focusable,
 and cannot be mistaken for one by keyboard or screen reader.
 
-### Two tokens — fill in whenever, *not* on launch day
+### Two tokens — one before, one only after
 
-| File | Placeholder | Where to find it |
-| --- | --- | --- |
-| `appstore.js` | `APP_STORE_ID` | App Store Connect → App Information → Apple ID (numeric) — *already set* |
-| `appstore.js` | `PROVIDER_TOKEN` | App Store Connect → Users and Access → the numeric provider/campaign token |
-| `analytics.js` | `CF_BEACON_TOKEN` | Cloudflare → Web Analytics → add cardioclowns.com → copy token |
+| File | Placeholder | When | Where to find it |
+| --- | --- | --- | --- |
+| `appstore.js` | `APP_STORE_ID` | done | App Store Connect → App Information → Apple ID — *already set* |
+| `analytics.js` | `CF_BEACON_TOKEN` | **before** | Cloudflare → Web Analytics → add cardioclowns.com → copy token |
+| `appstore.js` | `PROVIDER_TOKEN` | **only after** | App Store Connect → Analytics → Acquisition → Campaigns → create a link, copy its `pt=` |
 
-Neither is launch-day work and nothing about the flip depends on them — do them
-the day they become available. A missing `PROVIDER_TOKEN` never breaks a
-download, because analytics is not worth a broken link; the links keep working
-and every install lands in the anonymous "Web Referrer" bucket instead. That
-failure is invisible and not backfillable, which is why it is a launch-gate
-failure and a console warning rather than a silent degrade.
+`PROVIDER_TOKEN` cannot be filled in ahead of time, and this is worth knowing
+before launch morning rather than during it. App Store Connect answers *"This
+app is currently unavailable for Analytics"* until the app has actually been
+released — and the campaign-link generator that mints `pt` lives inside App
+Analytics. The token does not exist until after the moment it is meant to
+measure. So it is not a launch blocker; it is the first thing to do once the app
+is live, and `launch-readiness` reports it as `now` rather than failing on it.
+
+Every install before it is set reports as an anonymous "Web Referrer" and never
+backfills, so "once live" means that day, not that month.
+
+A missing `PROVIDER_TOKEN` never breaks a download — analytics is not worth a
+broken link — so links keep working and the loss is silent. That is why
+`appstore.js` warns in the console when it is live and unattributed.
 
 Until `CF_BEACON_TOKEN` is a real 32-character token, the site makes no
-third-party requests at all.
-
-`node tests/launch-readiness.test.js` prints whatever is still open, and fails
-hard if the flag is flipped with anything unfinished.
+third-party requests at all. That one *is* obtainable today, so flipping
+`LAUNCHED` without it fails the launch gate.
 
 ### Press links and `?c=`
 
@@ -110,11 +116,14 @@ Each suite is standalone and exits non-zero on failure.
 | `appstore` | campaign attribution: `?c=` tokens, `pt`/`ct`, banner injection, the `/join` collision — and that flipping `LAUNCHED` really does produce a working, translated, tagged download button |
 | `analytics` | the beacon's first real execution: token gate, opt-out signals, per-page coverage |
 | `launch-readiness` | what is left before the flip — green and quiet today, red the moment `LAUNCHED` flips with anything unfinished |
+| `join` | the invite page itself, driven by real URLs: which codes it accepts, the campaign split, the sender's language in all 44, the copy button, and that a crafted invite link cannot inject Smart App Banner fields |
+| `invite-contract` | the invite contract with the iOS app — code alphabet, languages, bundle ids, entitlements and the AASA file, checked against the app's own source |
 
-The common thread is that all four cover failures with no runtime symptom. The
+The common thread is that all six cover failures with no runtime symptom. The
 press page falls back to English on an unknown `?m=`; a link with no `pt` still
-downloads the app; an unset beacon token just counts nothing. Every one of them
-looks exactly like success.
+downloads the app; an unset beacon token just counts nothing; an invite link the
+app parses differently still renders a page. Every one of them looks exactly
+like success.
 
 ### press-locales
 
@@ -132,6 +141,38 @@ screenshots at `media/shots/ta-IN/` but no `MARKETS` entry, so
 
 The same gap caught Catalan, which cannot use `ca` because Canada owns that
 code — hence the `cat` alias.
+
+### join and invite-contract
+
+`/join` is the only page here a stranger reaches by accident: it arrives in a
+text message, is opened once on a phone, and either produces an install or
+doesn't. Everything it does comes out of the URL it was opened with — the group
+code, the sender's language, the campaign split — and that URL is a string the
+sender can edit before pressing send.
+
+`join.test.js` drives the page's own two inline scripts with real URLs and reads
+what they wrote. The scripts parse the URL independently (one for the Smart App
+Banner campaign, one for the page), so it also checks the two against each
+other: a banner reporting `web_join_invite` while the page shows "ask your
+friend for the code" is an attribution number that has quietly stopped matching
+what the visitor saw.
+
+`invite-contract.test.js` covers the seam this repo shares with the app repo,
+where the same invite link is built and parsed by code in another language:
+
+| Both sides have to agree on | Or else |
+| --- | --- |
+| the code alphabet and length | the page shows a code the app cannot join with |
+| the language list | someone invited in Japanese lands on an English page |
+| the App Clip bundle id | the invite offers a clip that isn't this app's |
+| the AASA appIDs, paths and domain | every invite opens Safari instead of the app, forever |
+
+The app half is read out of the app's own source — `InviteLink.swift`,
+`Localization.swift`, the entitlements, `project.pbxproj` — rather than copied
+here, so the file cannot drift into agreeing with a stale copy of itself. It
+looks for the app checkout at `../cardioclowns2` or `$CC_APP_REPO`; without one
+those checks are reported as skipped rather than failed, so a machine with only
+the website still gets a green suite it can trust.
 
 ## Analytics
 

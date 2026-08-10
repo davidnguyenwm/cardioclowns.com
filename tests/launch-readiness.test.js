@@ -5,22 +5,29 @@
  *
  * Going live is one flag — `LAUNCHED` in appstore.js — and it is meant to stay
  * one flag. Everything that used to be a second launch-day edit now happens at
- * runtime from that flag, so what is left to go wrong is data entry that should
- * have happened days earlier:
+ * runtime from that flag, so what is left is two API tokens:
  *
+ *   CF_BEACON_TOKEN   missing -> the website measures nothing on the one day
+ *                     traffic actually arrives. Obtainable today; therefore a
+ *                     hard failure if the flag flips without it.
  *   PROVIDER_TOKEN    missing -> links work, every install reports as an
  *                     anonymous "Web Referrer", and the history cannot be
- *                     backfilled. You find out weeks later, permanently.
- *   CF_BEACON_TOKEN   missing -> the website measures nothing on the one day
- *                     traffic actually arrives.
+ *                     backfilled.
  *
- * Neither blocks a download, which is why neither will announce itself. Both
- * can be filled in at any time before the flip — they are not launch-day work
- * and should not be treated as such.
+ * The second one is deliberately NOT a launch blocker, which is the opposite of
+ * where this file started. App Store Connect answers "This app is currently
+ * unavailable for Analytics" until the app has been released, and the campaign
+ * link that carries `pt` is generated inside App Analytics — so the token does
+ * not exist until after the thing it is supposed to gate. Blocking on it would
+ * have failed the build on launch morning, over a value only launching can
+ * produce. It is reported as "now" once live instead, every day it stays open
+ * costing attribution that never comes back.
+ *
+ * Neither token breaks a download, which is why neither announces itself.
  *
  * This file is quiet and green today, listing what is still pending, and turns
- * into a hard failure the moment LAUNCHED flips with any of it unfinished. Run
- * it right after flipping the flag and before deploying.
+ * into a hard failure the moment LAUNCHED flips with anything unfinished that
+ * could have been finished. Run it right after flipping and before deploying.
  *
  * Dependency-free on purpose — this repo is static files on GitHub Pages and
  * has no package.json. Keep it that way.
@@ -83,59 +90,84 @@ const wiredAtRuntime = /CCStore\.wireLinks\(/.test(indexHtml) && /function activ
 
 /* ---------- the readiness table ---------- */
 
+// `blocksLaunch: false` means "cannot be done yet", not "matters less".
 const items = [
     {
         label: 'App Store id is a real number',
         ok: /^[0-9]+$/.test(APP_STORE_ID),
+        blocksLaunch: true,
         pending: `APP_STORE_ID is '${APP_STORE_ID}'`,
         fix: 'App Store Connect → App Information → Apple ID'
     },
     {
-        label: 'provider token is set, so campaigns report',
-        ok: /^[0-9]+$/.test(PROVIDER_TOKEN),
-        pending: `PROVIDER_TOKEN is '${PROVIDER_TOKEN}' — installs will report as anonymous Web Referrer, not backfillable`,
-        fix: 'App Store Connect → Users and Access → the numeric provider/campaign token'
-    },
-    {
         label: 'Cloudflare beacon token is set, so the site is measured',
         ok: /^[0-9a-f]{32}$/i.test(CF_BEACON_TOKEN),
+        blocksLaunch: true,
         pending: `CF_BEACON_TOKEN is '${CF_BEACON_TOKEN}' — the website counts nothing`,
         fix: 'Cloudflare → Web Analytics → add cardioclowns.com → copy the token'
     },
     {
         label: 'the download CTAs activate themselves from the flag',
         ok: ctaCount > 0 && wiredAtRuntime,
+        blocksLaunch: true,
         pending: ctaCount === 0
             ? 'no data-cc-campaign elements found in index.html at all'
             : 'index.html no longer calls CCStore.wireLinks(), or appstore.js lost activate() — the CTAs would stay "Coming soon" spans after the flip',
         fix: 'restore the runtime activation; tests/appstore.test.js covers what it has to do'
+    },
+    {
+        // Deliberately not a launch blocker, and it took a screenshot of App
+        // Store Connect to learn why: App Analytics answers "This app is
+        // currently unavailable for Analytics" until the app has actually been
+        // released, and the campaign-link generator that mints `pt` lives
+        // inside App Analytics. The token does not exist before launch. Making
+        // it a blocker would mean the launch flag could never be flipped —
+        // failing the build on launch morning for something only launching can
+        // fix.
+        label: 'provider token is set, so campaigns report',
+        ok: /^[0-9]+$/.test(PROVIDER_TOKEN),
+        blocksLaunch: false,
+        pending: `PROVIDER_TOKEN is '${PROVIDER_TOKEN}' — installs report as anonymous Web Referrer until it is set, and that history never backfills`,
+        fix: 'once live: App Store Connect → Analytics → Acquisition → Campaigns → create a link, and copy the pt= value out of it'
     }
 ];
 
 console.log(`launch flag: LAUNCHED = ${LAUNCHED}\n`);
 
+const blocking = items.filter((item) => item.blocksLaunch);
+const afterLaunch = items.filter((item) => !item.blocksLaunch);
+
 if (LAUNCHED) {
-    // Live. Every one of these is now a defect on a page that is serving.
-    check('the site is live and fully instrumented', items
+    // Live. Anything that could have been done beforehand is now a defect on a
+    // page that is serving.
+    check('the site is live and fully instrumented', blocking
         .filter((item) => !item.ok)
         .map((item) => `${item.pending}\n            fix: ${item.fix}`));
+
+    // Not failures — these unlock *because* the flag flipped. Loud, because
+    // every day they stay open is attribution that cannot be recovered.
+    for (const item of afterLaunch.filter((i) => !i.ok)) {
+        console.log(`  now   ${item.label}`);
+        console.log(`          ${item.pending}`);
+        console.log(`          fix: ${item.fix}`);
+    }
 } else {
     // Pre-launch. These are not failures, they are the checklist — but the
     // checklist has to be visible, or it is just a placeholder nobody reads.
-    console.log('  --    pre-launch: the checks below are reported, not enforced.');
-    console.log('        They become hard failures the moment LAUNCHED flips to true.\n');
+    console.log('  --    pre-launch: the checks below are reported, not enforced.\n');
     for (const item of items) {
         if (item.ok) {
             console.log(`  ok    ${item.label}`);
         } else {
-            console.log(`  todo  ${item.label}`);
+            console.log(`  ${item.blocksLaunch ? 'todo' : 'wait'}  ${item.label}`);
             console.log(`          ${item.pending}`);
             console.log(`          fix: ${item.fix}`);
         }
     }
     console.log();
     checks++;
-    console.log(`  ok    launch gate is readable and will enforce ${items.length} items when LAUNCHED flips`);
+    console.log(`  ok    launch gate is readable and will enforce ${blocking.length} items when LAUNCHED flips`);
+    console.log(`        (${afterLaunch.length} more can only be done once the app is live — shown as "wait")`);
 }
 
 /* ---------- always enforced, launched or not ---------- */
