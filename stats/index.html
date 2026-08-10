@@ -497,6 +497,7 @@
             <label class="field">
                 <span>CloudKit API token</span>
                 <input type="text" id="tok" placeholder="paste from CloudKit Console" autocomplete="off" spellcheck="false" required>
+                <span class="err" id="tokHint" style="text-transform:none;letter-spacing:0;font-weight:600"></span>
             </label>
             <label class="field">
                 <span>Container</span>
@@ -523,8 +524,8 @@
                 <strong>Where the token comes from</strong>
                 <ol>
                     <li>Open <code>icloud.developer.apple.com/dashboard</code></li>
-                    <li>Pick the container → <strong>Tokens &amp; Sharing</strong> → <strong>API Tokens</strong></li>
-                    <li><strong>Add token</strong>, name it “website stats”, leave the sign-in callback empty</li>
+                    <li>Pick the container, then <strong>switch the environment control beside its name to the one you want</strong> — tokens are scoped to it, and a Development token gets a flat 401 against Production</li>
+                    <li><strong>Tokens &amp; Keys</strong> → <strong>Add token</strong>, name it “website stats”</li>
                     <li>Copy it here</li>
                 </ol>
                 The token is encrypted with your password (AES-GCM, 600k-round
@@ -539,9 +540,13 @@
 <div id="app" hidden>
     <header class="top">
         <div class="top-in">
-            <div class="brand">🤡 Stats <small id="envBadge">production</small></div>
+            <div class="brand">🤡 Stats</div>
             <div class="spacer"></div>
             <div class="ctl">
+                <select id="envSel" aria-label="CloudKit environment">
+                    <option value="production">Production</option>
+                    <option value="development">Development</option>
+                </select>
                 <select id="days" aria-label="Time window">
                     <option value="7">Last 7 days</option>
                     <option value="30" selected>Last 30 days</option>
@@ -664,23 +669,72 @@ async function deriveKey(password, salt, rounds) {
     );
 }
 
+/// The key derived at unlock, kept for the life of the tab so changing a
+/// setting can re-seal the config without asking for the password again. It is
+/// a non-extractable `CryptoKey`: script can encrypt with it but cannot read
+/// the bytes back out, and it dies with the tab. The password itself is never
+/// held anywhere.
+let sessionKey = null, sessionSalt = null, sessionIter = KDF_ROUNDS;
+
 /** Encrypts a config object into the portable envelope stored in
  *  localStorage and (optionally) committed as `stats/config.enc`. */
 async function sealConfig(cfg, password) {
     const salt = crypto.getRandomValues(new Uint8Array(16));
-    const iv = crypto.getRandomValues(new Uint8Array(12));
     const key = await deriveKey(password, salt, KDF_ROUNDS);
-    const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(JSON.stringify(cfg)));
-    return JSON.stringify({ v: 1, kdf: "PBKDF2-SHA256", iter: KDF_ROUNDS, salt: b64.enc(salt), iv: b64.enc(iv), ct: b64.enc(ct) }, null, 2);
+    sessionKey = key; sessionSalt = b64.enc(salt); sessionIter = KDF_ROUNDS;
+    return envelopeFor(cfg);
+}
+
+/** Re-encrypts under the key already derived this session — same salt, fresh
+ *  IV. This is what lets the environment switch and a token swap happen
+ *  without a password round trip. */
+async function envelopeFor(cfg) {
+    if (!sessionKey) throw new Error("No key in this session — reload and unlock.");
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, sessionKey, enc.encode(JSON.stringify(cfg)));
+    return JSON.stringify({
+        v: 1, kdf: "PBKDF2-SHA256", iter: sessionIter,
+        salt: sessionSalt, iv: b64.enc(iv), ct: b64.enc(ct),
+    }, null, 2);
 }
 
 /** Reverses `sealConfig`. Throws on a wrong password (GCM auth failure). */
 async function openConfig(envelope, password) {
     const e = JSON.parse(envelope);
-    const key = await deriveKey(password, b64.dec(e.salt), e.iter || KDF_ROUNDS);
+    const salt = b64.dec(e.salt);
+    const iter = e.iter || KDF_ROUNDS;
+    const key = await deriveKey(password, salt, iter);
     const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64.dec(e.iv) }, key, b64.dec(e.ct));
+    sessionKey = key; sessionSalt = e.salt; sessionIter = iter;
     return JSON.parse(dec.decode(pt));
 }
+
+/** Writes the current config back to this browser, re-sealed. */
+async function persistConfig() {
+    const envelope = await envelopeFor(state.cfg);
+    try { localStorage.setItem(STORE_KEY, envelope); } catch (e) { /* private mode */ }
+    return envelope;
+}
+
+/// Config shape: `{ container, env, tokens: { production, development } }`.
+/// A CloudKit API token is scoped to the environment it was minted in — a
+/// Development token fails against Production exactly like a wrong one — so
+/// both are kept and the environment picker selects between them.
+function tokenFor(cfg) { return (cfg.tokens && cfg.tokens[cfg.env]) || ""; }
+
+/** Upgrades the original single-token config in place. */
+function migrateConfig(cfg) {
+    if (!cfg.tokens) {
+        cfg.tokens = {};
+        if (cfg.token) cfg.tokens[cfg.env || "production"] = cfg.token;
+        delete cfg.token;
+        return true;
+    }
+    return false;
+}
+
+/** Last few characters, so a saved token is recognisable without exposing it. */
+function maskToken(t) { return t ? "…" + t.slice(-6) : ""; }
 
 const STORE_KEY = "ccstats.config.v1";
 
@@ -734,7 +788,7 @@ function flatten(rec) {
 async function fetchEvents(cfg, sinceMs, onProgress) {
     const url = "https://api.apple-cloudkit.com/database/1/"
         + encodeURIComponent(cfg.container) + "/" + cfg.env
-        + "/public/records/query?ckAPIToken=" + encodeURIComponent(cfg.token);
+        + "/public/records/query?ckAPIToken=" + encodeURIComponent(tokenFor(cfg));
 
     const query = {
         recordType: RECORD_TYPE,
@@ -813,8 +867,13 @@ function explainCK(status, text) {
             return "CloudKit won't serve this to a token alone." + detail
                 + " Grant Read to the _world security role on the AnalyticsEvent record type, then deploy the schema.";
         }
+        // A token minted while the Console sat in one environment is refused
+        // outright by the other — the same flat 401 you get from a garbage
+        // string, which makes it the easiest cause to chase in the wrong place.
         return "CloudKit rejected the API token (" + status + ")." + detail
-            + " Most often this is the wrong string: it must be an API Token from Tokens & Sharing, not a Server-to-Server key, and it must belong to this exact container.";
+            + " Check the environment first: this page is reading " + (state.cfg ? state.cfg.env : "?")
+            + ", and a token created while the CloudKit Console was in the other environment is rejected exactly like a wrong one."
+            + " Otherwise make sure it came from Tokens & Keys → API Tokens (not a Server-to-Server key) in this container.";
     }
     if (status === 421) {
         return "CloudKit wants a signed-in user." + detail
@@ -1841,6 +1900,7 @@ const state = {
     loading: false,
     error: "",
     errorBody: "",
+    needsToken: false,
 };
 
 function renderTabs() {
@@ -1866,6 +1926,27 @@ function renderStatus() {
 
 function renderPanel() {
     const tab = TABS.find((t) => t.id === state.tab) || TABS[0];
+    if (state.needsToken) {
+        $("#panel").innerHTML = '<section class="card"><h2>No API token saved for ' + esc(state.cfg.env) + "</h2>"
+            + '<p class="hint">Tokens are scoped to the environment they were created in, so this one needs its own. '
+            + "In the CloudKit Console switch the environment control beside the container name to <strong>"
+            + esc(state.cfg.env) + "</strong>, then Tokens &amp; Keys → Add token.</p>"
+            + '<div style="max-width:620px;margin-top:.6rem">'
+            + '<label class="field"><span>' + esc(state.cfg.env) + ' API token</span>'
+            + '<input type="text" id="quickTok" spellcheck="false" autocomplete="off" placeholder="paste it here"></label>'
+            + '<button class="primary" id="quickSave" style="width:auto;padding:.55rem 1.1rem">Save &amp; load</button>'
+            + '<span class="err" id="quickMsg" style="margin-left:.7rem"></span>'
+            + "</div></section>";
+        $("#quickSave").onclick = async () => {
+            const v = $("#quickTok").value.trim();
+            if (!v) { $("#quickMsg").textContent = "Paste the token first."; return; }
+            state.cfg.tokens = state.cfg.tokens || {};
+            state.cfg.tokens[state.cfg.env] = v;
+            try { await persistConfig(); } catch (e) { /* private mode */ }
+            load();
+        };
+        return;
+    }
     if (state.loading && !state.events.length) {
         $("#panel").innerHTML = '<section class="card"><p class="empty">Loading…</p></section>';
         return;
@@ -1898,9 +1979,18 @@ function render() {
 }
 
 async function load() {
-    state.loading = true;
     state.error = "";
     state.errorBody = "";
+    // No point spending a round trip to be told the obvious.
+    if (!tokenFor(state.cfg)) {
+        state.loading = false;
+        state.events = [];
+        state.needsToken = true;
+        render();
+        return;
+    }
+    state.needsToken = false;
+    state.loading = true;
     render();
     const since = Date.now() - state.days * 86400000;
     try {
@@ -1971,6 +2061,12 @@ function crosshair(chart, ev) {
 }
 
 $("#days").addEventListener("change", (e) => { state.days = parseInt(e.target.value, 10); load(); });
+$("#envSel").addEventListener("change", async (e) => {
+    state.cfg.env = e.target.value;
+    // Remembered, so the next visit opens on the environment you were reading.
+    try { await persistConfig(); } catch (err) { /* keep going with the in-memory change */ }
+    load();
+});
 $("#refresh").addEventListener("click", load);
 $("#lock").addEventListener("click", () => location.reload());
 $("#theme").addEventListener("click", () => {
@@ -1983,33 +2079,69 @@ $("#theme").addEventListener("click", () => {
 });
 $("#cog").addEventListener("click", showSettings);
 
-/** Settings: re-key the token/environment, or export the sealed config so
- *  another device only ever needs the password. */
+/** One row of the settings form: the token slot for a single environment. */
+function tokenField(env) {
+    const saved = (state.cfg.tokens && state.cfg.tokens[env]) || "";
+    return '<label class="field"><span>' + esc(env) + " API token</span>"
+        + '<input type="text" id="tok_' + env + '" spellcheck="false" autocomplete="off" placeholder="'
+        + (saved ? "saved " + esc(maskToken(saved)) + " — type a new one to replace it" : "not set — paste the token for this environment")
+        + '"></label>';
+}
+
+/** Settings: swap either environment's token, fix the container, export the
+ *  sealed config, or forget this browser. Nothing here asks for the password —
+ *  the key derived at unlock is still in memory. */
 function showSettings() {
     const cfg = state.cfg;
-    const html = "Container <code>" + esc(cfg.container) + "</code> · environment <strong>" + esc(cfg.env) + "</strong>."
-        + " To change the token or switch environments, set this browser up again.";
-    $("#panel").innerHTML = '<section class="card"><h2>Settings</h2><p class="hint">' + html + "</p>"
-        + '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem">'
-        + '<button id="reSetup">Set up again</button>'
+    $("#panel").innerHTML = '<section class="card"><h2>Settings</h2>'
+        + '<p class="hint">CloudKit API tokens are scoped to the environment they were created in, so each one is stored separately. '
+        + "Leave a field blank to keep the token already saved for it.</p>"
+        + '<div style="max-width:620px">'
+        + '<label class="field"><span>Container</span><input type="text" id="setCont" value="' + esc(cfg.container) + '" spellcheck="false"></label>'
+        + tokenField("production")
+        + tokenField("development")
+        + '<button class="primary" id="saveCfg" style="width:auto;padding:.55rem 1.1rem">Save</button>'
+        + '<span class="err" id="saveMsg" style="margin-left:.7rem"></span>'
+        + "</div>"
+        + '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.2rem">'
         + '<button id="exportCfg">Export sealed config…</button>'
         + '<button id="forget">Forget this browser</button>'
         + "</div>"
         + '<div id="exportOut"></div>'
-        + '<p class="caveat">The sealed config holds your API token encrypted with your password. '
+        + '<p class="caveat">The sealed config holds your API tokens encrypted with your password. '
         + "Save it as <code>stats/config.enc</code> in the website repo and any other device just needs the password.</p>"
         + "</section>";
 
-    $("#reSetup").onclick = () => { location.reload(); };
+    $("#saveCfg").onclick = async () => {
+        const msg = $("#saveMsg");
+        msg.textContent = "";
+        const container = $("#setCont").value.trim();
+        if (!container) { msg.textContent = "The container can’t be empty."; return; }
+        cfg.container = container;
+        cfg.tokens = cfg.tokens || {};
+        for (const env of ["production", "development"]) {
+            const v = $("#tok_" + env).value.trim();
+            if (v) cfg.tokens[env] = v;
+        }
+        try {
+            await persistConfig();
+            msg.style.color = "var(--good)";
+            msg.textContent = "Saved.";
+            load();
+        } catch (e) {
+            msg.style.color = "var(--critical)";
+            msg.textContent = String(e.message || e);
+        }
+    };
+
     $("#forget").onclick = () => {
-        if (!confirm("Remove the saved token from this browser?")) return;
+        if (!confirm("Remove the saved tokens from this browser?")) return;
         try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ }
         location.reload();
     };
+
     $("#exportCfg").onclick = async () => {
-        const pw = prompt("Password to seal the config with (use the same one you unlock with):");
-        if (!pw) return;
-        const envelope = await sealConfig(cfg, pw);
+        const envelope = await envelopeFor(cfg);
         $("#exportOut").innerHTML = '<label class="field" style="margin-top:.9rem"><span>config.enc</span>'
             + "<textarea rows=8 readonly>" + esc(envelope) + "</textarea></label>"
             + '<button id="dl">Download config.enc</button>';
@@ -2042,6 +2174,16 @@ function showSetup() {
 
 $("#toSetup").addEventListener("click", showSetup);
 
+// A CloudKit API token is 64 hex characters. The Console shows API tokens
+// beside server-to-server keys and container identifiers, and pasting one of
+// those instead produces an identical 401 — so say so before the round trip.
+$("#tok").addEventListener("input", () => {
+    const v = $("#tok").value.trim();
+    $("#tokHint").textContent = (!v || /^[0-9a-f]{64}$/i.test(v))
+        ? ""
+        : "That doesn’t look like an API token — they’re 64 hex characters. Check you copied from Tokens & Keys → API Tokens.";
+});
+
 $("#unlockForm").addEventListener("submit", async (e) => {
     e.preventDefault();
     $("#unlockErr").textContent = "";
@@ -2068,10 +2210,11 @@ $("#setupForm").addEventListener("submit", async (e) => {
     if ($("#pw1").value !== $("#pw2").value) { err.textContent = "The two passwords don’t match."; return; }
     if ($("#pw1").value.length < 8) { err.textContent = "Use at least 8 characters."; return; }
 
+    const env = $("#env").value;
     const cfg = {
-        token: $("#tok").value.trim(),
         container: $("#cont").value.trim(),
-        env: $("#env").value,
+        env,
+        tokens: { [env]: $("#tok").value.trim() },
     };
     const btn = $("#setupForm button.primary");
     btn.disabled = true; btn.textContent = "Saving…";
@@ -2089,10 +2232,13 @@ $("#setupForm").addEventListener("submit", async (e) => {
 });
 
 function enter(cfg) {
+    const upgraded = migrateConfig(cfg);
     state.cfg = cfg;
-    $("#envBadge").textContent = cfg.env;
+    $("#envSel").value = cfg.env;
     $("#gate").hidden = true;
     $("#app").hidden = false;
+    // Write the upgraded shape back once, so the migration runs only ever once.
+    if (upgraded) persistConfig().catch(() => { /* private mode; harmless */ });
     render();
     load();
 }

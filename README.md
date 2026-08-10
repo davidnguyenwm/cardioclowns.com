@@ -96,13 +96,27 @@ It is not linked from anywhere, carries `noindex`, and is disallowed in
 
 Open `/stats/` and fill in the one-time form:
 
-1. **CloudKit API token** — CloudKit Console → the container → *Tokens &
-   Sharing* → *API Tokens* → **Add token** (name it anything, leave the sign-in
-   callback empty).
+1. **CloudKit API token** — CloudKit Console → the container → **switch the
+   environment control beside the container name to the environment you want**
+   → *Tokens & Keys* → **Add token**. Tokens are scoped to the environment they
+   were created in: a Development token used against Production returns a flat
+   `AUTHENTICATION_FAILED`, indistinguishable from a wrong token. Setting
+   *Allowed Origins* to `cardioclowns.com` is worth doing — it makes the token
+   useless anywhere but this page.
 2. **Container** — pre-filled with `iCloud.com.davidnguyen.CardioClowns`.
 3. **Environment** — *production* for App Store and TestFlight builds,
    *development* for debug builds run from Xcode.
 4. **A password.**
+
+After that the header carries a Production/Development switch, and the config
+holds **one token per environment**, so switching never asks for a token you
+already saved. The first time you switch to an environment with no token, the
+page asks for that one token inline and remembers it. ⚙ shows both slots (each
+masked to its last few characters) and takes a replacement for either.
+
+No settings change re-prompts for the password: the key derived at unlock is
+kept in memory for the life of the tab as a non-extractable `CryptoKey`, and
+re-sealing reuses it with a fresh IV. Closing the tab drops it.
 
 The token is encrypted with that password (AES-GCM, 600,000-round PBKDF2, random
 salt and IV) before it is written to this browser's `localStorage`. The derived
