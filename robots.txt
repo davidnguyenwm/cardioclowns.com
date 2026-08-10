@@ -1,0 +1,9 @@
+# cardioclowns.com
+#
+# Everything on the marketing site is fair game. /stats/ is the private
+# analytics dashboard — it is password-gated anyway, but there is no reason
+# for it to sit in a search index.
+
+User-agent: *
+Disallow: /stats/
+Allow: /

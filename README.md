@@ -78,3 +78,50 @@ don't have the app yet, and that step of the referral funnel was previously
 invisible. It sets no cookies, uses no browser storage or cross-site
 identifiers, and honours Do Not Track. The privacy policy describes it under
 "This website".
+
+## /stats — the private app dashboard
+
+[`stats/index.html`](stats/index.html) is the same analytics the phone's hidden
+Debug menu shows, on the web: engagement, the money funnel, the referral loop,
+groups and geography, build adoption, permissions and the degraded paths. It
+reads the app's own `AnalyticsEvent` records live from the CloudKit **public**
+database over CloudKit Web Services and does every aggregation in the browser —
+no server, no export step, no third-party analytics vendor, and every number is
+a transcription of the reader of the same name in `AnalyticsManager.swift`.
+
+It is not linked from anywhere, carries `noindex`, and is disallowed in
+[`robots.txt`](robots.txt).
+
+### First run
+
+Open `/stats/` and fill in the one-time form:
+
+1. **CloudKit API token** — CloudKit Console → the container → *Tokens &
+   Sharing* → *API Tokens* → **Add token** (name it anything, leave the sign-in
+   callback empty).
+2. **Container** — pre-filled with `iCloud.com.davidnguyen.CardioClowns`.
+3. **Environment** — *production* for App Store and TestFlight builds,
+   *development* for debug builds run from Xcode.
+4. **A password.**
+
+The token is encrypted with that password (AES-GCM, 600,000-round PBKDF2, random
+salt and IV) before it is written to this browser's `localStorage`. The derived
+key is never stored, so a reload asks for the password again. Nothing but the
+CloudKit API ever receives the token.
+
+### Using it on a second device
+
+Either repeat the setup, or export the sealed config once (⚙ → *Export sealed
+config…*), save the downloaded file as `stats/config.enc` and commit it. When
+that file exists, every device only needs the password — the file itself is
+ciphertext, so publishing it exposes nothing without the passphrase.
+
+### If it can't read CloudKit
+
+The error is shown in place. The two worth knowing:
+
+- **401 / 403** — the API token was deleted or belongs to another container.
+- **"clientTimestamp isn't queryable/sortable"** — the index is missing in that
+  environment. Add it in the CloudKit Console and deploy the schema.
+
+An empty dashboard usually means the wrong environment, not missing data.

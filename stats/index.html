@@ -1,0 +1,2106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Private tool. Never indexed, never linked from the marketing site. The
+         robots.txt at the site root disallows /stats/ as well; this tag is the
+         belt to that braces, because a crawler that finds the URL some other
+         way (a shared link, a referrer header) never reads robots.txt for it. -->
+    <meta name="robots" content="noindex,nofollow,noarchive">
+    <meta name="theme-color" content="#E12D74">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <title>Stats — Cardio Clowns</title>
+    <style>
+        /* ------------------------------------------------------------------
+           Palette. Light values live on bare :root so the page has a complete
+           palette with no media query involved; the dark steps are redeclared
+           twice — once for the OS setting, once for the in-page toggle — so the
+           toggle wins in both directions.
+
+           The categorical hues are the validated eight-slot set (worst adjacent
+           CVD ΔE 9.1 light / 8.4 dark). Three light-mode slots sit below 3:1 on
+           the light surface, which is why every chart on this page ships
+           visible direct labels or a table — nothing here is color-alone.
+           ------------------------------------------------------------------ */
+        :root {
+            color-scheme: light;
+            --surface-1: #fcfcfb;
+            --plane: #f3f3f0;
+            --text-primary: #0b0b0b;
+            --text-secondary: #52514e;
+            --text-muted: #898781;
+            --grid: #e1e0d9;
+            --axis: #c3c2b7;
+            --border: rgba(11, 11, 11, 0.10);
+            --shadow: 0 1px 2px rgba(11, 11, 11, .05), 0 6px 20px rgba(11, 11, 11, .05);
+
+            --series-1: #2a78d6;  /* blue    — the default magnitude hue */
+            --series-2: #eb6834;  /* orange  — the second series (Pro, Watch) */
+            --series-3: #1baf7a;  /* aqua    */
+            --series-4: #eda100;  /* yellow  */
+            --series-5: #e87ba4;  /* magenta */
+            --series-6: #008300;  /* green   */
+            --series-7: #4a3aa7;  /* violet  */
+            --series-8: #e34948;  /* red     */
+
+            /* Ordinal ramp for funnel stages — one hue, light→dark, no step
+               lighter than 250 so the first stage still clears 2:1. */
+            --ord-1: #86b6ef;
+            --ord-2: #5598e7;
+            --ord-3: #2a78d6;
+            --ord-4: #1c5cab;
+            --ord-5: #104281;
+
+            --good: #0ca30c;
+            --warning: #fab219;
+            --serious: #ec835a;
+            --critical: #d03b3b;
+
+            --track: #e8e7e2;
+            --brand: #e84545;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                color-scheme: dark;
+                --surface-1: #1a1a19;
+                --plane: #0d0d0d;
+                --text-primary: #ffffff;
+                --text-secondary: #c3c2b7;
+                --text-muted: #898781;
+                --grid: #2c2c2a;
+                --axis: #383835;
+                --border: rgba(255, 255, 255, 0.10);
+                --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .35);
+
+                --series-1: #3987e5;
+                --series-2: #d95926;
+                --series-3: #199e70;
+                --series-4: #c98500;
+                --series-5: #d55181;
+                --series-6: #008300;
+                --series-7: #9085e9;
+                --series-8: #e66767;
+
+                --ord-1: #cde2fb;
+                --ord-2: #9ec5f4;
+                --ord-3: #6da7ec;
+                --ord-4: #3987e5;
+                --ord-5: #256abf;
+
+                --track: #2c2c2a;
+            }
+        }
+        :root[data-theme="dark"] {
+            color-scheme: dark;
+            --surface-1: #1a1a19;
+            --plane: #0d0d0d;
+            --text-primary: #ffffff;
+            --text-secondary: #c3c2b7;
+            --text-muted: #898781;
+            --grid: #2c2c2a;
+            --axis: #383835;
+            --border: rgba(255, 255, 255, 0.10);
+            --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 6px 20px rgba(0, 0, 0, .35);
+
+            --series-1: #3987e5;
+            --series-2: #d95926;
+            --series-3: #199e70;
+            --series-4: #c98500;
+            --series-5: #d55181;
+            --series-6: #008300;
+            --series-7: #9085e9;
+            --series-8: #e66767;
+
+            --ord-1: #cde2fb;
+            --ord-2: #9ec5f4;
+            --ord-3: #6da7ec;
+            --ord-4: #3987e5;
+            --ord-5: #256abf;
+
+            --track: #2c2c2a;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* An author `display` declaration outranks the UA sheet's
+           `[hidden] { display: none }`, and both the gate and the tab panels
+           set one — without this the lock screen would still be painted over
+           the dashboard after unlocking. */
+        [hidden] { display: none !important; }
+
+        body {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            background: var(--plane);
+            color: var(--text-primary);
+            font-size: 15px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ---------------------------- Gate ---------------------------- */
+
+        .gate {
+            min-height: 100dvh;
+            display: grid;
+            place-items: center;
+            padding: 1.5rem;
+        }
+        .gate-card {
+            width: min(420px, 100%);
+            background: var(--surface-1);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 1.75rem;
+        }
+        .gate-card h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: -.02em; }
+        .gate-card .sub { color: var(--text-secondary); font-size: .875rem; margin: .35rem 0 1.25rem; }
+        .clown { font-size: 2rem; line-height: 1; }
+
+        label.field { display: block; margin-bottom: .85rem; }
+        label.field > span {
+            display: block;
+            font-size: .75rem;
+            font-weight: 600;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: .3rem;
+        }
+        input[type=text], input[type=password], select, textarea {
+            width: 100%;
+            font: inherit;
+            font-size: .9rem;
+            color: var(--text-primary);
+            background: var(--plane);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            padding: .55rem .7rem;
+        }
+        textarea { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .72rem; resize: vertical; }
+        input:focus, select:focus, textarea:focus { outline: 2px solid var(--series-1); outline-offset: 1px; }
+
+        button {
+            font: inherit;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: var(--surface-1);
+            color: var(--text-primary);
+            border-radius: 9px;
+            padding: .5rem .85rem;
+            cursor: pointer;
+        }
+        button:hover { background: var(--plane); }
+        button.primary {
+            background: var(--series-1);
+            border-color: transparent;
+            color: #fff;
+            width: 100%;
+            padding: .65rem;
+        }
+        button.primary:hover { filter: brightness(1.06); }
+        button.ghost { background: none; }
+
+        .note {
+            font-size: .78rem;
+            color: var(--text-secondary);
+            background: var(--plane);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: .6rem .7rem;
+            margin-top: 1rem;
+        }
+        .note code { font-family: ui-monospace, Menlo, monospace; font-size: .95em; }
+        .note ol { margin: .4rem 0 0 1.1rem; }
+        .note li { margin-bottom: .25rem; }
+        .err {
+            color: var(--critical);
+            font-size: .82rem;
+            margin-top: .75rem;
+            font-weight: 600;
+        }
+        .err:empty { display: none; }
+
+        /* --------------------------- Chrome --------------------------- */
+
+        header.top {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            background: color-mix(in srgb, var(--plane) 88%, transparent);
+            backdrop-filter: saturate(180%) blur(12px);
+            border-bottom: 1px solid var(--border);
+        }
+        .top-in {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: .7rem 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            flex-wrap: wrap;
+        }
+        .brand { font-weight: 800; letter-spacing: -.02em; display: flex; align-items: center; gap: .45rem; }
+        .brand small {
+            font-weight: 600;
+            font-size: .68rem;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: .1rem .45rem;
+        }
+        .spacer { flex: 1 1 auto; }
+        .ctl { display: flex; align-items: center; gap: .4rem; }
+        .ctl select { width: auto; padding: .35rem 1.6rem .35rem .5rem; font-size: .82rem; }
+        .iconbtn { padding: .35rem .55rem; font-size: .9rem; line-height: 1; }
+
+        nav.tabs {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 1.1rem;
+            display: flex;
+            gap: .15rem;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        nav.tabs::-webkit-scrollbar { display: none; }
+        nav.tabs button {
+            border: none;
+            background: none;
+            border-radius: 0;
+            color: var(--text-secondary);
+            padding: .55rem .7rem;
+            border-bottom: 2px solid transparent;
+            white-space: nowrap;
+            font-size: .875rem;
+        }
+        nav.tabs button:hover { color: var(--text-primary); background: none; }
+        nav.tabs button[aria-selected=true] {
+            color: var(--text-primary);
+            border-bottom-color: var(--series-1);
+        }
+
+        main { max-width: 1180px; margin: 0 auto; padding: 1.1rem 1.1rem 4rem; }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+            flex-wrap: wrap;
+            font-size: .78rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: .3rem;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: .12rem .55rem;
+            background: var(--surface-1);
+        }
+        .pill.warn { border-color: var(--warning); color: var(--text-primary); }
+        .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--good); }
+        .pill.warn .dot { background: var(--warning); }
+
+        /* --------------------------- Cards ---------------------------- */
+
+        .grid { display: grid; gap: .85rem; }
+        .cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        @media (max-width: 860px) { .cols-2, .cols-3 { grid-template-columns: minmax(0, 1fr); } }
+
+        .card {
+            background: var(--surface-1);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem 1.1rem 1.15rem;
+            box-shadow: var(--shadow);
+            min-width: 0;
+        }
+        .card > h2 {
+            font-size: .95rem;
+            font-weight: 700;
+            letter-spacing: -.01em;
+            margin-bottom: .15rem;
+        }
+        .card > p.hint {
+            font-size: .78rem;
+            color: var(--text-secondary);
+            margin-bottom: .9rem;
+        }
+        .card > p.hint:last-child { margin-bottom: 0; }
+
+        /* Stat tiles + hero figure */
+        .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .55rem; }
+        .tile {
+            background: var(--surface-1);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: .7rem .8rem .75rem;
+        }
+        .tile .label { font-size: .72rem; color: var(--text-muted); font-weight: 600; }
+        .tile .value { font-size: 1.5rem; font-weight: 650; letter-spacing: -.02em; margin-top: .1rem; }
+        .tile .sub { font-size: .72rem; color: var(--text-secondary); margin-top: .1rem; }
+
+        .hero { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+        .hero .figure { font-size: 3rem; font-weight: 650; letter-spacing: -.035em; line-height: 1; }
+        .hero .cap { font-size: .85rem; color: var(--text-secondary); }
+
+        /* Horizontal bars — HTML so a label can never be clipped by its mark. */
+        .hbars { display: flex; flex-direction: column; gap: .5rem; }
+        .hbar { display: grid; grid-template-columns: minmax(90px, 34%) 1fr auto; gap: .6rem; align-items: center; }
+        .hbar .k {
+            font-size: .8rem;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .hbar .track { background: var(--track); border-radius: 999px; height: 12px; position: relative; }
+        .hbar .fill { height: 12px; border-radius: 0 4px 4px 0; min-width: 2px; }
+        .hbar .v {
+            font-size: .8rem;
+            font-weight: 650;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+        .hbar .v em { font-style: normal; font-weight: 500; color: var(--text-muted); font-size: .92em; }
+        .hbar:hover .k, .hbar:hover .v { color: var(--text-primary); }
+
+        /* Column histogram */
+        .cols {
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            gap: 2px;
+            height: 150px;
+            padding-top: 1.2rem;
+            border-bottom: 1px solid var(--axis);
+        }
+        /* Capped so a histogram with only two or three buckets clusters at the
+           left instead of stranding two lonely columns across the whole card. */
+        .colwrap { flex: 1 1 0; min-width: 0; max-width: 54px; display: flex; flex-direction: column; justify-content: flex-end; height: 100%; position: relative; }
+        .colwrap .bar { border-radius: 4px 4px 0 0; min-height: 2px; margin: 0 auto; width: min(24px, 100%); }
+        .colwrap .cap {
+            position: absolute;
+            top: -1.15rem;
+            left: 0; right: 0;
+            text-align: center;
+            font-size: .68rem;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-secondary);
+        }
+        .colaxis { display: flex; justify-content: flex-start; gap: 2px; margin-top: .3rem; }
+        .colaxis > div { flex: 1 1 0; min-width: 0; max-width: 54px; text-align: center; font-size: .68rem; color: var(--text-muted); font-variant-numeric: tabular-nums; }
+
+        /* Meter */
+        .meter { margin-top: .2rem; }
+        .meter .row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .3rem; }
+        .meter .name { font-size: .82rem; color: var(--text-secondary); }
+        .meter .pctv { font-size: 1.05rem; font-weight: 650; font-variant-numeric: tabular-nums; }
+        .meter .track { background: var(--track); border-radius: 999px; height: 10px; }
+        .meter .fill { height: 10px; border-radius: 999px 4px 4px 999px; }
+        .meter .foot { font-size: .72rem; color: var(--text-muted); margin-top: .25rem; }
+
+        /* Legend */
+        .legend { display: flex; gap: .9rem; flex-wrap: wrap; font-size: .78rem; color: var(--text-secondary); margin-bottom: .5rem; }
+        .legend span { display: inline-flex; align-items: center; gap: .35rem; }
+        .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+        /* Tables */
+        .tw { overflow-x: auto; }
+        table { border-collapse: collapse; width: 100%; font-size: .82rem; }
+        th, td { text-align: right; padding: .4rem .5rem; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+        th:first-child, td:first-child { text-align: left; white-space: normal; min-width: 130px; }
+        th {
+            font-size: .68rem;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: var(--text-muted);
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            background: var(--surface-1);
+        }
+        td { font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+        td:first-child { color: var(--text-primary); font-variant-numeric: normal; }
+        tbody tr:hover td { background: var(--plane); }
+        td .swatch { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: .4rem; }
+
+        .empty { color: var(--text-muted); font-size: .82rem; padding: .6rem 0; }
+
+        /* Time series */
+        .chart { position: relative; }
+        .chart svg { display: block; max-width: 100%; height: auto; overflow: visible; }
+        .tip {
+            position: fixed;
+            z-index: 60;
+            pointer-events: none;
+            background: var(--surface-1);
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            box-shadow: var(--shadow);
+            padding: .4rem .55rem;
+            font-size: .76rem;
+            color: var(--text-primary);
+            opacity: 0;
+            transition: opacity .1s;
+            max-width: 260px;
+        }
+        .tip .t { color: var(--text-muted); font-size: .7rem; }
+        .tip .r { display: flex; align-items: center; gap: .35rem; font-variant-numeric: tabular-nums; }
+        .tip .r i { width: 8px; height: 8px; border-radius: 2px; }
+
+        .spin {
+            width: 15px; height: 15px;
+            border: 2px solid var(--border);
+            border-top-color: var(--series-1);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (prefers-reduced-motion: reduce) { .spin { animation-duration: 2s; } }
+
+        .caveat { font-size: .72rem; color: var(--text-muted); margin-top: .7rem; }
+    </style>
+</head>
+<body>
+
+<!-- ====================== Lock / first-run setup ====================== -->
+<div class="gate" id="gate">
+    <div class="gate-card">
+        <div class="clown">🤡</div>
+        <h1 id="gateTitle">Cardio Clowns stats</h1>
+        <p class="sub" id="gateSub">Enter your password to unlock.</p>
+
+        <form id="unlockForm" hidden>
+            <label class="field">
+                <span>Password</span>
+                <input type="password" id="pw" autocomplete="current-password" required>
+            </label>
+            <button class="primary" type="submit">Unlock</button>
+            <p class="err" id="unlockErr"></p>
+            <p style="text-align:center;margin-top:.8rem">
+                <button type="button" class="ghost" id="toSetup" style="font-size:.78rem;color:var(--text-secondary)">Set up this browser again</button>
+            </p>
+        </form>
+
+        <form id="setupForm" hidden>
+            <label class="field">
+                <span>CloudKit API token</span>
+                <input type="text" id="tok" placeholder="paste from CloudKit Console" autocomplete="off" spellcheck="false" required>
+            </label>
+            <label class="field">
+                <span>Container</span>
+                <input type="text" id="cont" value="iCloud.com.davidnguyen.CardioClowns" spellcheck="false" required>
+            </label>
+            <label class="field">
+                <span>Environment</span>
+                <select id="env">
+                    <option value="production">Production — App Store &amp; TestFlight</option>
+                    <option value="development">Development — Xcode debug builds</option>
+                </select>
+            </label>
+            <label class="field">
+                <span>Password to lock it with</span>
+                <input type="password" id="pw1" autocomplete="new-password" required minlength="8">
+            </label>
+            <label class="field">
+                <span>Confirm password</span>
+                <input type="password" id="pw2" autocomplete="new-password" required minlength="8">
+            </label>
+            <button class="primary" type="submit">Save &amp; unlock</button>
+            <p class="err" id="setupErr"></p>
+            <div class="note">
+                <strong>Where the token comes from</strong>
+                <ol>
+                    <li>Open <code>icloud.developer.apple.com/dashboard</code></li>
+                    <li>Pick the container → <strong>Tokens &amp; Sharing</strong> → <strong>API Tokens</strong></li>
+                    <li><strong>Add token</strong>, name it “website stats”, leave the sign-in callback empty</li>
+                    <li>Copy it here</li>
+                </ol>
+                The token is encrypted with your password (AES-GCM, 600k-round
+                PBKDF2) before it touches this browser’s storage. It is never
+                sent anywhere except Apple’s CloudKit API.
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============================ Dashboard ============================ -->
+<div id="app" hidden>
+    <header class="top">
+        <div class="top-in">
+            <div class="brand">🤡 Stats <small id="envBadge">production</small></div>
+            <div class="spacer"></div>
+            <div class="ctl">
+                <select id="days" aria-label="Time window">
+                    <option value="7">Last 7 days</option>
+                    <option value="30" selected>Last 30 days</option>
+                    <option value="90">Last 90 days</option>
+                </select>
+                <button class="iconbtn" id="refresh" title="Refresh from CloudKit" aria-label="Refresh">↻</button>
+                <button class="iconbtn" id="theme" title="Toggle light / dark" aria-label="Toggle theme">◐</button>
+                <button class="iconbtn" id="cog" title="Settings" aria-label="Settings">⚙</button>
+                <button class="iconbtn" id="lock" title="Lock" aria-label="Lock">🔒</button>
+            </div>
+        </div>
+        <nav class="tabs" id="tabs" role="tablist"></nav>
+    </header>
+
+    <main>
+        <div class="status" id="status"></div>
+        <div id="panel"></div>
+    </main>
+</div>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+(function () {
+
+/* ====================================================================
+   1. Small helpers
+   ==================================================================== */
+
+const $ = (sel, root) => (root || document).querySelector(sel);
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+
+const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => (
+    { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+));
+
+const int = (n) => (n == null || !isFinite(n) ? "—" : Math.round(n).toLocaleString());
+const compact = (n) => {
+    if (n == null || !isFinite(n)) return "—";
+    const a = Math.abs(n);
+    if (a >= 1e6) return (n / 1e6).toFixed(a >= 1e7 ? 0 : 1).replace(/\.0$/, "") + "M";
+    if (a >= 1e4) return (n / 1e3).toFixed(0) + "K";
+    if (a >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "K";
+    return Math.round(n).toLocaleString();
+};
+const pct = (x, digits) => (x == null || !isFinite(x) ? "—" : (x * 100).toFixed(digits == null ? 1 : digits) + "%");
+const dec1 = (x) => (x == null || !isFinite(x) ? "—" : (Math.abs(x) >= 10 ? x.toFixed(0) : x.toFixed(1)));
+
+/** `yyyy-mm-dd` in the reader's own time zone — the day buckets a person
+ *  actually thinks in, not UTC. */
+const dayKey = (ms) => {
+    const d = new Date(ms);
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+};
+const dayLabel = (key) => {
+    const [y, m, d] = key.split("-").map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+};
+const ago = (ms) => {
+    if (!ms) return "never";
+    const s = Math.max(0, (Date.now() - ms) / 1000);
+    if (s < 60) return "just now";
+    if (s < 3600) return Math.round(s / 60) + "m ago";
+    if (s < 86400) return Math.round(s / 3600) + "h ago";
+    return Math.round(s / 86400) + "d ago";
+};
+
+/** Region code → flag emoji, so the country table reads at a glance. */
+const flag = (cc) => (/^[A-Z]{2}$/.test(cc)
+    ? String.fromCodePoint(...[...cc].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65))
+    : "🏳️");
+const countryName = (() => {
+    let dn = null;
+    try { dn = new Intl.DisplayNames(undefined, { type: "region" }); } catch (e) { /* older browser */ }
+    return (cc) => {
+        if (!cc) return "Unknown";
+        try { return (dn && dn.of(cc)) || cc; } catch (e) { return cc; }
+    };
+})();
+
+/** Median of a numeric array, or null when empty. */
+const median = (xs) => {
+    if (!xs.length) return null;
+    const s = xs.slice().sort((a, b) => a - b);
+    const mid = s.length >> 1;
+    return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
+};
+const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null);
+
+const SERIES = ["--series-1", "--series-2", "--series-3", "--series-4", "--series-5", "--series-6", "--series-7", "--series-8"];
+const ORD = ["--ord-1", "--ord-2", "--ord-3", "--ord-4", "--ord-5"];
+const cssvar = (name) => "var(" + name + ")";
+
+/* ====================================================================
+   2. Crypto — the password gate
+
+   The CloudKit API token is the only real secret on this page, so it is
+   encrypted at rest rather than merely hidden behind a JS `if`. AES-GCM
+   with a 256-bit key derived from the password by PBKDF2-SHA256 over
+   600,000 rounds and a random 16-byte salt. The derived key lives in
+   memory only — reloading the page asks for the password again.
+   ==================================================================== */
+
+const KDF_ROUNDS = 600000;
+const b64 = {
+    enc: (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))),
+    dec: (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0)),
+};
+
+async function deriveKey(password, salt, rounds) {
+    const base = await crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt, iterations: rounds, hash: "SHA-256" },
+        base,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt", "decrypt"]
+    );
+}
+
+/** Encrypts a config object into the portable envelope stored in
+ *  localStorage and (optionally) committed as `stats/config.enc`. */
+async function sealConfig(cfg, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt, KDF_ROUNDS);
+    const ct = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, enc.encode(JSON.stringify(cfg)));
+    return JSON.stringify({ v: 1, kdf: "PBKDF2-SHA256", iter: KDF_ROUNDS, salt: b64.enc(salt), iv: b64.enc(iv), ct: b64.enc(ct) }, null, 2);
+}
+
+/** Reverses `sealConfig`. Throws on a wrong password (GCM auth failure). */
+async function openConfig(envelope, password) {
+    const e = JSON.parse(envelope);
+    const key = await deriveKey(password, b64.dec(e.salt), e.iter || KDF_ROUNDS);
+    const pt = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64.dec(e.iv) }, key, b64.dec(e.ct));
+    return JSON.parse(dec.decode(pt));
+}
+
+const STORE_KEY = "ccstats.config.v1";
+
+/* ====================================================================
+   3. CloudKit Web Services reader
+
+   Same records the phone's Debug dashboards read — the public database's
+   `AnalyticsEvent` type — fetched straight from the browser with an API
+   token. No server, no export step, no third-party analytics vendor.
+   ==================================================================== */
+
+const RECORD_TYPE = "AnalyticsEvent";
+const DESIRED = ["event", "params", "platform", "sessionID", "deviceID", "groupCode", "appVersion", "clientTimestamp"];
+const PAGE_SIZE = 200;           // CloudKit Web Services caps a query page here
+const MAX_PAGES = 120;           // ~24k events; beyond that we flag truncation
+
+class CKError extends Error {
+    constructor(message, status, body) { super(message); this.status = status; this.body = body; }
+}
+
+/** Turns a CKWS record into the flat shape every aggregator below reads —
+ *  deliberately identical to the app's own JSON export, so a file exported
+ *  from the phone could be dropped straight into these functions. */
+function flatten(rec) {
+    const f = rec.fields || {};
+    const val = (k) => (f[k] && f[k].value !== undefined ? f[k].value : undefined);
+    let params = {};
+    const raw = val("params");
+    if (typeof raw === "string" && raw) {
+        try { params = JSON.parse(raw) || {}; } catch (e) { params = {}; }
+    }
+    return {
+        event: val("event") || "",
+        params,
+        platform: val("platform") || "",
+        sessionID: val("sessionID") || "",
+        deviceID: val("deviceID") || "?",
+        groupCode: val("groupCode") || "",
+        appVersion: val("appVersion") || "",
+        ts: Number(val("clientTimestamp")) || 0,
+    };
+}
+
+/**
+ * Pages through every `AnalyticsEvent` newer than `sinceMs`.
+ *
+ * Mirrors `AnalyticsManager.fetchRecords`: newest first, 200 per page,
+ * `truncated` set when the window held more than we were willing to pull so
+ * the UI can warn instead of quietly showing a partial slice.
+ */
+async function fetchEvents(cfg, sinceMs, onProgress) {
+    const url = "https://api.apple-cloudkit.com/database/1/"
+        + encodeURIComponent(cfg.container) + "/" + cfg.env
+        + "/public/records/query?ckAPIToken=" + encodeURIComponent(cfg.token);
+
+    const query = {
+        recordType: RECORD_TYPE,
+        filterBy: [{
+            fieldName: "clientTimestamp",
+            comparator: "GREATER_THAN_OR_EQUALS",
+            fieldValue: { value: sinceMs, type: "TIMESTAMP" },
+        }],
+        sortBy: [{ fieldName: "clientTimestamp", ascending: false }],
+    };
+
+    const out = [];
+    let marker = null, pages = 0, truncated = false;
+
+    for (;;) {
+        const body = { zoneID: { zoneName: "_defaultZone" }, resultsLimit: PAGE_SIZE, query, desiredKeys: DESIRED };
+        if (marker) body.continuationMarker = marker;
+
+        let res;
+        try {
+            res = await fetch(url, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+        } catch (e) {
+            // A network-level throw is either genuinely offline or the browser
+            // refusing the cross-origin response — worth naming, because the
+            // two have completely different fixes.
+            throw new CKError(
+                "Couldn't reach CloudKit — the browser blocked or failed the request. "
+                + "Check the connection; if it persists, the API token may have been revoked.",
+                0, String(e)
+            );
+        }
+
+        const text = await res.text();
+        if (!res.ok) throw new CKError(explainCK(res.status, text), res.status, text);
+
+        let json;
+        try { json = JSON.parse(text); } catch (e) { throw new CKError("CloudKit returned something that isn't JSON.", res.status, text); }
+        if (json.serverErrorCode) throw new CKError(explainCK(res.status, text), res.status, text);
+
+        for (const rec of json.records || []) {
+            // A per-record error object comes back in the same array.
+            if (rec.serverErrorCode) continue;
+            out.push(flatten(rec));
+        }
+        if (onProgress) onProgress(out.length);
+
+        marker = json.continuationMarker || null;
+        pages += 1;
+        if (!marker) break;
+        if (pages >= MAX_PAGES) { truncated = true; break; }
+    }
+
+    return { events: out, truncated };
+}
+
+/** Turns CloudKit's raw failure into something worth reading. */
+function explainCK(status, text) {
+    const lower = (text || "").toLowerCase();
+    if (status === 401 || status === 403) {
+        return "CloudKit rejected the API token (" + status + "). Check that the token belongs to this container and hasn't been deleted.";
+    }
+    if (status === 421) {
+        return "CloudKit wants a signed-in user. The AnalyticsEvent record type needs world read access on its security role for token-only reads.";
+    }
+    if (lower.includes("not marked queryable") || lower.includes("not marked sortable")) {
+        return "CloudKit says clientTimestamp isn't queryable/sortable in this environment. Add the index in the CloudKit Console, then deploy the schema.";
+    }
+    if (lower.includes("unknown record type") || lower.includes("record type") && lower.includes("not found")) {
+        return "No AnalyticsEvent record type in the " + (state.cfg ? state.cfg.env : "selected") + " environment yet — nothing has been uploaded there.";
+    }
+    if (status === 503 || status === 429) return "CloudKit is throttling or unavailable right now. Try again in a moment.";
+    return "CloudKit returned " + status + ". " + (text || "").slice(0, 200);
+}
+
+/* ====================================================================
+   4. Aggregation
+
+   Every function here is a JS transcription of the reader it is named
+   after in `AnalyticsManager.swift`, so the numbers on this page and the
+   numbers in the phone's Debug menu are the same numbers.
+   ==================================================================== */
+
+const isPro = (e) => e.params.is_pro === "true";
+const DEBUG_SOURCE = "debug";
+
+/** Distinct-value counter that stays cheap on tens of thousands of rows. */
+function uniq(events, pick) {
+    const s = new Set();
+    for (const e of events) { const v = pick(e); if (v) s.add(v); }
+    return s;
+}
+
+/** Headline counts for the overview strip. */
+function overview(events, days) {
+    const devices = uniq(events, (e) => e.deviceID);
+    const sessions = uniq(events, (e) => e.sessionID);
+    const groups = uniq(events, (e) => e.groupCode);
+    const proDevices = new Set();
+    const countries = new Set();
+    const byPlatform = new Map();
+    const devicesByGroup = new Map();
+    for (const e of events) {
+        if (isPro(e)) proDevices.add(e.deviceID);
+        if (e.params.country) countries.add(e.params.country);
+        const p = e.platform === "watchOS" ? "watchOS" : "iOS";
+        if (!byPlatform.has(p)) byPlatform.set(p, new Set());
+        byPlatform.get(p).add(e.deviceID);
+        if (e.groupCode) {
+            if (!devicesByGroup.has(e.groupCode)) devicesByGroup.set(e.groupCode, new Set());
+            devicesByGroup.get(e.groupCode).add(e.deviceID);
+        }
+    }
+    // Average members per group — the mean of the group sizes themselves, not
+    // devices ÷ groups (one person can be active in several groups, which
+    // would push that ratio below 1 and read as nonsense).
+    let sizeSum = 0;
+    for (const devs of devicesByGroup.values()) sizeSum += devs.size;
+    const avgGroupSize = devicesByGroup.size ? sizeSum / devicesByGroup.size : 0;
+    // Sessions per day, and the devices seen on each day — the two curves
+    // that say whether the window is growing or coasting.
+    const perDay = new Map();
+    for (const e of events) {
+        const k = dayKey(e.ts);
+        let d = perDay.get(k);
+        if (!d) { d = { devices: new Set(), sessions: new Set(), events: 0, iosDevices: new Set(), watchDevices: new Set() }; perDay.set(k, d); }
+        d.devices.add(e.deviceID);
+        d.sessions.add(e.sessionID);
+        d.events += 1;
+        (e.platform === "watchOS" ? d.watchDevices : d.iosDevices).add(e.deviceID);
+    }
+    const dayKeys = fillDays(days);
+    const series = dayKeys.map((k) => {
+        const d = perDay.get(k);
+        return {
+            key: k,
+            devices: d ? d.devices.size : 0,
+            sessions: d ? d.sessions.size : 0,
+            events: d ? d.events : 0,
+            ios: d ? d.iosDevices.size : 0,
+            watch: d ? d.watchDevices.size : 0,
+        };
+    });
+
+    return {
+        devices: devices.size,
+        sessions: sessions.size,
+        groups: groups.size,
+        avgGroupSize,
+        countries: countries.size,
+        pro: proDevices.size,
+        events: events.length,
+        platforms: [...byPlatform].map(([k, v]) => ({ key: k, devices: v.size })).sort((a, b) => b.devices - a.devices),
+        series,
+    };
+}
+
+/** Every calendar day in the window, so a quiet day is a zero and not a gap. */
+function fillDays(days) {
+    const out = [];
+    const now = new Date();
+    for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+        out.push(dayKey(d.getTime()));
+    }
+    return out;
+}
+
+/** `AnalyticsManager.fetchEngagement` — one behaviour, split Free vs Pro. */
+function engagement(events) {
+    const free = new Map(), pro = new Map();
+    const freeDev = new Map(), proDev = new Map();
+    const allFree = new Set(), allPro = new Set();
+
+    for (const e of events) {
+        const p = e.params;
+        const primary = p.cta || p.screen || p.tab || p.step || p.phase;
+        const secondary = p.source || p.kind;
+        let key = primary ? e.event + " • " + primary : e.event;
+        if (secondary) key += " (" + secondary + ")";
+
+        const counts = isPro(e) ? pro : free;
+        const devs = isPro(e) ? proDev : freeDev;
+        counts.set(key, (counts.get(key) || 0) + 1);
+        if (!devs.has(key)) devs.set(key, new Set());
+        devs.get(key).add(e.deviceID);
+        (isPro(e) ? allPro : allFree).add(e.deviceID);
+    }
+
+    const keys = new Set([...free.keys(), ...pro.keys()]);
+    const rows = [...keys].map((k) => {
+        const fc = free.get(k) || 0, pc = pro.get(k) || 0;
+        const fu = freeDev.has(k) ? freeDev.get(k).size : 0;
+        const pu = proDev.has(k) ? proDev.get(k).size : 0;
+        const fpu = fu ? fc / fu : 0, ppu = pu ? pc / pu : 0;
+        return {
+            key: k, freeCount: fc, freeUsers: fu, proCount: pc, proUsers: pu,
+            total: fc + pc, freePerUser: fpu, proPerUser: ppu,
+            lift: (fu && pu && fpu > 0) ? ppu / fpu : null,
+        };
+    }).sort((a, b) => b.total - a.total);
+
+    return { rows, freeUsers: allFree.size, proUsers: allPro.size };
+}
+
+/** `AnalyticsManager.fetchPurchaseFunnel` — the whole money picture. */
+function purchaseFunnel(events) {
+    const f = {
+        shown: 0, shownDevices: 0, started: 0, succeeded: 0, cancelled: 0, failed: 0,
+        restores: 0, monthly: 0, yearly: 0, renewals: 0, churn: 0,
+        freeTenure: [], proTenure: [], exposures: [], dwellConverted: [], dwellAbandoned: [],
+    };
+    const shownDev = new Set();
+    const bySource = new Map();
+    const tally = (s) => {
+        if (!bySource.has(s)) bySource.set(s, { source: s, shown: 0, started: 0, succeeded: 0 });
+        return bySource.get(s);
+    };
+
+    for (const e of events) {
+        const p = e.params;
+        const source = p.source || "unknown";
+        const dbg = source === DEBUG_SOURCE;
+        switch (e.event) {
+            case "paywall_shown":
+                if (dbg) break;
+                f.shown++; shownDev.add(e.deviceID); tally(source).shown++;
+                break;
+            case "paywall_dismissed": {
+                if (dbg) break;
+                const ms = Number(p.dwell_ms);
+                if (ms > 0) (p.converted === "true" ? f.dwellConverted : f.dwellAbandoned).push(ms);
+                break;
+            }
+            case "purchase_started":
+                if (dbg) break;
+                f.started++; tally(source).started++;
+                break;
+            case "purchase_succeeded": {
+                if (dbg) break;
+                f.succeeded++; tally(source).succeeded++;
+                if (p.plan === "monthly") f.monthly++;
+                else if (p.plan === "yearly") f.yearly++;
+                const d = Number(p.free_tenure_days);
+                if (d > 0) f.freeTenure.push(d);
+                const n = parseInt(p.exposures_before_purchase, 10);
+                if (n > 0) f.exposures.push(n);
+                break;
+            }
+            case "purchase_cancelled": if (!dbg) f.cancelled++; break;
+            case "purchase_failed": if (!dbg) f.failed++; break;
+            case "restore_started": f.restores++; break;
+            case "subscription_renewed": f.renewals++; break;
+            case "pro_ended": {
+                f.churn++;
+                const d = Number(p.pro_tenure_days);
+                if (d > 0) f.proTenure.push(d);
+                break;
+            }
+        }
+    }
+
+    f.shownDevices = shownDev.size;
+    f.sources = [...bySource.values()]
+        .map((s) => Object.assign(s, { conversion: s.shown ? s.succeeded / s.shown : 0 }))
+        .sort((a, b) => (b.succeeded - a.succeeded) || (b.shown - a.shown));
+    f.conversion = f.shown ? f.succeeded / f.shown : 0;
+    f.checkout = f.started ? f.succeeded / f.started : 0;
+    f.avgFreeTenure = mean(f.freeTenure);
+    f.avgProTenure = mean(f.proTenure);
+    f.avgExposures = mean(f.exposures);
+    f.medDwellConverted = median(f.dwellConverted) != null ? median(f.dwellConverted) / 1000 : null;
+    f.medDwellAbandoned = median(f.dwellAbandoned) != null ? median(f.dwellAbandoned) / 1000 : null;
+    return f;
+}
+
+/** `AnalyticsManager.fetchPermissionStats` — latest decision per device. */
+function permissions(events) {
+    const latest = { notification_permission: new Map(), health_permission: new Map() };
+    for (const e of events) {
+        if (e.event !== "funnel") continue;
+        const step = e.params.step;
+        if (step !== "notification_permission" && step !== "health_permission") continue;
+        const prev = latest[step].get(e.deviceID);
+        if (!prev || e.ts > prev.ts) latest[step].set(e.deviceID, { ts: e.ts, granted: e.params.granted === "yes" });
+    }
+    const tally = (map) => {
+        let allowed = 0, denied = 0;
+        for (const v of map.values()) v.granted ? allowed++ : denied++;
+        return { allowed, denied, total: allowed + denied, rate: (allowed + denied) ? allowed / (allowed + denied) : 0 };
+    };
+    return { notifications: tally(latest.notification_permission), health: tally(latest.health_permission) };
+}
+
+/** `AnalyticsManager.fetchGroupsGeo` — group-size histogram + reach. */
+function groupsGeo(events) {
+    const devicesByGroup = new Map();
+    const devicesByCountry = new Map();
+    const groupsByCountry = new Map();
+    const proByCountry = new Map();
+    const groupsWithCountry = new Set();
+    const add = (map, k, v) => { if (!map.has(k)) map.set(k, new Set()); map.get(k).add(v); };
+
+    for (const e of events) {
+        if (!e.groupCode) continue;              // pre-group events belong to no group
+        add(devicesByGroup, e.groupCode, e.deviceID);
+        const c = e.params.country;
+        if (c) {
+            add(devicesByCountry, c, e.deviceID);
+            add(groupsByCountry, c, e.groupCode);
+            groupsWithCountry.add(e.groupCode);
+            if (isPro(e)) add(proByCountry, c, e.deviceID);
+        }
+    }
+
+    const hist = new Map();
+    for (const devs of devicesByGroup.values()) hist.set(devs.size, (hist.get(devs.size) || 0) + 1);
+    const sizes = [...hist].map(([size, groups]) => ({ size, groups })).sort((a, b) => a.size - b.size);
+
+    const countries = [...devicesByCountry.keys()].map((c) => {
+        const devices = devicesByCountry.get(c).size;
+        const pro = proByCountry.has(c) ? proByCountry.get(c).size : 0;
+        return { country: c, devices, groups: groupsByCountry.get(c).size, free: devices - pro, pro };
+    }).sort((a, b) => (b.devices - a.devices) || (a.country < b.country ? -1 : 1));
+
+    const all = new Set();
+    for (const devs of devicesByGroup.values()) for (const d of devs) all.add(d);
+
+    let sizeSum = 0;
+    for (const devs of devicesByGroup.values()) sizeSum += devs.size;
+
+    return {
+        sizes, countries,
+        totalGroups: devicesByGroup.size,
+        totalDevices: all.size,
+        avgSize: devicesByGroup.size ? sizeSum / devicesByGroup.size : 0,
+        groupsWithCountry: groupsWithCountry.size,
+    };
+}
+
+/** "1.2.3 (45)" → sortable tuple; garbage sorts last. Mirrors `versionOrder`. */
+function versionOrder(s) {
+    const parts = String(s).split("(");
+    const name = (parts[0] || "").trim();
+    const comps = name ? name.split(".").map((x) => (parseInt(x, 10) >= 0 ? parseInt(x, 10) : -1)) : [-1];
+    const build = parts.length > 1 ? (parseInt(parts[1].replace(/\D/g, ""), 10) || -1) : -1;
+    return { comps: comps.length ? comps : [-1], build };
+}
+function versionIsNewer(a, b) {
+    const A = versionOrder(a), B = versionOrder(b);
+    const n = Math.max(A.comps.length, B.comps.length);
+    for (let i = 0; i < n; i++) {
+        const x = i < A.comps.length ? A.comps[i] : 0;
+        const y = i < B.comps.length ? B.comps[i] : 0;
+        if (x !== y) return y - x;
+    }
+    return B.build - A.build;
+}
+
+/** `AnalyticsManager.fetchVersionAdoption` — who is on which build. */
+function versionAdoption(events) {
+    const tallies = { iOS: new Map(), watchOS: new Map() };
+    const newest = { iOS: new Map(), watchOS: new Map() };
+
+    for (const e of events) {
+        const plat = e.platform === "watchOS" ? "watchOS" : "iOS";
+        const version = e.appVersion || "unknown";
+        let t = tallies[plat].get(version);
+        if (!t) { t = { ever: new Set(), events: 0, arrivals: new Set(), installs: new Set(), lastSeen: 0 }; tallies[plat].set(version, t); }
+        t.ever.add(e.deviceID);
+        t.events++;
+        if (e.ts > t.lastSeen) t.lastSeen = e.ts;
+        if (e.event === "app_version") {
+            t.arrivals.add(e.deviceID);
+            if (e.params.kind === "install") t.installs.add(e.deviceID);
+        }
+        const n = newest[plat].get(e.deviceID);
+        if (!n || e.ts > n.ts) newest[plat].set(e.deviceID, { ts: e.ts, version });
+    }
+
+    const rows = (plat) => {
+        const current = new Map();
+        for (const v of newest[plat].values()) current.set(v.version, (current.get(v.version) || 0) + 1);
+        return [...tallies[plat]].map(([version, t]) => ({
+            version,
+            users: current.get(version) || 0,
+            everUsers: t.ever.size,
+            events: t.events,
+            arrivals: t.arrivals.size,
+            installs: t.installs.size,
+            lastSeen: t.lastSeen,
+        })).sort((a, b) => versionIsNewer(a.version, b.version));
+    };
+
+    return {
+        phone: rows("iOS"),
+        watch: rows("watchOS"),
+        phoneUsers: newest.iOS.size,
+        watchUsers: newest.watchOS.size,
+    };
+}
+
+/**
+ * The acquisition loop from `GrowthAnalytics`: share sheet → send → tap →
+ * install → join, plus where first opens are attributed and how group
+ * health looks (a solo player has nobody to lose to, which is the single
+ * biggest churn risk in a step game).
+ */
+function growth(events) {
+    const step = new Map();          // funnel step → count
+    const stepDevices = new Map();   // funnel step → distinct devices
+    const channels = new Map();      // invite_shared → channel
+    const firstOpenSource = new Map();
+    const installBucket = new Map();
+    const reviewBlocked = new Map();
+    const groupState = new Map();    // device → its latest daily snapshot
+    const widgets = new Map();       // device → latest widget census
+    const widgetTaps = new Map();
+    let attributedFirstOpens = 0;    // first opens an invite can claim
+
+    for (const e of events) {
+        if (e.event === "funnel") {
+            const s = e.params.step || "?";
+            step.set(s, (step.get(s) || 0) + 1);
+            if (!stepDevices.has(s)) stepDevices.set(s, new Set());
+            stepDevices.get(s).add(e.deviceID);
+            if (s === "invite_shared") {
+                const ch = e.params.channel || "unknown";
+                channels.set(ch, (channels.get(ch) || 0) + 1);
+            }
+            if (s === "first_open") {
+                const src = e.params.source || "unknown";
+                firstOpenSource.set(src, (firstOpenSource.get(src) || 0) + 1);
+                // An organic first open didn't come from anyone's invite, so it
+                // must stay out of the referral funnel — otherwise the stage
+                // after "link opened" reads higher than the stage before it.
+                if (src !== "organic" && src !== "unknown") attributedFirstOpens += 1;
+            }
+            if (s === "clip_converted" && e.params.install_bucket) {
+                const b = e.params.install_bucket;
+                installBucket.set(b, (installBucket.get(b) || 0) + 1);
+            }
+        } else if (e.event === "group_state") {
+            const prev = groupState.get(e.deviceID);
+            if (!prev || e.ts > prev.ts) {
+                groupState.set(e.deviceID, {
+                    ts: e.ts,
+                    solo: e.params.solo === "yes",
+                    botOnly: e.params.bot_only === "yes",
+                    rivals: parseInt(e.params.real_rivals, 10) || 0,
+                    daysSolo: parseInt(e.params.days_solo, 10) || 0,
+                });
+            }
+        } else if (e.event === "widgets_installed") {
+            const prev = widgets.get(e.deviceID);
+            if (!prev || e.ts > prev.ts) {
+                widgets.set(e.deviceID, { ts: e.ts, count: parseInt(e.params.count, 10) || 0, families: e.params.families || "" });
+            }
+        } else if (e.event === "review_prompt_blocked") {
+            const r = e.params.reason || "unknown";
+            reviewBlocked.set(r, (reviewBlocked.get(r) || 0) + 1);
+        } else if (e.event === "cta_tap" && e.params.cta === "widget_tap") {
+            const k = (e.params.widget_kind || "?") + " · " + (e.params.widget_family || "?");
+            widgetTaps.set(k, (widgetTaps.get(k) || 0) + 1);
+        }
+    }
+
+    const states = [...groupState.values()];
+    const solo = states.filter((s) => s.solo).length;
+    const botOnly = states.filter((s) => s.botOnly).length;
+    const widgetDevices = [...widgets.values()].filter((w) => w.count > 0).length;
+
+    return {
+        step: (k) => step.get(k) || 0,
+        stepDevices: (k) => (stepDevices.has(k) ? stepDevices.get(k).size : 0),
+        attributedFirstOpens,
+        channels: [...channels].map(([key, value]) => ({ key, value })).sort((a, b) => b.value - a.value),
+        firstOpenSource: [...firstOpenSource].map(([key, value]) => ({ key, value })).sort((a, b) => b.value - a.value),
+        installBucket: [...installBucket].map(([key, value]) => ({ key, value })),
+        reviewBlocked: [...reviewBlocked].map(([key, value]) => ({ key, value })).sort((a, b) => b.value - a.value),
+        widgetTaps: [...widgetTaps].map(([key, value]) => ({ key, value })).sort((a, b) => b.value - a.value),
+        groupStates: states.length,
+        solo, botOnly,
+        soloRate: states.length ? solo / states.length : 0,
+        avgRivals: mean(states.map((s) => s.rivals)),
+        worstSoloStreak: states.length ? Math.max(...states.map((s) => s.daysSolo)) : 0,
+        widgetDevices,
+        widgetCensus: widgets.size,
+    };
+}
+
+/**
+ * `ReliabilityAnalytics` — the degraded paths. Every one of these events is
+ * throttled to once per session per kind, so a count reads as "sessions
+ * where this happened" and the honest denominator is the session count.
+ */
+function reliability(events) {
+    const NAMES = {
+        feed_fallback: "Trash Talk served from cache",
+        roster_cache: "Leaderboard painted from cache",
+        roster_fetch_failed: "Roster fetch failed",
+        page_truncated: "Query hit the page ceiling",
+        identity_duplicate: "Duplicate identity filtered out",
+    };
+    const rows = new Map();
+    const devices = new Map();
+    for (const e of events) {
+        if (!(e.event in NAMES)) continue;
+        const key = e.event + (e.params.kind ? " · " + e.params.kind : "");
+        rows.set(key, (rows.get(key) || 0) + 1);
+        if (!devices.has(key)) devices.set(key, new Set());
+        devices.get(key).add(e.deviceID);
+    }
+    return {
+        names: NAMES,
+        rows: [...rows].map(([key, sessions]) => ({
+            key,
+            label: NAMES[key.split(" · ")[0]] || key,
+            kind: key.includes(" · ") ? key.split(" · ")[1] : "",
+            sessions,
+            devices: devices.get(key).size,
+        })).sort((a, b) => b.sessions - a.sessions),
+    };
+}
+
+/* ====================================================================
+   5. Chart components
+
+   Bars are HTML, not SVG: a label can then never be clipped by its own
+   mark, and the whole thing reflows without a resize handler. Only the
+   time series needs real geometry, so only it is SVG.
+   ==================================================================== */
+
+const tip = $("#tip");
+let tipTimer = null;
+function showTip(html, x, y) {
+    tip.innerHTML = html;
+    tip.style.opacity = "1";
+    const r = tip.getBoundingClientRect();
+    let left = x + 14, top = y + 14;
+    if (left + r.width > window.innerWidth - 8) left = x - r.width - 14;
+    if (top + r.height > window.innerHeight - 8) top = y - r.height - 14;
+    tip.style.left = Math.max(8, left) + "px";
+    tip.style.top = Math.max(8, top) + "px";
+    clearTimeout(tipTimer);
+}
+function hideTip() { tip.style.opacity = "0"; }
+
+/**
+ * Horizontal bars. `rows` are `{key, value, sub?, color?, tip?}`; the value
+ * rides the tip of every bar, which is what lets the light-mode hues that
+ * sit under 3:1 be used at all.
+ */
+function hbars(rows, opts) {
+    opts = opts || {};
+    if (!rows.length) return '<p class="empty">' + esc(opts.empty || "No data in this window.") + "</p>";
+    const max = opts.max != null ? opts.max : Math.max(1, ...rows.map((r) => r.value));
+    const fmt = opts.fmt || int;
+    const color = opts.color || cssvar("--series-1");
+    // Sentence-length keys (funnel stages) get a wider label column so they
+    // never ellipsise; short keys keep the default so the bars stay long.
+    const keyCol = opts.wideKeys ? "minmax(90px, 46%)" : "minmax(90px, 34%)";
+    return '<div class="hbars">' + rows.map((r, i) => {
+        const w = Math.max(1.5, (r.value / max) * 100);
+        const c = r.color || (opts.ordinal ? cssvar(ORD[Math.min(i, ORD.length - 1)]) : color);
+        return '<div class="hbar" style="grid-template-columns:' + keyCol + ' 1fr auto"' + (r.tip ? ' data-tip="' + esc(r.tip) + '"' : "") + ">"
+            + '<div class="k" title="' + esc(r.key) + '">' + esc(r.key) + "</div>"
+            + '<div class="track"><div class="fill" style="width:' + w.toFixed(2) + "%;background:" + c + '"></div></div>'
+            + '<div class="v">' + esc(fmt(r.value)) + (r.sub ? " <em>" + esc(r.sub) + "</em>" : "") + "</div>"
+            + "</div>";
+    }).join("") + "</div>";
+}
+
+/** Column histogram — used where the x-axis is an ordered number (group size). */
+function columns(rows, opts) {
+    opts = opts || {};
+    if (!rows.length) return '<p class="empty">' + esc(opts.empty || "No data in this window.") + "</p>";
+    const max = Math.max(1, ...rows.map((r) => r.value));
+    const color = opts.color || cssvar("--series-1");
+    return '<div class="cols">' + rows.map((r) => (
+        '<div class="colwrap" data-tip="' + esc(r.tip || (r.key + ": " + int(r.value))) + '">'
+        + '<div class="cap">' + esc(int(r.value)) + "</div>"
+        + '<div class="bar" style="height:' + Math.max(2, (r.value / max) * 100).toFixed(1) + "%;background:" + color + '"></div>'
+        + "</div>"
+    )).join("") + "</div>"
+    + '<div class="colaxis">' + rows.map((r) => "<div>" + esc(r.key) + "</div>").join("") + "</div>";
+}
+
+/** A single stat tile. */
+function tile(label, value, sub) {
+    return '<div class="tile"><div class="label">' + esc(label) + "</div>"
+        + '<div class="value">' + esc(value) + "</div>"
+        + (sub ? '<div class="sub">' + esc(sub) + "</div>" : "") + "</div>";
+}
+
+/** Allow-rate meter: fill carries the severity, track is the same ramp. */
+function meter(name, rate, allowed, denied, foot) {
+    const severity = rate >= 0.6 ? cssvar("--good") : rate >= 0.35 ? cssvar("--warning") : cssvar("--critical");
+    const total = allowed + denied;
+    return '<div class="meter">'
+        + '<div class="row"><span class="name">' + esc(name) + '</span><span class="pctv">' + esc(total ? pct(rate) : "—") + "</span></div>"
+        + '<div class="track"><div class="fill" style="width:' + (total ? (rate * 100).toFixed(1) : 0) + "%;background:" + severity + '"></div></div>'
+        + '<div class="foot">' + esc(int(allowed)) + " allowed · " + esc(int(denied)) + " denied" + (foot ? " · " + foot : "") + "</div>"
+        + "</div>";
+}
+
+/** Table from `{cols:[...], rows:[[...]]}`. Always available beside a chart. */
+function table(cols, rows, opts) {
+    opts = opts || {};
+    if (!rows.length) return '<p class="empty">' + esc(opts.empty || "No data in this window.") + "</p>";
+    return '<div class="tw"><table><thead><tr>' + cols.map((c) => "<th>" + esc(c) + "</th>").join("")
+        + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c) => "<td>" + (c && c.html ? c.html : esc(c)) + "</td>").join("") + "</tr>").join("")
+        + "</tbody></table></div>";
+}
+
+/**
+ * Time series. The element is emitted empty carrying its data, then drawn by
+ * `redrawCharts()` at the container's measured pixel width — an SVG stretched
+ * to fit would squash its own axis labels, and a uniformly scaled one would
+ * shrink them. Marks: 2px line, 10%-opacity area wash, ≥8px end marker with a
+ * 2px surface ring, hairline grid, crosshair tooltip.
+ */
+function timeseries(series, opts) {
+    opts = opts || {};
+    const n = series[0] ? series[0].points.length : 0;
+    if (!n) return '<p class="empty">No data in this window.</p>';
+
+    const legend = series.length > 1
+        ? '<div class="legend">' + series.map((s, si) => '<span><i style="background:' + (s.color || cssvar(SERIES[si % SERIES.length])) + '"></i>' + esc(s.name) + "</span>").join("") + "</div>"
+        : "";
+
+    const payload = esc(JSON.stringify({
+        h: opts.height || 170,
+        aria: opts.aria || "Time series",
+        labels: opts.labels || [],
+        series: series.map((s, si) => ({
+            name: s.name,
+            color: s.color || cssvar(SERIES[si % SERIES.length]),
+            points: s.points,
+        })),
+    }));
+
+    return legend + '<div class="chart" data-ts="' + payload + '" style="min-height:' + (opts.height || 170) + 'px"></div>';
+}
+
+/** Draws one chart's SVG at `W` pixels wide and records its geometry. */
+function drawChart(el, meta, W) {
+    const H = meta.h, PADL = 34, PADR = 10, PADT = 10, PADB = 20;
+    const iw = Math.max(20, W - PADL - PADR), ih = H - PADT - PADB;
+    const n = meta.series[0].points.length;
+
+    let max = 0;
+    for (const s of meta.series) for (const p of s.points) if (p > max) max = p;
+    const niceMax = niceCeil(max);
+    const x = (i) => PADL + (n === 1 ? iw / 2 : (i / (n - 1)) * iw);
+    const y = (v) => PADT + ih - (niceMax ? (v / niceMax) * ih : 0);
+
+    const grid = [0, 0.5, 1].map((t) => {
+        const gy = PADT + ih - t * ih;
+        return '<line x1="' + PADL + '" x2="' + (W - PADR) + '" y1="' + gy.toFixed(1) + '" y2="' + gy.toFixed(1) + '" stroke="' + cssvar("--grid") + '" stroke-width="1"/>'
+            + '<text x="' + (PADL - 6) + '" y="' + (gy + 3.5).toFixed(1) + '" text-anchor="end" font-size="10" fill="' + cssvar("--text-muted") + '">' + compact(Math.round(t * niceMax)) + "</text>";
+    }).join("");
+
+    const paths = meta.series.map((s) => {
+        const pts = s.points.map((v, i) => x(i).toFixed(1) + "," + y(v).toFixed(1)).join(" ");
+        const area = meta.series.length === 1
+            ? '<polygon points="' + PADL + "," + (PADT + ih) + " " + pts + " " + (PADL + iw) + "," + (PADT + ih) + '" fill="' + s.color + '" fill-opacity="0.10"/>'
+            : "";
+        const last = n - 1;
+        return area
+            + '<polyline points="' + pts + '" fill="none" stroke="' + s.color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+            + '<circle cx="' + x(last).toFixed(1) + '" cy="' + y(s.points[last]).toFixed(1) + '" r="4" fill="' + s.color + '" stroke="' + cssvar("--surface-1") + '" stroke-width="2"/>';
+    }).join("");
+
+    const xticks = [0, Math.floor((n - 1) / 2), n - 1].filter((v, i, a) => a.indexOf(v) === i).map((i) => (
+        '<text x="' + x(i).toFixed(1) + '" y="' + (H - 4) + '" text-anchor="' + (i === 0 ? "start" : i === n - 1 ? "end" : "middle") + '" font-size="10" fill="' + cssvar("--text-muted") + '">' + esc(meta.labels[i] || "") + "</text>"
+    )).join("");
+
+    el.innerHTML = '<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" role="img" aria-label="' + esc(meta.aria) + '">'
+        + '<line x1="' + PADL + '" x2="' + (W - PADR) + '" y1="' + (PADT + ih) + '" y2="' + (PADT + ih) + '" stroke="' + cssvar("--axis") + '" stroke-width="1"/>'
+        + grid + paths + xticks
+        + '<line class="cross" x1="0" x2="0" y1="' + PADT + '" y2="' + (PADT + ih) + '" stroke="' + cssvar("--axis") + '" stroke-width="1" opacity="0"/>'
+        + "</svg>";
+    el._geo = { n, PADL, iw, W };
+}
+
+/** (Re)draws every chart on the page at its current width. */
+function redrawCharts() {
+    for (const el of document.querySelectorAll(".chart[data-ts]")) {
+        let meta = el._meta;
+        if (!meta) { meta = JSON.parse(el.dataset.ts); el._meta = meta; }
+        drawChart(el, meta, Math.max(260, Math.round(el.clientWidth || 640)));
+    }
+}
+
+/** Rounds an axis maximum up to something a person would write down. */
+function niceCeil(v) {
+    if (v <= 0) return 1;
+    const mag = Math.pow(10, Math.floor(Math.log10(v)));
+    const norm = v / mag;
+    const step = norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 5 ? 5 : 10;
+    return step * mag;
+}
+
+/* ====================================================================
+   6. Panels
+   ==================================================================== */
+
+const card = (title, hint, body) =>
+    '<section class="card"><h2>' + esc(title) + "</h2>"
+    + (hint ? '<p class="hint">' + hint + "</p>" : "")
+    + body + "</section>";
+
+const TABS = [
+    { id: "overview", name: "Overview", render: panelOverview },
+    { id: "money", name: "Money", render: panelMoney },
+    { id: "engagement", name: "Engagement", render: panelEngagement },
+    { id: "growth", name: "Growth", render: panelGrowth },
+    { id: "reach", name: "Reach", render: panelReach },
+    { id: "builds", name: "Builds", render: panelBuilds },
+    { id: "health", name: "Health", render: panelHealth },
+];
+
+function panelOverview(ev, days) {
+    const o = overview(ev, days);
+    const labels = o.series.map((d) => dayLabel(d.key));
+    // The right-hand point is today, which is still being written — say so
+    // rather than let the reader mistake a partial day for a collapse.
+    const partial = '<p class="caveat">Today is still filling up, so the last point is a partial day.</p>';
+
+    const hero = '<div class="hero"><div class="figure">' + esc(compact(o.devices)) + "</div>"
+        + '<div class="cap">people opened the app in the last ' + days + " days · "
+        + esc(int(o.sessions)) + " sessions · " + esc(int(o.events)) + " events</div></div>";
+
+    const tiles = '<div class="tiles">'
+        + tile("Sessions", compact(o.sessions), o.devices ? dec1(o.sessions / o.devices) + " per person" : "")
+        + tile("Active groups", compact(o.groups), o.groups ? dec1(o.avgGroupSize) + " people per group" : "")
+        + tile("Countries", int(o.countries), "from device time zone")
+        + tile("Pro devices", int(o.pro), o.devices ? pct(o.pro / o.devices) + " of active" : "")
+        + tile("Events", compact(o.events), o.sessions ? dec1(o.events / o.sessions) + " per session" : "")
+        + "</div>";
+
+    const topScreens = (() => {
+        const m = new Map();
+        for (const e of ev) {
+            const k = e.event === "screen_view" ? "Screen · " + (e.params.screen || "?")
+                : e.event === "tab_open" ? "Tab · " + (e.params.tab || "?")
+                : null;
+            if (k) m.set(k, (m.get(k) || 0) + 1);
+        }
+        return [...m].map(([key, value]) => ({ key, value, tip: key + " — " + int(value) + " opens" }))
+            .sort((a, b) => b.value - a.value).slice(0, 10);
+    })();
+
+    const topCTAs = (() => {
+        const m = new Map();
+        for (const e of ev) if (e.event === "cta_tap" && e.params.cta) m.set(e.params.cta, (m.get(e.params.cta) || 0) + 1);
+        return [...m].map(([key, value]) => ({ key, value, tip: key + " — " + int(value) + " taps" }))
+            .sort((a, b) => b.value - a.value).slice(0, 10);
+    })();
+
+    return card("Right now", "", hero + '<div style="height:.9rem"></div>' + tiles)
+        + '<div class="grid cols-2" style="margin-top:.85rem">'
+        + card("Active people per day", "Distinct devices that logged anything that day.",
+            timeseries([{ name: "Active people", points: o.series.map((d) => d.devices) }], { labels, aria: "Active people per day" })
+            + partial)
+        + card("Sessions per day", "A session is one app launch or a foreground return after 30 quiet minutes.",
+            timeseries([{ name: "Sessions", points: o.series.map((d) => d.sessions) }], { labels, aria: "Sessions per day" })
+            + partial)
+        + "</div>"
+        + '<div class="grid cols-2" style="margin-top:.85rem">'
+        + card("iPhone vs Apple Watch", "Devices seen on each platform per day. The phone and its paired watch share one device id, so a device can appear in both.",
+            timeseries([
+                { name: "iPhone", points: o.series.map((d) => d.ios) },
+                { name: "Apple Watch", points: o.series.map((d) => d.watch), color: cssvar("--series-2") },
+            ], { labels, aria: "iPhone versus Apple Watch devices per day" }) + partial)
+        + card("Where the attention goes", "Screens and tabs opened, all cohorts.", hbars(topScreens))
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Most-tapped buttons", "Every tracked call to action, most-tapped first.", hbars(topCTAs))
+        + "</div>";
+}
+
+function panelMoney(ev) {
+    const f = purchaseFunnel(ev);
+
+    const hero = '<div class="hero"><div class="figure">' + esc(f.shown ? pct(f.conversion) : "—") + "</div>"
+        + '<div class="cap">of paywalls seen ended in a purchase · '
+        + esc(int(f.succeeded)) + " of " + esc(int(f.shown)) + " impressions</div></div>";
+
+    const funnelRows = [
+        { key: "Paywall seen", value: f.shown, tip: "Paywall impressions, debug previews excluded" },
+        { key: "Buy tapped", value: f.started, tip: "Tapped a plan button" },
+        { key: "Purchased", value: f.succeeded, tip: "Verified purchase" },
+    ];
+
+    const tiles = '<div class="tiles">'
+        + tile("Checkout completion", f.started ? pct(f.checkout) : "—", "of buy taps finished")
+        + tile("Saw a paywall", int(f.shownDevices), "distinct people")
+        + tile("Cancelled", int(f.cancelled), "backed out of Apple’s sheet")
+        + tile("Payment failures", int(f.failed), "errors, not cancellations")
+        + tile("Restores", int(f.restores), "restore taps")
+        + tile("Renewals", int(f.renewals), "subscription renewed")
+        + tile("Churn", int(f.churn), f.avgProTenure != null ? "avg " + dec1(f.avgProTenure) + " days as Pro" : "Pro ended or lapsed")
+        + "</div>";
+
+    const decisionTiles = '<div class="tiles">'
+        + tile("Days Free before buying", f.avgFreeTenure != null ? dec1(f.avgFreeTenure) : "—", "average across buyers")
+        + tile("Paywalls seen before buying", f.avgExposures != null ? dec1(f.avgExposures) : "—", "≈1 means it converts on first contact")
+        + tile("Time on paywall — converted", f.medDwellConverted != null ? dec1(f.medDwellConverted) + "s" : "—", "median")
+        + tile("Time on paywall — bounced", f.medDwellAbandoned != null ? dec1(f.medDwellAbandoned) + "s" : "—", "under a second means the gate is mistargeted")
+        + "</div>";
+
+    const planRows = [
+        { key: "Yearly", value: f.yearly, color: cssvar("--series-1") },
+        { key: "Monthly", value: f.monthly, color: cssvar("--series-2") },
+    ];
+
+    const sourceRows = f.sources.map((s) => [
+        s.source, int(s.shown), int(s.started), int(s.succeeded), s.shown ? pct(s.conversion) : "—",
+    ]);
+    const sourceBars = f.sources.filter((s) => s.shown > 0).slice(0, 8).map((s) => ({
+        key: s.source, value: s.conversion, sub: "(" + int(s.succeeded) + "/" + int(s.shown) + ")",
+        tip: s.source + " — " + int(s.succeeded) + " purchases from " + int(s.shown) + " impressions",
+    }));
+
+    return card("Conversion", "Debug-menu paywall previews are excluded from every rate here.", hero + '<div style="height:.9rem"></div>' + hbars(funnelRows, { ordinal: true }))
+        + '<div class="grid" style="margin-top:.85rem">' + card("The money numbers", "", tiles) + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">' + card("How buyers decide", "What happens before the tap — the levers on copy, placement and timing.", decisionTiles) + "</div>"
+        + '<div class="grid cols-2" style="margin-top:.85rem">'
+        + card("Which upsell earns", "Impression → purchase rate per paywall source. Bars are scaled to the best performer; the rate is on every bar.",
+            hbars(sourceBars, { fmt: (v) => pct(v), empty: "No paywall impressions yet." }))
+        + card("Plan split", "Verified purchases by plan.", hbars(planRows, { empty: "No purchases yet." }))
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Every paywall source", "", table(["Source", "Seen", "Buy tapped", "Purchased", "Conversion"], sourceRows, { empty: "No paywall impressions yet." }))
+        + "</div>";
+}
+
+function panelEngagement(ev) {
+    const e = engagement(ev);
+
+    const drivers = e.rows.filter((r) => r.lift != null && r.lift > 1.2 && r.proCount >= 2)
+        .sort((a, b) => b.lift - a.lift).slice(0, 12)
+        .map((r) => ({
+            key: r.key, value: r.lift,
+            sub: "Free " + dec1(r.freePerUser) + " · Pro " + dec1(r.proPerUser),
+            color: cssvar("--series-2"),
+            tip: r.key + " — Pro users do this " + dec1(r.lift) + "× more per person than Free users",
+        }));
+
+    const attention = e.rows.filter((r) => r.freeCount > 0).sort((a, b) => b.freeCount - a.freeCount).slice(0, 12)
+        .map((r) => ({ key: r.key, value: r.freeCount, sub: r.freeUsers + " ppl", tip: r.key + " — " + int(r.freeCount) + " actions by " + r.freeUsers + " Free people" }));
+
+    const all = e.rows.slice(0, 40).map((r) => [
+        r.key, int(r.freeCount), int(r.freeUsers), int(r.proCount), int(r.proUsers),
+        r.lift != null ? dec1(r.lift) + "×" : "—",
+    ]);
+
+    const cohorts = '<div class="tiles">'
+        + tile("Free people", int(e.freeUsers), "devices with no Pro event")
+        + tile("Pro people", int(e.proUsers), e.freeUsers + e.proUsers ? pct(e.proUsers / (e.freeUsers + e.proUsers)) + " of active" : "")
+        + tile("Distinct behaviours", int(e.rows.length), "event + detail combinations")
+        + "</div>";
+
+    return card("Cohorts", "Every event is tagged with the device's Pro status at the time it was logged.", cohorts)
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("What Pro users lean on", "Pro-versus-Free actions per person. A high multiple is a feature worth showing Free users — these are the upgrade arguments.",
+            hbars(drivers, { fmt: (v) => dec1(v) + "×", empty: "Not enough Pro activity yet to compare cohorts." }))
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Where Free users spend their time", "The busiest Free-user surfaces — the best places to put an upgrade prompt.", hbars(attention))
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("All activity", "Top 40 behaviours by total volume.",
+            table(["Behaviour", "Free actions", "Free people", "Pro actions", "Pro people", "Pro lift"], all))
+        + "</div>";
+}
+
+function panelGrowth(g_ev) {
+    const g = growth(g_ev);
+
+    const created = g.step("invite_created");
+    const shared = g.step("invite_shared");
+    const opened = g.step("invite_link_opened") + g.step("clip_opened");
+    const installed = g.attributedFirstOpens;
+    const joined = g.step("group_joined");
+
+    const funnelRows = [
+        { key: "Share sheet opened", value: created, tip: "Someone opened the invite share sheet" },
+        { key: "Invite actually sent", value: shared, tip: "The share sheet completed into an app" },
+        { key: "Link opened", value: opened, tip: "Invite links opened + App Clip opens" },
+        { key: "Installed from it", value: installed, tip: "First opens an invite or clip handoff can claim — organic first opens are excluded" },
+        { key: "Joined a group", value: joined, tip: "Landed in a group — including people who already had the app, which is why this can exceed the install stage" },
+    ];
+
+    const tiles = '<div class="tiles">'
+        + tile("Send rate", created ? pct(shared / created) : "—", "share sheets that completed")
+        + tile("Open rate", shared ? pct(opened / shared) : "—", "sent invites that got tapped")
+        + tile("Join rate", opened ? pct(joined / opened) : "—", "opened links that reached a group")
+        + tile("Groups created", int(g.step("group_created")), "new groups in this window")
+        + tile("Joins that failed", int(g.step("invite_join_failed")), "code not found")
+        + "</div>";
+
+    const soloTiles = '<div class="tiles">'
+        + tile("Playing solo", g.groupStates ? pct(g.soloRate) : "—", int(g.solo) + " of " + int(g.groupStates) + " people")
+        + tile("Racing bots only", int(g.botOnly), "no real rival, clowns for company")
+        + tile("Average real rivals", g.avgRivals != null ? dec1(g.avgRivals) : "—", "people other than themselves")
+        + tile("Longest solo streak", int(g.worstSoloStreak) + "d", "consecutive days with no rival")
+        + "</div>";
+
+    const bucketOrder = ["under_2m", "2_10m", "10_60m", "1_24h", "over_24h"];
+    const bucketName = { under_2m: "Under 2 min", "2_10m": "2–10 min", "10_60m": "10–60 min", "1_24h": "1–24 hours", over_24h: "Over a day" };
+    const buckets = bucketOrder
+        .map((b) => ({ key: bucketName[b], value: (g.installBucket.find((x) => x.key === b) || {}).value || 0 }))
+        .filter((r) => r.value > 0);
+
+    return card("The referral loop", "Every stage carries the same share id, so a join traces back to the exact send that produced it.",
+        hbars(funnelRows, { ordinal: true, wideKeys: true })
+        + '<p class="caveat">The last stage can exceed the one above it: someone who already has the app joins a group without a fresh install.</p>'
+        + '<div style="height:.9rem"></div>' + tiles)
+        + '<div class="grid cols-2" style="margin-top:.85rem">'
+        + card("Which app invites go out through", "Invite copy that converts in Messages is not the copy that converts in WhatsApp. “Cancelled the share sheet” is the share that never went anywhere.",
+            hbars(g.channels.slice(0, 10).map((c) => (
+                c.key === "dismissed" ? { key: "cancelled the share sheet", value: c.value } : c
+            )), { wideKeys: true, empty: "No invites sent in this window." }))
+        + card("Where first opens come from", "How a brand-new install was attributed at launch.",
+            hbars(g.firstOpenSource, { empty: "No first opens in this window." }))
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Do people have anyone to lose to?", "A once-a-day snapshot per player. Solo players are the biggest churn risk in a game built on rivalry.", soloTiles)
+        + "</div>"
+        + '<div class="grid cols-2" style="margin-top:.85rem">'
+        + card("App Clip → install speed", "How long from tapping the invite to the full app opening.",
+            hbars(buckets, { ordinal: true, empty: "No App Clip conversions in this window." }))
+        + card("Widgets", "Widget users open the app far more often than anyone else.",
+            '<div class="tiles">'
+            + tile("People with a widget", int(g.widgetDevices), "of " + int(g.widgetCensus) + " who reported")
+            + tile("Widget taps", int(g.widgetTaps.reduce((a, b) => a + b.value, 0)), "opens from a widget")
+            + "</div>"
+            + (g.widgetTaps.length ? '<div style="height:.7rem"></div>' + hbars(g.widgetTaps.slice(0, 6)) : ""))
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Why the review prompt didn’t fire", "Apple allows three prompts per user per year — these are the gates that spend or waste that quota.",
+            hbars(g.reviewBlocked.slice(0, 8), { empty: "The review prompt wasn’t blocked in this window." }))
+        + "</div>";
+}
+
+function panelReach(ev) {
+    const geo = groupsGeo(ev);
+
+    const sizeRows = geo.sizes.map((s) => ({
+        key: String(s.size),
+        value: s.groups,
+        tip: s.groups + " group" + (s.groups === 1 ? "" : "s") + " with " + s.size + " installed member" + (s.size === 1 ? "" : "s"),
+    }));
+
+    const tiles = '<div class="tiles">'
+        + tile("Groups", int(geo.totalGroups), "with at least one active member")
+        + tile("People in groups", int(geo.totalDevices), "")
+        + tile("Average group", dec1(geo.avgSize), "installed members")
+        + tile("Countries", int(geo.countries.length), "")
+        + tile("Geo coverage", geo.totalGroups ? pct(geo.groupsWithCountry / geo.totalGroups) : "—", "groups with a country tag")
+        + "</div>";
+
+    const top = geo.countries.slice(0, 12).map((c) => ({
+        key: flag(c.country) + " " + countryName(c.country),
+        value: c.devices,
+        sub: c.groups + " grp",
+        tip: countryName(c.country) + " — " + int(c.devices) + " people across " + int(c.groups) + " groups",
+    }));
+
+    const rows = geo.countries.map((c) => [
+        { html: flag(c.country) + " " + esc(countryName(c.country)) },
+        int(c.devices), int(c.groups), int(c.free), int(c.pro),
+        c.devices ? pct(c.pro / c.devices) : "—",
+    ]);
+
+    return card("Reach", "Group size counts distinct real devices seen under each group code — bots never log events, so this is installed members only.", tiles)
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("How big are the groups?", "Number of groups at each size. A wall at 1 means invites aren’t landing; a fat middle means the loop works.",
+            columns(sizeRows, { empty: "No grouped activity in this window." })
+            + '<p class="caveat">x-axis: installed members in the group.</p>')
+        + "</div>"
+        + '<div class="grid cols-2" style="margin-top:.85rem">'
+        + card("Biggest markets", "People per country, from the device’s own time zone — no location permission involved.", hbars(top))
+        + card("Every country", "", table(["Country", "People", "Groups", "Free", "Pro", "Pro rate"], rows))
+        + "</div>";
+}
+
+function panelBuilds(ev) {
+    const a = versionAdoption(ev);
+    const rows = (list, total) => list.map((r) => [
+        r.version,
+        { html: '<span class="swatch" style="background:' + cssvar("--series-1") + '"></span>' + esc(int(r.users)) },
+        total ? pct(r.users / total, 0) : "—",
+        int(r.everUsers), int(r.arrivals), int(r.installs), int(r.events),
+        r.lastSeen ? ago(r.lastSeen) : "—",
+    ]);
+
+    const bars = (list, total) => hbars(list.filter((r) => r.users > 0).map((r) => ({
+        key: r.version, value: r.users,
+        sub: total ? pct(r.users / total, 0) : "",
+        tip: r.version + " — " + int(r.users) + " people on it now, " + int(r.arrivals) + " arrived in this window",
+    })), { max: total || undefined });
+
+    const tiles = '<div class="tiles">'
+        + tile("iPhone users", int(a.phoneUsers), "")
+        + tile("Watch users", int(a.watchUsers), a.phoneUsers ? pct(a.watchUsers / a.phoneUsers) + " of phones" : "")
+        + tile("iPhone builds live", int(a.phone.filter((r) => r.users > 0).length), "")
+        + tile("Watch builds live", int(a.watch.filter((r) => r.users > 0).length), "")
+        + "</div>";
+
+    const cols = ["Build", "On it now", "Share", "Ever seen", "Arrived", "Fresh installs", "Events", "Last seen"];
+
+    return card("Build adoption", "“On it now” counts devices whose most recent event came from that build, so the column reads as a share of the install base. “Arrived” is the update transition — how fast a release is being taken up.", tiles)
+        + '<div class="grid cols-2" style="margin-top:.85rem">'
+        + card("iPhone", "Newest build first.", bars(a.phone, a.phoneUsers))
+        + card("Apple Watch", "Newest build first.", bars(a.watch, a.watchUsers))
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("iPhone builds", "", table(cols, rows(a.phone, a.phoneUsers)))
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Apple Watch builds", "", table(cols, rows(a.watch, a.watchUsers), { empty: "No watch activity in this window." }))
+        + "</div>";
+}
+
+function panelHealth(ev) {
+    const p = permissions(ev);
+    const r = reliability(ev);
+    const sessions = uniq(ev, (e) => e.sessionID).size;
+
+    const meters = meter("Notifications", p.notifications.rate, p.notifications.allowed, p.notifications.denied, "exact — iOS reports the answer")
+        + '<div style="height:1rem"></div>'
+        + meter("Health / steps", p.health.rate, p.health.allowed, p.health.denied, "inferred");
+
+    const relRows = r.rows.map((x) => [
+        x.label + (x.kind ? " · " + x.kind : ""),
+        int(x.sessions),
+        sessions ? pct(x.sessions / sessions) : "—",
+        int(x.devices),
+    ]);
+
+    const funnelSteps = ["health_priming_viewed", "health_permission", "notification_priming_viewed", "notification_permission", "name_entered", "group_setup_viewed", "group_created", "group_joined"];
+    const stepName = {
+        health_priming_viewed: "Saw the Health explainer",
+        health_permission: "Answered the Health prompt",
+        notification_priming_viewed: "Saw the notifications explainer",
+        notification_permission: "Answered the notifications prompt",
+        name_entered: "Entered a name",
+        group_setup_viewed: "Reached group setup",
+        group_created: "Created a group",
+        group_joined: "Joined a group",
+    };
+    const counts = new Map();
+    for (const e of ev) if (e.event === "funnel" && e.params.step) counts.set(e.params.step, (counts.get(e.params.step) || 0) + 1);
+    const onboarding = funnelSteps.map((s) => ({ key: stepName[s], value: counts.get(s) || 0 })).filter((x) => x.value > 0);
+
+    return '<div class="grid cols-2">'
+        + card("Permission grants", "One decision per device, most recent kept.", meters
+            + '<p class="caveat">iOS hides Health read decisions for privacy, so “allowed” there is inferred from whether step data came back — it can undercount a brand-new phone with no steps yet.</p>')
+        + card("Onboarding funnel", "Raw step counts across the window, in the order people meet them.",
+            hbars(onboarding, { ordinal: true, wideKeys: true, empty: "No onboarding activity in this window." }))
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Degraded paths", "Each of these is throttled to once per session, so a count reads as “sessions where this happened”. The window had " + esc(int(sessions)) + " sessions.",
+            table(["What happened", "Sessions", "Share of sessions", "People"], relRows,
+                { empty: "Nothing degraded in this window — no cache fallbacks, no failed fetches, no truncated pages." }))
+        + "</div>";
+}
+
+/* ====================================================================
+   7. App shell — state, fetching, rendering
+   ==================================================================== */
+
+const state = {
+    cfg: null,
+    events: [],
+    truncated: false,
+    fetchedAt: 0,
+    days: 30,
+    tab: "overview",
+    loading: false,
+    error: "",
+};
+
+function renderTabs() {
+    $("#tabs").innerHTML = TABS.map((t) => (
+        '<button role="tab" data-tab="' + t.id + '" aria-selected="' + (t.id === state.tab) + '">' + esc(t.name) + "</button>"
+    )).join("");
+}
+
+function renderStatus() {
+    const bits = [];
+    if (state.loading) {
+        bits.push('<span class="pill"><span class="spin"></span> Reading CloudKit…</span>');
+    } else if (state.error) {
+        bits.push('<span class="pill warn"><span class="dot"></span> ' + esc(state.error) + "</span>");
+    } else {
+        bits.push('<span class="pill"><span class="dot"></span> ' + esc(int(state.events.length)) + " events · updated " + esc(ago(state.fetchedAt)) + "</span>");
+    }
+    if (state.truncated) {
+        bits.push('<span class="pill warn"><span class="dot"></span> Window truncated at ' + esc(int(PAGE_SIZE * MAX_PAGES)) + " events — narrow the range for exact numbers</span>");
+    }
+    $("#status").innerHTML = bits.join("");
+}
+
+function renderPanel() {
+    const tab = TABS.find((t) => t.id === state.tab) || TABS[0];
+    if (state.loading && !state.events.length) {
+        $("#panel").innerHTML = '<section class="card"><p class="empty">Loading…</p></section>';
+        return;
+    }
+    if (state.error && !state.events.length) {
+        $("#panel").innerHTML = '<section class="card"><h2>Couldn’t read CloudKit</h2><p class="hint">'
+            + esc(state.error) + '</p><p class="hint">Open ⚙ to check the token, the container and the environment.</p></section>';
+        return;
+    }
+    if (!state.events.length) {
+        $("#panel").innerHTML = '<section class="card"><h2>Nothing here yet</h2><p class="hint">No events in the last '
+            + state.days + " days in the <strong>" + esc(state.cfg.env) + "</strong> environment. "
+            + "Debug builds from Xcode write to <em>development</em>; TestFlight and the App Store write to <em>production</em>.</p></section>";
+        return;
+    }
+    $("#panel").innerHTML = tab.render(state.events, state.days);
+    redrawCharts();
+}
+
+function render() {
+    renderTabs();
+    renderStatus();
+    renderPanel();
+}
+
+async function load() {
+    state.loading = true;
+    state.error = "";
+    render();
+    const since = Date.now() - state.days * 86400000;
+    try {
+        const { events, truncated } = await fetchEvents(state.cfg, since, (n) => {
+            $("#status").innerHTML = '<span class="pill"><span class="spin"></span> Reading CloudKit… ' + int(n) + " events</span>";
+        });
+        state.events = events;
+        state.truncated = truncated;
+        state.fetchedAt = Date.now();
+    } catch (e) {
+        state.error = e instanceof CKError ? e.message : String(e && e.message ? e.message : e);
+        state.events = [];
+    } finally {
+        state.loading = false;
+        render();
+    }
+}
+
+/* ------------------------------ Events ------------------------------ */
+
+document.addEventListener("click", (ev) => {
+    const tabBtn = ev.target.closest("nav.tabs button");
+    if (tabBtn) {
+        state.tab = tabBtn.dataset.tab;
+        render();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+});
+
+// One delegated hover handler serves every bar and column on the page.
+document.addEventListener("mousemove", (ev) => {
+    const host = ev.target.closest("[data-tip]");
+    if (host) { showTip(esc(host.dataset.tip), ev.clientX, ev.clientY); return; }
+    const chart = ev.target.closest(".chart[data-ts]");
+    if (chart) { crosshair(chart, ev); return; }
+    hideTip();
+});
+document.addEventListener("mouseleave", hideTip);
+window.addEventListener("scroll", hideTip, { passive: true });
+
+// Charts are drawn at a measured pixel width, so a resize needs a redraw.
+let resizeTimer = null;
+window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(redrawCharts, 150);
+});
+
+/** Crosshair + tooltip for the SVG time series. */
+function crosshair(chart, ev) {
+    const meta = chart._meta, geo = chart._geo;
+    if (!meta || !geo) return;
+    const rect = chart.getBoundingClientRect();
+    const scale = rect.width / geo.W || 1;
+    const rel = (ev.clientX - rect.left) / scale - geo.PADL;
+    const i = Math.max(0, Math.min(geo.n - 1, Math.round((rel / geo.iw) * (geo.n - 1))));
+
+    const line = chart.querySelector(".cross");
+    if (line) {
+        const x = geo.PADL + (geo.n === 1 ? geo.iw / 2 : (i / (geo.n - 1)) * geo.iw);
+        line.setAttribute("x1", x); line.setAttribute("x2", x); line.setAttribute("opacity", "1");
+    }
+    const html = '<div class="t">' + esc(meta.labels[i] || "") + "</div>"
+        + meta.series.map((s) => '<div class="r"><i style="background:' + s.color + '"></i>' + esc(int(s.points[i])) + " " + esc(s.name.toLowerCase()) + "</div>").join("");
+    showTip(html, ev.clientX, ev.clientY);
+}
+
+$("#days").addEventListener("change", (e) => { state.days = parseInt(e.target.value, 10); load(); });
+$("#refresh").addEventListener("click", load);
+$("#lock").addEventListener("click", () => location.reload());
+$("#theme").addEventListener("click", () => {
+    const root = document.documentElement;
+    const dark = root.getAttribute("data-theme") === "dark"
+        || (!root.hasAttribute("data-theme") && matchMedia("(prefers-color-scheme: dark)").matches);
+    root.setAttribute("data-theme", dark ? "light" : "dark");
+    try { localStorage.setItem("ccstats.theme", dark ? "light" : "dark"); } catch (e) { /* private mode */ }
+    render();
+});
+$("#cog").addEventListener("click", showSettings);
+
+/** Settings: re-key the token/environment, or export the sealed config so
+ *  another device only ever needs the password. */
+function showSettings() {
+    const cfg = state.cfg;
+    const html = "Container <code>" + esc(cfg.container) + "</code> · environment <strong>" + esc(cfg.env) + "</strong>."
+        + " To change the token or switch environments, set this browser up again.";
+    $("#panel").innerHTML = '<section class="card"><h2>Settings</h2><p class="hint">' + html + "</p>"
+        + '<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem">'
+        + '<button id="reSetup">Set up again</button>'
+        + '<button id="exportCfg">Export sealed config…</button>'
+        + '<button id="forget">Forget this browser</button>'
+        + "</div>"
+        + '<div id="exportOut"></div>'
+        + '<p class="caveat">The sealed config holds your API token encrypted with your password. '
+        + "Save it as <code>stats/config.enc</code> in the website repo and any other device just needs the password.</p>"
+        + "</section>";
+
+    $("#reSetup").onclick = () => { location.reload(); };
+    $("#forget").onclick = () => {
+        if (!confirm("Remove the saved token from this browser?")) return;
+        try { localStorage.removeItem(STORE_KEY); } catch (e) { /* ignore */ }
+        location.reload();
+    };
+    $("#exportCfg").onclick = async () => {
+        const pw = prompt("Password to seal the config with (use the same one you unlock with):");
+        if (!pw) return;
+        const envelope = await sealConfig(cfg, pw);
+        $("#exportOut").innerHTML = '<label class="field" style="margin-top:.9rem"><span>config.enc</span>'
+            + "<textarea rows=8 readonly>" + esc(envelope) + "</textarea></label>"
+            + '<button id="dl">Download config.enc</button>';
+        $("#dl").onclick = () => {
+            const url = URL.createObjectURL(new Blob([envelope], { type: "application/json" }));
+            const a = document.createElement("a");
+            a.href = url; a.download = "config.enc"; a.click();
+            URL.revokeObjectURL(url);
+        };
+    };
+}
+
+/* ------------------------------- Gate ------------------------------- */
+
+let sealed = null;   // the encrypted envelope, from the repo or this browser
+
+function showUnlock() {
+    $("#unlockForm").hidden = false;
+    $("#setupForm").hidden = true;
+    $("#gateSub").textContent = "Enter your password to unlock.";
+    $("#pw").focus();
+}
+function showSetup() {
+    $("#unlockForm").hidden = true;
+    $("#setupForm").hidden = false;
+    $("#gateSub").textContent = "One-time setup for this browser.";
+    $("#toSetup").hidden = true;
+    $("#tok").focus();
+}
+
+$("#toSetup").addEventListener("click", showSetup);
+
+$("#unlockForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("#unlockErr").textContent = "";
+    const btn = $("#unlockForm button.primary");
+    btn.disabled = true; btn.textContent = "Unlocking…";
+    try {
+        const cfg = await openConfig(sealed, $("#pw").value);
+        // A config that came from the repo is worth caching locally so the
+        // page still opens if GitHub Pages is having a moment.
+        try { localStorage.setItem(STORE_KEY, sealed); } catch (err) { /* private mode */ }
+        enter(cfg);
+    } catch (err) {
+        $("#unlockErr").textContent = "Wrong password.";
+        $("#pw").select();
+    } finally {
+        btn.disabled = false; btn.textContent = "Unlock";
+    }
+});
+
+$("#setupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const err = $("#setupErr");
+    err.textContent = "";
+    if ($("#pw1").value !== $("#pw2").value) { err.textContent = "The two passwords don’t match."; return; }
+    if ($("#pw1").value.length < 8) { err.textContent = "Use at least 8 characters."; return; }
+
+    const cfg = {
+        token: $("#tok").value.trim(),
+        container: $("#cont").value.trim(),
+        env: $("#env").value,
+    };
+    const btn = $("#setupForm button.primary");
+    btn.disabled = true; btn.textContent = "Saving…";
+    try {
+        const envelope = await sealConfig(cfg, $("#pw1").value);
+        try { localStorage.setItem(STORE_KEY, envelope); } catch (e2) {
+            err.textContent = "This browser wouldn’t save it (private mode?) — the dashboard still works for this session.";
+        }
+        enter(cfg);
+    } catch (e3) {
+        err.textContent = "Couldn’t encrypt the config: " + String(e3.message || e3);
+    } finally {
+        btn.disabled = false; btn.textContent = "Save & unlock";
+    }
+});
+
+function enter(cfg) {
+    state.cfg = cfg;
+    $("#envBadge").textContent = cfg.env;
+    $("#gate").hidden = true;
+    $("#app").hidden = false;
+    render();
+    load();
+}
+
+/* ------------------------------- Boot ------------------------------- */
+
+(async function boot() {
+    try {
+        const saved = localStorage.getItem("ccstats.theme");
+        if (saved) document.documentElement.setAttribute("data-theme", saved);
+    } catch (e) { /* private mode */ }
+
+    if (!window.crypto || !crypto.subtle) {
+        $("#gateSub").textContent = "This page needs a secure context (https) for its password gate.";
+        return;
+    }
+
+    // A committed `config.enc` means every device only needs the password.
+    // Without one, whatever this browser sealed for itself is used instead.
+    try {
+        const res = await fetch("config.enc", { cache: "no-store" });
+        if (res.ok) {
+            const text = (await res.text()).trim();
+            if (text.startsWith("{")) sealed = text;
+        }
+    } catch (e) { /* no committed config — fine */ }
+
+    if (!sealed) {
+        try { sealed = localStorage.getItem(STORE_KEY); } catch (e) { /* private mode */ }
+    }
+
+    if (sealed) showUnlock();
+    else showSetup();
+})();
+
+})();
+</script>
+</body>
+</html>
