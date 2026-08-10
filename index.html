@@ -872,10 +872,23 @@
         CCMedia.apply(CCMedia.localeFor(e.detail && e.detail.lang));
     });
     CCLang.init({ dir: '/i18n/' });
-    // Campaign-tagged download links + Smart App Banner. No-ops until the
-    // App Store id lands in /appstore.js, so it's safe to run pre-launch.
-    CCStore.wireLinks();
-    CCStore.smartBanner({ campaign: 'web_home' });
+    // Campaign-tagged download links + Smart App Banner. No-ops until LAUNCHED
+    // is flipped in /appstore.js, so it's safe to run pre-launch.
+    //
+    // Source tokens are read here as well as on /press, because the "try this
+    // with your audience" wave sends creators to the homepage rather than to a
+    // press kit — without this, every one of those links reports as a single
+    // web_home and the question "which creator actually drove installs" has no
+    // answer. web_home + a max-length token is 39 characters, inside the 40 ASC
+    // allows.
+    //
+    // Known and accepted: /join uses ?c= for group invite codes, so a hand-
+    // mangled invite URL that loses its /join path could mint a campaign named
+    // after a group code. That needs someone to edit a link by hand — the app
+    // always generates /join/CODE — and the cost is one stray row in ASC. The
+    // alternative, leaving creator links unattributed, costs more every day.
+    CCStore.wireLinks(document, { sourceToken: true });
+    CCStore.smartBanner({ campaign: CCStore.campaign('web_home') });
     </script>
 </body>
 </html>

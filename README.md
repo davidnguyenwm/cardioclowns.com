@@ -70,10 +70,25 @@ traces back to the outlet that ran the link rather than to "the press page".
 `web_press_en_macstories`. Without it all 113 pitches report as a single number,
 which answers "did press work" but never "which pitch worked".
 
+The homepage reads `?c=` too, because the "try it with your audience" wave sends
+creators to `cardioclowns.com/?c=<token>` rather than to a press kit — asking
+someone to *try* the app and landing them on a page written for journalists is a
+worse first click. Same mechanism, campaign `web_home_<token>`.
+
 Reading `?c=` is opt-in per page, and `/join` must never opt in: there `?c=` is
 the six-character group invite code, and folding that into a campaign name would
 mint an App Store Connect campaign per group ever created and publish private
-invite codes into a dashboard. `tests/appstore.test.js` enforces this.
+invite codes into a dashboard. `tests/appstore.test.js` enforces this — for the
+homepage and press page it checks they *do* read the token, and for `/join` that
+it never can.
+
+The accepted residual risk on the homepage: an invite URL edited by hand until
+it loses its `/join` path would mint a campaign named after a group code. The
+app only ever generates `/join/CODE`, and the cost is one stray row in ASC —
+cheaper than leaving every creator link unattributed. Press tokens and invite
+codes cannot be told apart by shape (`baxter` is a valid token *and* a valid
+six-character code), so this is a judgement call rather than something a
+validator could settle.
 
 The token is whitelisted to `[a-z0-9_]{1,30}` rather than escaped, because it
 ends up inside the Smart App Banner's comma-separated `content` attribute, where

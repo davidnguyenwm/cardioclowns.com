@@ -649,6 +649,28 @@ check('every campaign name used on the site is documented in appstore.js', (() =
 // Everything above tests the API. None of it notices if press/index.html goes
 // back to a bare `campaign: 'web_press'` — which is exactly the state this file
 // was written to fix, and it passed every other check in here.
+// The homepage is where the wave4c "try it with your audience" links land, so
+// it has to read ?c= too. It didn't at first — the page worked perfectly and
+// dropped the token, which is the same silent failure as the press page had.
+check('the homepage tokenises its own campaign', (() => {
+    const problems = [];
+    const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+
+    if (!/CCStore\.wireLinks\([^)]*sourceToken\s*:\s*true[^)]*\)/.test(html)) {
+        problems.push('index.html does not opt into source-token wiring — creator links would all report as plain web_home');
+    }
+    if (!/CCStore\.smartBanner\(\{\s*campaign\s*:\s*CCStore\.campaign\('web_home'\)/.test(html)) {
+        problems.push('the homepage banner campaign is not tokenised');
+    }
+
+    // web_home is longer than web_press, so the 40-character ct ceiling is
+    // tighter here. Checked against the real base name rather than assumed.
+    const { store } = loadStore({ launched: true, search: '?c=' + 'a'.repeat(30) });
+    const name = store.campaign('web_home');
+    if (name.length > 40) problems.push(`web_home + a max-length token is ${name.length} characters, over the ct limit`);
+    return problems;
+})());
+
 check('the press page tokenises its own campaign', (() => {
     const problems = [];
     const pressHtml = fs.readFileSync(path.join(ROOT, 'press/index.html'), 'utf8');
