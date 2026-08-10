@@ -118,6 +118,10 @@ check('a real token injects a correctly shaped beacon', (() => {
     if (script.tagName !== 'SCRIPT') problems.push(`appended a <${script.tagName.toLowerCase()}>, not a script`);
     if (script.src !== BEACON_SRC) problems.push(`src is ${script.src}`);
     if (script.defer !== true) problems.push('beacon is not deferred, so it competes with page render');
+    // Cloudflare's own snippet is type="module". beacon.min.js is currently a
+    // plain IIFE that runs either way, so a mismatch is silent today and fatal
+    // the day they ship ESM — exactly the kind of failure this file exists for.
+    if (script.type !== 'module') problems.push(`script type is '${script.type}', Cloudflare's snippet uses module`);
 
     const beacon = script['data-cf-beacon'];
     if (!beacon) {

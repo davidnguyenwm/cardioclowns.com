@@ -23,7 +23,7 @@
 (function () {
     'use strict';
 
-    var TOKEN = 'CF_BEACON_TOKEN';
+    var TOKEN = '32c7fdb0d8354a3cbbdc11e2634153ad';
     var BEACON_SRC = 'https://static.cloudflareinsights.com/beacon.min.js';
 
     // A real token is a 32-character hex string. The placeholder isn't, which
@@ -56,7 +56,14 @@
     // gets copied to every new page.
     if (document.querySelector('script[src="' + BEACON_SRC + '"]')) return;
 
+    // type="module" matches the snippet Cloudflare hands out. Today beacon.min.js
+    // is a plain IIFE bundle that runs either way, so this buys nothing at the
+    // moment — it is here so that if Cloudflare ever ships real ESM in that file,
+    // it keeps working instead of dying on a syntax error that no page would
+    // report. Modules defer by default; `defer` stays set so removing the type
+    // doesn't quietly turn this into a render-blocking script.
     var script = document.createElement('script');
+    script.type = 'module';
     script.defer = true;
     script.src = BEACON_SRC;
     script.setAttribute('data-cf-beacon', JSON.stringify({ token: TOKEN }));
