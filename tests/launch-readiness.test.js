@@ -3,24 +3,24 @@
  *
  * WHY THIS EXISTS
  *
- * Going live is one flag — `LAUNCHED` in appstore.js — but three other things
- * have to be true at the same moment, and none of them announces itself when
- * it isn't:
+ * Going live is one flag — `LAUNCHED` in appstore.js — and it is meant to stay
+ * one flag. Everything that used to be a second launch-day edit now happens at
+ * runtime from that flag, so what is left to go wrong is data entry that should
+ * have happened days earlier:
  *
  *   PROVIDER_TOKEN    missing -> links work, every install reports as an
  *                     anonymous "Web Referrer", and the history cannot be
  *                     backfilled. You find out weeks later, permanently.
  *   CF_BEACON_TOKEN   missing -> the website measures nothing on the one day
  *                     traffic actually arrives.
- *   the CTA elements  the download buttons are <span>s until someone swaps
- *                     them for <a>s. appstore.js deliberately skips non-anchors,
- *                     so flipping LAUNCHED alone ships a homepage that still
- *                     says "Coming soon" — with a working Smart App Banner
- *                     above it, which is what makes it easy to miss.
  *
- * So this file is quiet and green today, listing what is still pending, and
- * turns into a hard failure the moment LAUNCHED flips with any of the above
- * unfinished. Run it right after flipping the flag and before deploying.
+ * Neither blocks a download, which is why neither will announce itself. Both
+ * can be filled in at any time before the flip — they are not launch-day work
+ * and should not be treated as such.
+ *
+ * This file is quiet and green today, listing what is still pending, and turns
+ * into a hard failure the moment LAUNCHED flips with any of it unfinished. Run
+ * it right after flipping the flag and before deploying.
  *
  * Dependency-free on purpose — this repo is static files on GitHub Pages and
  * has no package.json. Keep it that way.
@@ -72,14 +72,14 @@ const APP_STORE_ID = declared(appstore, 'APP_STORE_ID', 'appstore.js');
 const PROVIDER_TOKEN = declared(appstore, 'PROVIDER_TOKEN', 'appstore.js');
 const CF_BEACON_TOKEN = declared(analytics, 'TOKEN', 'analytics.js');
 
-/* ---------- the CTA elements ---------- */
+/* ---------- the automation that makes the flip sufficient ---------- */
 
-// Comments stripped first: the TODO next to each button mentions
-// data-cc-campaign, and counting those would report two anchors that don't
-// exist. Same blind spot the MARKETS duplicate-key check ran into.
+// Comments stripped first: the note beside each button mentions
+// data-cc-campaign, and counting those would find CTAs that don't exist. Same
+// blind spot the MARKETS duplicate-key check ran into.
 const indexNoComments = indexHtml.replace(/<!--[\s\S]*?-->/g, '');
-const ctaTags = [...indexNoComments.matchAll(/<(\w+)[^>]*\sdata-cc-campaign="/g)].map((m) => m[1].toLowerCase());
-const ctaSpans = ctaTags.filter((t) => t !== 'a').length;
+const ctaCount = [...indexNoComments.matchAll(/\sdata-cc-campaign="/g)].length;
+const wiredAtRuntime = /CCStore\.wireLinks\(/.test(indexHtml) && /function activate\(/.test(appstore);
 
 /* ---------- the readiness table ---------- */
 
@@ -103,12 +103,12 @@ const items = [
         fix: 'Cloudflare → Web Analytics → add cardioclowns.com → copy the token'
     },
     {
-        label: 'download CTAs are anchors, not "Coming soon" spans',
-        ok: ctaTags.length > 0 && ctaSpans === 0,
-        pending: ctaTags.length === 0
+        label: 'the download CTAs activate themselves from the flag',
+        ok: ctaCount > 0 && wiredAtRuntime,
+        pending: ctaCount === 0
             ? 'no data-cc-campaign elements found in index.html at all'
-            : `${ctaSpans} of ${ctaTags.length} CTA elements are still <${[...new Set(ctaTags.filter((t) => t !== 'a'))].join('>/<')}> — appstore.js skips non-anchors, so they stay "Coming soon"`,
-        fix: 'swap each <span class="cc-cta cc-cta-soon"> for <a class="cc-cta">, keeping data-cc-campaign'
+            : 'index.html no longer calls CCStore.wireLinks(), or appstore.js lost activate() — the CTAs would stay "Coming soon" spans after the flip',
+        fix: 'restore the runtime activation; tests/appstore.test.js covers what it has to do'
     }
 ];
 

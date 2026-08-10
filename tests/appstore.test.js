@@ -48,27 +48,113 @@ function check(name, problems) {
 
 const APPSTORE_SRC = fs.readFileSync(path.join(ROOT, 'appstore.js'), 'utf8');
 
-// A fake DOM that records what the banner and the link wiring actually wrote.
-// Only the handful of methods appstore.js touches — a real DOM here would test
-// jsdom rather than this file.
-function fakeDocument(links) {
+/*
+ * A DOM small enough to read and real enough to fail.
+ *
+ * activate() swaps one element for another — it copies attributes, moves
+ * children between parents and calls replaceChild. Stubbing those with
+ * something that merely records calls would pass whatever appstore.js did,
+ * including dropping the SVG or losing the campaign attribute. So parent
+ * links, child ordering and attribute copying are modelled for real; anything
+ * appstore.js doesn't touch is not modelled at all.
+ */
+class El {
+    constructor(tag, attrs = {}, children = []) {
+        this.tagName = tag.toUpperCase();
+        this._attrs = new Map(Object.entries(attrs));
+        this.childNodes = [];
+        this.parentNode = null;
+        this.hidden = false;
+        for (const child of children) this.appendChild(child);
+    }
+
+    get attributes() {
+        return [...this._attrs].map(([name, value]) => ({ name, value }));
+    }
+
+    setAttribute(name, value) { this._attrs.set(name, String(value)); }
+    getAttribute(name) { return this._attrs.has(name) ? this._attrs.get(name) : null; }
+
+    get firstChild() { return this.childNodes[0] || null; }
+
+    // Detaching from the previous parent is the part that matters: activate()
+    // drains one element into another with `while (el.firstChild)`, which never
+    // terminates if appending doesn't remove.
+    appendChild(node) {
+        if (node.parentNode) {
+            const at = node.parentNode.childNodes.indexOf(node);
+            if (at !== -1) node.parentNode.childNodes.splice(at, 1);
+        }
+        node.parentNode = this;
+        this.childNodes.push(node);
+        return node;
+    }
+
+    replaceChild(fresh, stale) {
+        const at = this.childNodes.indexOf(stale);
+        if (at === -1) throw new Error('replaceChild called with a node that is not a child');
+        this.childNodes[at] = fresh;
+        fresh.parentNode = this;
+        stale.parentNode = null;
+        return stale;
+    }
+
+    get classList() {
+        const el = this;
+        return {
+            remove(name) {
+                const kept = (el.getAttribute('class') || '')
+                    .split(/\s+/).filter((c) => c && c !== name);
+                el.setAttribute('class', kept.join(' '));
+            },
+            contains(name) {
+                return (el.getAttribute('class') || '').split(/\s+/).includes(name);
+            }
+        };
+    }
+
+    // Attribute-presence selectors only — the two appstore.js actually uses.
+    querySelectorAll(selector) {
+        const m = selector.match(/^\[([\w-]+)\]$/);
+        if (!m) throw new Error(`fake DOM cannot parse selector: ${selector}`);
+        const found = [];
+        const walk = (node) => {
+            for (const child of node.childNodes) {
+                if (child._attrs && child._attrs.has(m[1])) found.push(child);
+                walk(child);
+            }
+        };
+        walk(this);
+        return found;
+    }
+
+    get textContent() {
+        return this.childNodes.map((c) => c.textContent || '').join('');
+    }
+}
+
+/** The homepage CTA, in the shape index.html actually ships it. */
+function ctaMarkup() {
+    return new El('span', { class: 'cc-cta cc-cta-soon', 'data-cc-campaign': 'web_home' }, [
+        new El('svg', { 'aria-hidden': 'true' }),
+        new El('span', { 'data-cc-label': 'soon', 'data-i18n': 'ctaSoon' }),
+        Object.assign(new El('span', { 'data-cc-label': 'live', 'data-i18n': 'ctaLive' }), { hidden: true })
+    ]);
+}
+
+// Records what the banner wrote, and hosts a body for the link wiring.
+function fakeDocument(bodyChildren) {
     const appended = [];
+    const body = new El('body', {}, bodyChildren || []);
     return {
-        head: {
-            appendChild(node) { appended.push(node); }
-        },
-        createElement(tag) {
-            return {
-                tagName: tag.toUpperCase(),
-                setAttribute(k, v) { this[k] = v; },
-                getAttribute(k) { return this[k]; }
-            };
-        },
+        body,
+        head: { appendChild(node) { appended.push(node); } },
+        createElement(tag) { return new El(tag); },
         querySelector(sel) {
             if (sel !== 'meta[name="apple-itunes-app"]') return null;
             return appended.find((n) => n.name === 'apple-itunes-app') || null;
         },
-        querySelectorAll() { return links || []; },
+        querySelectorAll(sel) { return body.querySelectorAll(sel); },
         _appended: appended
     };
 }
@@ -103,7 +189,7 @@ function loadStore(options = {}) {
     if (problems.length) throw new Error(problems.join('; '));
 
     const warnings = [];
-    const document = fakeDocument(options.links);
+    const document = fakeDocument(options.body);
     const sandbox = {
         window: { console: { warn: (msg) => warnings.push(msg) } },
         document,
@@ -332,37 +418,164 @@ check('a missing provider token degrades the link but is not silent', (() => {
 
 check('wireLinks tags hrefs, and only folds the token in when asked', (() => {
     const problems = [];
-    const anchor = () => ({
-        tagName: 'A',
-        href: '#',
-        getAttribute: () => 'web_press'
-    });
+    const anchor = () => new El('a', { href: '#', 'data-cc-campaign': 'web_press' });
 
     const withToken = loadStore({
-        launched: true, providerToken: LIVE_TOKEN, search: '?c=en_macstories', links: [anchor()]
+        launched: true, providerToken: LIVE_TOKEN, search: '?c=en_macstories', body: [anchor()]
     });
-    const a = withToken.document.querySelectorAll()[0];
+    const a = withToken.document.body.childNodes[0];
     withToken.store.wireLinks(withToken.document, { sourceToken: true });
     if (!a.href.includes('ct=web_press_en_macstories')) problems.push(`opt-in wiring produced ${a.href}`);
 
     const without = loadStore({
-        launched: true, providerToken: LIVE_TOKEN, search: '?c=en_macstories', links: [anchor()]
+        launched: true, providerToken: LIVE_TOKEN, search: '?c=en_macstories', body: [anchor()]
     });
-    const b = without.document.querySelectorAll()[0];
+    const b = without.document.body.childNodes[0];
     without.store.wireLinks(without.document);
-    if (!b.href.includes('ct=web_press&') && !b.href.endsWith('ct=web_press')) {
+    if (!/ct=web_press(&|$)/.test(b.href)) {
         problems.push(`default wiring should ignore ?c=, produced ${b.href}`);
     }
-
-    // A "Coming soon" span carries the attribute before it becomes a link.
-    const span = { tagName: 'SPAN', getAttribute: () => 'web_home' };
-    const spans = loadStore({ launched: true, providerToken: LIVE_TOKEN, links: [span] });
-    spans.store.wireLinks(spans.document);
-    if ('href' in span) problems.push('wireLinks set an href on a non-anchor');
     return problems;
 })());
 
-/* ---------- 7. /join must never leak invite codes into campaigns ---------- */
+/* ---------- 7. launch day is one boolean ---------- */
+
+// The CTA is a <span> before launch and has to be an <a> after. Doing that by
+// hand was a second launch-day edit that nothing enforced and that is invisible
+// from the top of the page when forgotten — the Smart App Banner appears and
+// looks like success while both buttons still read "Coming soon".
+check('flipping LAUNCHED turns the placeholder into a real download button', (() => {
+    const problems = [];
+    const cta = ctaMarkup();
+    const { store, document } = loadStore({ launched: true, providerToken: LIVE_TOKEN, body: [cta] });
+    store.wireLinks(document);
+
+    const live = document.body.childNodes[0];
+    if (live.tagName !== 'A') {
+        return [`the CTA is still a <${live.tagName.toLowerCase()}> after launch — it is not clickable`];
+    }
+    if (!live.href || !live.href.includes('ct=web_home')) problems.push(`href is '${live.href}'`);
+    if (live.getAttribute('data-cc-campaign') !== 'web_home') problems.push('the campaign attribute was lost in the swap');
+    if (live.classList.contains('cc-cta-soon')) problems.push('cc-cta-soon survived, so it still styles as unclickable');
+    if (!live.classList.contains('cc-cta')) problems.push('cc-cta was dropped, so the button loses its styling entirely');
+
+    // The SVG and both labels have to survive: they are moved between parents,
+    // which is exactly where children get dropped.
+    if (live.childNodes.length !== 3) problems.push(`expected 3 children after the swap, got ${live.childNodes.length}`);
+    if (!live.childNodes.some((c) => c.tagName === 'SVG')) problems.push('the Apple logo did not survive the swap');
+
+    const labels = live.querySelectorAll('[data-cc-label]');
+    const soon = labels.find((l) => l.getAttribute('data-cc-label') === 'soon');
+    const now = labels.find((l) => l.getAttribute('data-cc-label') === 'live');
+    if (!soon || !now) problems.push('a label went missing in the swap');
+    if (soon && soon.hidden !== true) problems.push('"Coming soon" is still visible on a live site');
+    if (now && now.hidden !== false) problems.push('the download label is still hidden after launch');
+
+    // lang.js finds its nodes by data-i18n; if the swap broke those, every
+    // non-English visitor gets an English button.
+    if (now && now.getAttribute('data-i18n') !== 'ctaLive') problems.push('the live label lost its data-i18n key, so it cannot be translated');
+    return problems;
+})());
+
+check('before launch the CTA stays inert and unclickable', (() => {
+    const problems = [];
+    const cta = ctaMarkup();
+    const { store, document } = loadStore({ body: [cta] });
+    store.wireLinks(document);
+
+    const el = document.body.childNodes[0];
+    if (el.tagName !== 'SPAN') problems.push(`the CTA became a <${el.tagName.toLowerCase()}> before launch`);
+    if ('href' in el) problems.push('an href was set on the pre-launch placeholder');
+    if (!el.classList.contains('cc-cta-soon')) problems.push('cc-cta-soon was removed before launch');
+
+    const labels = el.querySelectorAll('[data-cc-label]');
+    const now = labels.find((l) => l.getAttribute('data-cc-label') === 'live');
+    if (now && now.hidden !== true) problems.push('the download label is visible before launch');
+    return problems;
+})());
+
+check('activating twice is harmless', (() => {
+    // Nothing calls wireLinks twice today, but a language switch re-rendering
+    // the page would, and a second pass that rebuilt the element again would
+    // quietly drop the href set by the first.
+    const cta = ctaMarkup();
+    const { store, document } = loadStore({ launched: true, providerToken: LIVE_TOKEN, body: [cta] });
+    store.wireLinks(document);
+    const first = document.body.childNodes[0].href;
+    store.wireLinks(document);
+    const second = document.body.childNodes[0];
+
+    const problems = [];
+    if (second.tagName !== 'A') problems.push('the second pass un-linked the button');
+    if (second.href !== first) problems.push(`href changed between passes: ${first} -> ${second.href}`);
+    if (second.childNodes.length !== 3) problems.push(`the second pass left ${second.childNodes.length} children`);
+    return problems;
+})());
+
+// The behavioural checks above run against a CTA this file builds. This one
+// checks the page actually ships that shape — otherwise the automation is
+// correct and wired to markup that doesn't exist.
+check('both homepage CTAs ship both labels', (() => {
+    const problems = [];
+    const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8').replace(/<!--[\s\S]*?-->/g, '');
+
+    // Depth-counted rather than a lazy `([\s\S]*?)</\1>`: the CTA contains two
+    // nested <span> labels, so the lazy version stops at the first inner
+    // closing tag and reports the second label missing when it is right there.
+    const sliceElement = (from) => {
+        const tag = /^<(\w+)/.exec(html.slice(from))[1];
+        const scan = new RegExp(`<${tag}\\b|</${tag}>`, 'g');
+        scan.lastIndex = from;
+        let depth = 0;
+        let m;
+        while ((m = scan.exec(html)) !== null) {
+            if (m[0][1] === '/') {
+                if (--depth === 0) return { tag, outer: html.slice(from, m.index + m[0].length) };
+            } else depth++;
+        }
+        return null;
+    };
+
+    const ctas = [...html.matchAll(/<(\w+)[^>]*\sdata-cc-campaign="/g)]
+        .map((m) => sliceElement(m.index))
+        .filter(Boolean);
+
+    if (ctas.length !== 2) {
+        return [`expected 2 CTA elements in index.html, found ${ctas.length} — this check cannot be trusted`];
+    }
+    for (const { tag, outer: inner } of ctas) {
+        if (tag.toLowerCase() !== 'span') {
+            problems.push(`a CTA ships as <${tag}> — it should be a span until appstore.js promotes it`);
+        }
+        for (const label of ['soon', 'live']) {
+            if (!inner.includes(`data-cc-label="${label}"`)) {
+                problems.push(`a CTA is missing its "${label}" label, so the launch flip cannot swap it`);
+            }
+        }
+        if (!/data-cc-label="live"[^>]*\shidden/.test(inner)) {
+            problems.push('the live label is not hidden in the markup — it would show before launch');
+        }
+        if (!/data-i18n="ctaLive"/.test(inner)) {
+            problems.push('the live label has no data-i18n key, so it would be English in all 43 languages');
+        }
+    }
+    return problems;
+})());
+
+check('every language can translate both CTA labels', (() => {
+    // lang.js falls back per string to the English in index.html, so a missing
+    // key is a silent English button on an otherwise translated page.
+    const problems = [];
+    for (const file of fs.readdirSync(path.join(ROOT, 'i18n')).filter((f) => f.endsWith('.json'))) {
+        const strings = JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n', file), 'utf8'));
+        for (const key of ['ctaSoon', 'ctaLive']) {
+            if (!strings[key]) problems.push(`i18n/${file} has no ${key} — that language shows the English label`);
+        }
+    }
+    return problems;
+})());
+
+/* ---------- 8. /join must never leak invite codes into campaigns ---------- */
 
 // /join reads ?c= too, but there it is a group invite code. Folding that into a
 // campaign name would mint an ASC campaign per group ever created and publish
@@ -399,7 +612,7 @@ check('/join collapses its ?c= to a fixed campaign, never a name', (() => {
     return problems;
 })());
 
-/* ---------- 8. every campaign name on the site is a documented one ---------- */
+/* ---------- 9. every campaign name on the site is a documented one ---------- */
 
 // ASC groups by exact string, so 'web-press' and 'web_press' are two campaigns
 // and neither is wrong at runtime. The header comment in appstore.js is the
@@ -431,7 +644,7 @@ check('every campaign name used on the site is documented in appstore.js', (() =
     return problems;
 })());
 
-/* ---------- 9. the press page has to actually ask for the token ---------- */
+/* ---------- 10. the press page has to actually ask for the token ---------- */
 
 // Everything above tests the API. None of it notices if press/index.html goes
 // back to a bare `campaign: 'web_press'` — which is exactly the state this file
@@ -456,7 +669,7 @@ check('the press page tokenises its own campaign', (() => {
     return problems;
 })());
 
-/* ---------- 10. the real press tokens, when they're reachable ---------- */
+/* ---------- 11. the real press tokens, when they are reachable ---------- */
 
 // outreach.json lives in the app repo, so this is a local cross-check that
 // skips rather than fails when the sibling checkout isn't there. It catches the

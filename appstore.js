@@ -14,18 +14,19 @@
  * before launch and the two placeholders below are the only thing left to
  * swap.
  *
- * TO GO LIVE:
- *   1. flip `LAUNCHED` to true, below
- *   2. swap the two `<span class="cc-cta cc-cta-soon">` on index.html for
- *      `<a class="cc-cta">`, keeping data-cc-campaign
- *   3. fill in PROVIDER_TOKEN here and CF_BEACON_TOKEN in analytics.js
- *   4. `node tests/launch-readiness.test.js` — it fails until all of the above
- *      is done, and passes with "cleared to deploy" when it is
+ * TO GO LIVE: flip `LAUNCHED` to true and deploy. That is the whole step.
  *
- * Step 2 is not optional and is easy to miss: wireLinks() skips anything that
- * isn't already an anchor, so flipping the flag alone leaves both download
- * buttons reading "Coming soon" underneath a working Smart App Banner. It looks
- * launched from the top of the page.
+ * It is the whole step because everything else is done from that flag at
+ * runtime: the "Coming soon" spans become campaign-tagged `<a>` download
+ * buttons in the visitor's language, and the Smart App Banner picks up its
+ * affiliate data. No markup edit, no second file, nothing to remember at the
+ * one moment there is least attention to spare.
+ *
+ * The two API tokens below are NOT launch-day work — fill them in whenever
+ * they're available, before or after, and nothing about the flip depends on
+ * them. Missing ones cost attribution, never a working download.
+ * `node tests/launch-readiness.test.js` reports exactly what is still open and
+ * fails hard if the flag flips with anything unfinished.
  *
  * The id and the launch moment are deliberately separate switches. Knowing the
  * App Store id is not the same as being on sale, and tying the two together
@@ -220,10 +221,48 @@
     }
 
     /**
-     * Points every `<a data-cc-campaign="...">` on the page at the App Store,
-     * each with its own campaign name. Elements that aren't links yet (the
-     * "Coming soon" spans) are skipped, so this is safe to call before launch
-     * and needs no second edit after the spans become anchors.
+     * Turns one "Coming soon" placeholder into a real download button.
+     *
+     * Pre-launch the CTA is a `<span>` on purpose — not a link, not focusable,
+     * and impossible to mistake for one by keyboard or screen reader. At launch
+     * it has to become an `<a>`, and doing that here rather than by hand is the
+     * difference between launch day being one boolean and launch day being a
+     * boolean plus a markup edit that is invisible from the top of the page if
+     * it's forgotten.
+     *
+     * The element is rebuilt rather than mutated because tagName is read-only:
+     * attributes are copied, children are moved (the SVG and both labels keep
+     * their identity, so lang.js can still find and translate them), and the
+     * original is swapped out in place.
+     */
+    function activate(node) {
+        var el = node;
+        if (el.tagName !== 'A') {
+            var link = document.createElement('a');
+            for (var i = 0; i < el.attributes.length; i++) {
+                link.setAttribute(el.attributes[i].name, el.attributes[i].value);
+            }
+            while (el.firstChild) link.appendChild(el.firstChild);
+            if (el.parentNode) el.parentNode.replaceChild(link, el);
+            el = link;
+        }
+        // cc-cta-soon is the "not a button yet" styling: no hover lift, default
+        // cursor. Dropping it is what makes the live one look clickable.
+        if (el.classList) el.classList.remove('cc-cta-soon');
+
+        // Both labels ship in the markup; this picks the one that is true now.
+        var labels = el.querySelectorAll('[data-cc-label]');
+        for (var j = 0; j < labels.length; j++) {
+            labels[j].hidden = labels[j].getAttribute('data-cc-label') !== 'live';
+        }
+        return el;
+    }
+
+    /**
+     * Points every `[data-cc-campaign]` element on the page at the App Store,
+     * each with its own campaign name, promoting the pre-launch placeholders to
+     * real links on the way. Does nothing at all until LAUNCHED is true, so it
+     * is safe to call — and is called — on every page load before launch.
      *
      * `options.sourceToken` folds the URL's `?c=` token into each name — pages
      * reached by a tokenised link opt in, /join must not. See SOURCE TOKENS.
@@ -233,9 +272,8 @@
         var withToken = !!(options && options.sourceToken);
         var nodes = (root || document).querySelectorAll('[data-cc-campaign]');
         Array.prototype.forEach.call(nodes, function (node) {
-            if (node.tagName !== 'A') return;
             var name = node.getAttribute('data-cc-campaign');
-            node.href = url(withToken ? campaign(name) : name);
+            activate(node).href = url(withToken ? campaign(name) : name);
         });
     }
 

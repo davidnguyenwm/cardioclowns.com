@@ -206,6 +206,14 @@
             color: #fff;
         }
 
+        /* The CTA carries both its pre-launch and post-launch labels and
+           appstore.js hides one. Stated explicitly because these are flex
+           items, and a flex container is exactly where a UA default gets
+           second-guessed. */
+        .cc-cta [hidden] {
+            display: none;
+        }
+
         .cc-cta-sub {
             display: block;
             margin-top: 0.85rem;
@@ -612,14 +620,17 @@
             <h1>Cardio Clowns</h1>
             <p class="tagline" data-i18n="tagline">The daily step game that gets your family and friends moving — and laughing.</p>
             <p class="subtagline" data-i18n="subtagline">Create a group, share a 6-character code, and every step you take becomes ammunition in a daily battle for the crown. 👑</p>
-            <!-- TODO: at launch, swap this span for <a class="cc-cta" href="#">
-                 with "Download on the App Store". Keep data-cc-campaign — once
-                 it's an anchor, appstore.js fills in the href with the campaign
-                 token attached, so there's no second edit and no chance of
-                 shipping an untagged link. -->
+            <!-- Both labels ship in the markup and appstore.js picks one, so
+                 launch day is the LAUNCHED boolean and nothing else. Until then
+                 this stays a <span>: not a link, not focusable, and it cannot
+                 be mistaken for one. Once live it becomes an <a> with the
+                 campaign-tagged href filled in. Both labels carry data-i18n so
+                 lang.js translates them whichever is showing, and whichever
+                 order the two scripts happen to run in. -->
             <span class="cc-cta cc-cta-soon" data-cc-campaign="web_home">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                <span data-i18n="ctaSoon">Coming soon to the App Store</span>
+                <span data-cc-label="soon" data-i18n="ctaSoon">Coming soon to the App Store</span>
+                <span data-cc-label="live" data-i18n="ctaLive" hidden>Download on the App Store</span>
             </span>
             <span class="cc-cta-sub" data-i18n="ctaSub">Free to play · iPhone (Apple Watch optional) · No accounts, no ads</span>
 
@@ -781,11 +792,12 @@
         <div class="container">
             <h2 data-i18n="bannerH2">Nothing gets a family moving like the fear of losing to each other.</h2>
             <p data-i18n="bannerP">Grab your crew. The crown is waiting. 👑</p>
-            <!-- TODO: at launch, swap this span for <a class="cc-cta" href="#">
-                 with "Download Cardio Clowns"; data-cc-campaign does the rest. -->
+            <!-- Same two-label pattern as the hero CTA above; appstore.js
+                 activates both from one flag. -->
             <span class="cc-cta cc-cta-soon" data-cc-campaign="web_home">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                <span data-i18n="ctaSoon">Coming soon to the App Store</span>
+                <span data-cc-label="soon" data-i18n="ctaSoon">Coming soon to the App Store</span>
+                <span data-cc-label="live" data-i18n="ctaLive" hidden>Download on the App Store</span>
             </span>
         </div>
     </section>

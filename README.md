@@ -11,14 +11,31 @@ one anonymous "Web Referrer" bucket, and adding them later does not backfill the
 history — so the plumbing is in place before launch and only the placeholders
 need swapping.
 
-### At launch — four steps, in this order
+### At launch — flip one boolean
 
-1. Flip `LAUNCHED` to `true` in `appstore.js`.
-2. Swap the two homepage `<span class="cc-cta cc-cta-soon">` for
-   `<a class="cc-cta">`, keeping `data-cc-campaign`.
-3. Replace the two placeholders below.
-4. Run `node tests/launch-readiness.test.js` — it fails until 1–3 are all done
-   and prints "cleared to deploy" when they are. **Then** deploy.
+```js
+var LAUNCHED = true;   // appstore.js
+```
+
+Deploy. That is the entire launch-day procedure, and it is deliberately the
+entire procedure: launch day is when there is least attention to spare for a
+checklist, so everything else happens at runtime from that flag.
+
+What the flag does on its own:
+
+- both homepage `<span class="cc-cta cc-cta-soon">` placeholders become real
+  `<a>` download buttons, campaign-tagged href filled in, styling switched from
+  "not clickable yet" to clickable
+- the button label swaps from "Coming soon to the App Store" to "Download on the
+  App Store" **in the visitor's language** — both strings ship in the markup and
+  in all 43 translation files, so the swap needs no fetch and no re-render
+- the Smart App Banner picks up its `affiliate-data`, on every page
+- `/press` links start reporting per outlet (see below)
+
+The CTA stays a `<span>` until then on purpose: it is not a link, not focusable,
+and cannot be mistaken for one by keyboard or screen reader.
+
+### Two tokens — fill in whenever, *not* on launch day
 
 | File | Placeholder | Where to find it |
 | --- | --- | --- |
@@ -26,20 +43,18 @@ need swapping.
 | `appstore.js` | `PROVIDER_TOKEN` | App Store Connect → Users and Access → the numeric provider/campaign token |
 | `analytics.js` | `CF_BEACON_TOKEN` | Cloudflare → Web Analytics → add cardioclowns.com → copy token |
 
-Step 2 is the one that bites. `wireLinks()` deliberately skips anything that
-isn't already an anchor, so flipping `LAUNCHED` on its own ships a homepage whose
-download buttons still read "Coming soon" — under a Smart App Banner that works
-perfectly, which is what makes it easy to miss from the top of the page.
+Neither is launch-day work and nothing about the flip depends on them — do them
+the day they become available. A missing `PROVIDER_TOKEN` never breaks a
+download, because analytics is not worth a broken link; the links keep working
+and every install lands in the anonymous "Web Referrer" bucket instead. That
+failure is invisible and not backfillable, which is why it is a launch-gate
+failure and a console warning rather than a silent degrade.
 
-Until `LAUNCHED` is true, `CCStore.isLive()` is false: links are left alone, the
-Smart App Banner isn't written, and the "Coming soon" CTAs stay as they are.
 Until `CF_BEACON_TOKEN` is a real 32-character token, the site makes no
 third-party requests at all.
 
-A missing `PROVIDER_TOKEN` never breaks a download — analytics is not worth a
-broken link — so the links keep working and every install lands in the anonymous
-bucket instead. That failure is invisible and not backfillable, which is why it
-is a launch-gate failure and a console warning rather than a silent degrade.
+`node tests/launch-readiness.test.js` prints whatever is still open, and fails
+hard if the flag is flipped with anything unfinished.
 
 ### Press links and `?c=`
 
@@ -92,9 +107,9 @@ Each suite is standalone and exits non-zero on failure.
 | Suite | What it protects |
 | --- | --- |
 | `press-locales` | `?m=` locale wiring across i18n copy, `MARKETS` and `media.js` |
-| `appstore` | campaign attribution: `?c=` tokens, `pt`/`ct`, banner injection, the `/join` collision |
+| `appstore` | campaign attribution: `?c=` tokens, `pt`/`ct`, banner injection, the `/join` collision — and that flipping `LAUNCHED` really does produce a working, translated, tagged download button |
 | `analytics` | the beacon's first real execution: token gate, opt-out signals, per-page coverage |
-| `launch-readiness` | the four launch steps above — green and quiet today, red the moment `LAUNCHED` flips with anything unfinished |
+| `launch-readiness` | what is left before the flip — green and quiet today, red the moment `LAUNCHED` flips with anything unfinished |
 
 The common thread is that all four cover failures with no runtime symptom. The
 press page falls back to English on an unknown `?m=`; a link with no `pt` still
