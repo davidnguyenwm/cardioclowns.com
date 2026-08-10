@@ -11,23 +11,56 @@ one anonymous "Web Referrer" bucket, and adding them later does not backfill the
 history — so the plumbing is in place before launch and only the placeholders
 need swapping.
 
-### At launch — two values to replace
+### At launch — four steps, in this order
+
+1. Flip `LAUNCHED` to `true` in `appstore.js`.
+2. Swap the two homepage `<span class="cc-cta cc-cta-soon">` for
+   `<a class="cc-cta">`, keeping `data-cc-campaign`.
+3. Replace the two placeholders below.
+4. Run `node tests/launch-readiness.test.js` — it fails until 1–3 are all done
+   and prints "cleared to deploy" when they are. **Then** deploy.
 
 | File | Placeholder | Where to find it |
 | --- | --- | --- |
-| `appstore.js` | `APP_STORE_ID` | App Store Connect → App Information → Apple ID (numeric) |
+| `appstore.js` | `APP_STORE_ID` | App Store Connect → App Information → Apple ID (numeric) — *already set* |
 | `appstore.js` | `PROVIDER_TOKEN` | App Store Connect → Users and Access → the numeric provider/campaign token |
 | `analytics.js` | `CF_BEACON_TOKEN` | Cloudflare → Web Analytics → add cardioclowns.com → copy token |
 
-Until `APP_STORE_ID` is a real number, `CCStore.isLive()` is false: links are
-left alone, the Smart App Banner isn't written, and the "Coming soon" CTAs stay
-as they are. Until `CF_BEACON_TOKEN` is a real 32-character token, the site
-makes no third-party requests at all.
+Step 2 is the one that bites. `wireLinks()` deliberately skips anything that
+isn't already an anchor, so flipping `LAUNCHED` on its own ships a homepage whose
+download buttons still read "Coming soon" — under a Smart App Banner that works
+perfectly, which is what makes it easy to miss from the top of the page.
 
-The homepage "Coming soon" spans carry `data-cc-campaign="web_home"`. At launch
-they become `<a class="cc-cta" href="#">` — keep the attribute and `appstore.js`
-fills in the href, campaign token included, so there's no chance of shipping an
-untagged link.
+Until `LAUNCHED` is true, `CCStore.isLive()` is false: links are left alone, the
+Smart App Banner isn't written, and the "Coming soon" CTAs stay as they are.
+Until `CF_BEACON_TOKEN` is a real 32-character token, the site makes no
+third-party requests at all.
+
+A missing `PROVIDER_TOKEN` never breaks a download — analytics is not worth a
+broken link — so the links keep working and every install lands in the anonymous
+bucket instead. That failure is invisible and not backfillable, which is why it
+is a launch-gate failure and a console warning rather than a silent degrade.
+
+### Press links and `?c=`
+
+Press pitches link to `/press/?c=<token>`, one token per outlet, so an install
+traces back to the outlet that ran the link rather than to "the press page".
+`CCStore.campaign('web_press')` folds the token into the campaign name —
+`web_press_en_macstories`. Without it all 113 pitches report as a single number,
+which answers "did press work" but never "which pitch worked".
+
+Reading `?c=` is opt-in per page, and `/join` must never opt in: there `?c=` is
+the six-character group invite code, and folding that into a campaign name would
+mint an App Store Connect campaign per group ever created and publish private
+invite codes into a dashboard. `tests/appstore.test.js` enforces this.
+
+The token is whitelisted to `[a-z0-9_]{1,30}` rather than escaped, because it
+ends up inside the Smart App Banner's comma-separated `content` attribute, where
+a comma injects a *new field* (`app-argument=`) rather than corrupting a name.
+Anything else is dropped whole — reporting a mangled link as plain `web_press`
+is honest, while a scrubbed lookalike would be a confident wrong answer. The
+token list lives in `outreach.json` in the app repo, and `scripts/outreach.py`
+refuses to render a pitch whose token this site would drop.
 
 ### Campaign names
 
@@ -49,11 +82,26 @@ of these — a campaign that can't be told apart from another isn't measurable.
 ## Tests
 
 ```
-node tests/press-locales.test.js
+node tests/run.js                        # everything
+node tests/launch-readiness.test.js      # run this right after flipping LAUNCHED
 ```
 
 No dependencies and no package.json — plain Node against the checked-in files.
-Exits non-zero on failure.
+Each suite is standalone and exits non-zero on failure.
+
+| Suite | What it protects |
+| --- | --- |
+| `press-locales` | `?m=` locale wiring across i18n copy, `MARKETS` and `media.js` |
+| `appstore` | campaign attribution: `?c=` tokens, `pt`/`ct`, banner injection, the `/join` collision |
+| `analytics` | the beacon's first real execution: token gate, opt-out signals, per-page coverage |
+| `launch-readiness` | the four launch steps above — green and quiet today, red the moment `LAUNCHED` flips with anything unfinished |
+
+The common thread is that all four cover failures with no runtime symptom. The
+press page falls back to English on an unknown `?m=`; a link with no `pt` still
+downloads the app; an unset beacon token just counts nothing. Every one of them
+looks exactly like success.
+
+### press-locales
 
 It checks that the press page's locale wiring is consistent across the three
 places a language has to be registered: `press/i18n/*.json` (the copy),
@@ -78,6 +126,18 @@ don't have the app yet, and that step of the referral funnel was previously
 invisible. It sets no cookies, uses no browser storage or cross-site
 identifiers, and honours Do Not Track. The privacy policy describes it under
 "This website".
+
+Opt-out is read in every spelling that ships: `navigator.doNotTrack` as `'1'`
+(Chrome, Firefox) or `'yes'` (Safari, older Firefox), `window.doNotTrack`,
+`navigator.msDoNotTrack`, and Global Privacy Control — which is the signal
+browsers actually still send, and the one that carries legal weight under CCPA.
+Reading only `navigator.doNotTrack === '1'` would have counted people who did
+opt out, while the policy said otherwise.
+
+Because the file is inert until the token is filled in, its entire body first
+executes for real on launch day. `tests/analytics.test.js` runs that path now
+instead — patching in a valid token to check the beacon's shape, and patching in
+each opt-out signal to check it stays silent.
 
 ## /stats — the private app dashboard
 

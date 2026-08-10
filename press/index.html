@@ -438,7 +438,16 @@
     <!-- Smart App Banner with its own campaign, so downloads that came from an
          editor or journalist reading this page are attributable in App Store
          Connect rather than lumped in with the homepage. No-ops until the App
-         Store id is set in /appstore.js. -->
-    <script>CCStore.smartBanner({ campaign: 'web_press' });</script>
+         Store id is set in /appstore.js.
+
+         CCStore.campaign() folds this page's ?c= token in, so the campaign is
+         web_press_en_macstories rather than a single web_press bucket shared by
+         every outlet pitched. wireLinks is called for the same reason: the page
+         has no download CTA today, and when it gets one the tokenised href is
+         already wired rather than something to remember. -->
+    <script>
+    CCStore.smartBanner({ campaign: CCStore.campaign('web_press') });
+    CCStore.wireLinks(document, { sourceToken: true });
+    </script>
 </body>
 </html>
