@@ -207,6 +207,8 @@
 
         .cc-home { display: block; margin-top: 1.75rem; color: rgba(255,255,255,0.85); font-size: 0.9rem; }
         .cc-home:hover { color: #fff; }
+        .cc-legal { display: block; margin-top: 0.85rem; color: rgba(255,255,255,0.5); font-size: 0.8rem; }
+        .cc-legal:hover { color: rgba(255,255,255,0.8); }
 
         @media (prefers-reduced-motion: reduce) { .cc-icon { animation: none; } }
     </style>
@@ -239,6 +241,11 @@
         </ol>
 
         <a class="cc-home" id="home" href="/">What is Cardio Clowns? →</a>
+        <!-- Every invite link lands here, so this is the busiest page on the
+             site at launch. The Impressum should be reachable from it directly,
+             not only via the home link above. Keeps its German name in all
+             languages, like the footers elsewhere. -->
+        <a class="cc-legal" href="/impressum">Impressum</a>
     </main>
 
     <script>
