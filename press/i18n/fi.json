@@ -72,6 +72,7 @@
   "nextP": "Syyskuun päivitys tuo suorat toiminnot ja App Intents -pohjaiset Siri-toiminnot. Sen jälkeen: avatarit tulostaululle ja syötteeseen, teemat ja vaihtoehtoiset sovelluskuvakkeet — kaikki jo julkaistun StoreKit 2 -perustan päälle.",
   "h2Try": "Kokeile",
   "tryP": "Julkinen TestFlight-linkki on auki — kutsukoodia ei tarvita.",
+  "tryP2": "Pro on TestFlightissä ilmainen — napauta ”Tilaa”, eikä sinulta veloiteta mitään. TestFlight-ostot tehdään Applen hiekkalaatikossa.",
   "ctaNote2": "Vinkki: luo ryhmä ja jaa koodi yhdelle toiselle. Sovelluksessa on kyse toisesta pelaajasta.",
   "h2Assets": "Materiaalit",
   "assetsIntro": "Vapaasti käytettävissä juttuihin ja toimitukselliseen arviointiin:",

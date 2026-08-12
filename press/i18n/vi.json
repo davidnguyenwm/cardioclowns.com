@@ -72,6 +72,7 @@
   "nextP": "Bản cập nhật tháng 9 bổ sung Live Activities và các thao tác Siri dựa trên App Intents. Xa hơn nữa: ảnh đại diện trên bảng xếp hạng và bảng tin, giao diện chủ đề, và biểu tượng ứng dụng thay thế — tất cả dựng trên nền StoreKit 2 đã phát hành.",
   "h2Try": "Dùng thử",
   "tryP": "Đã mở liên kết TestFlight công khai — không cần mã mời.",
+  "tryP2": "Pro miễn phí trên TestFlight — chạm “Đăng ký” và bạn sẽ không bị tính tiền. Giao dịch trên TestFlight chạy trong sandbox của Apple.",
   "ctaNote2": "Mẹo: tạo một nhóm và chia sẻ mã cho thêm một người nữa. Linh hồn của ứng dụng nằm ở người chơi thứ hai.",
   "h2Assets": "Tư liệu",
   "assetsIntro": "Dùng tự do cho bài viết hoặc để ban biên tập cân nhắc:",

@@ -72,6 +72,7 @@
   "nextP": "A szeptemberi frissítés élő tevékenységeket és App Intentsre épülő Siri-műveleteket hoz. Utána: avatarok a ranglistán és a folyamban, témák és alternatív appikonok — mindez a már kiadott StoreKit 2 alapokra építve.",
   "h2Try": "Próbáld ki",
   "tryP": "Nyilvános TestFlight-link elérhető — meghívókód nem kell hozzá.",
+  "tryP2": "A Pro ingyenes a TestFlightban — koppints az „Előfizetés“ gombra, semmit nem számolunk fel. A TestFlight-vásárlások az Apple sandboxában futnak.",
   "ctaNote2": "Tipp: hozz létre egy csoportot, és oszd meg a kódot még egy emberrel. Ez az app a második játékosról szól.",
   "h2Assets": "Anyagok",
   "assetsIntro": "Szabadon felhasználható cikkekhez és szerkesztőségi mérlegeléshez:",
