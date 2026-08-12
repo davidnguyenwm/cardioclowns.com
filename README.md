@@ -133,12 +133,13 @@ Each suite is standalone and exits non-zero on failure.
 | `launch-readiness` | what is left before the flip — green and quiet today, red the moment `LAUNCHED` flips with anything unfinished |
 | `join` | the invite page itself, driven by real URLs: which codes it accepts, the campaign split, the sender's language in all 44, the copy button, and that a crafted invite link cannot inject Smart App Banner fields |
 | `invite-contract` | the invite contract with the iOS app — code alphabet, languages, bundle ids, entitlements and the AASA file, checked against the app's own source |
+| `flag-font` | that every country flag on the site is one the bundled Twemoji subset can draw, and that the page showing it loads that font — Windows renders any flag it lacks as two plain letters |
 
-The common thread is that all six cover failures with no runtime symptom. The
+The common thread is that all seven cover failures with no runtime symptom. The
 press page falls back to English on an unknown `?m=`; a link with no `pt` still
 downloads the app; an unset beacon token just counts nothing; an invite link the
-app parses differently still renders a page. Every one of them looks exactly
-like success.
+app parses differently still renders a page; a flag with no glyph quietly turns
+into "US". Every one of them looks exactly like success.
 
 ### press-locales
 

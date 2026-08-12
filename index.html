@@ -57,8 +57,31 @@
 
         html { scroll-behavior: smooth; }
 
+        /* Windows ships no country-flag glyphs. Segoe UI Emoji deliberately
+           omits them, so a regional-indicator pair like U+1F1FA U+1F1F8 falls
+           back to rendering its two letters — the hero leaderboard showed
+           "US"/"VN" instead of 🇺🇸/🇻🇳 for every Windows visitor, while macOS,
+           iOS and Android looked fine. This is a font gap, not a content bug:
+           the flags are correct in the markup and in all 43 i18n files.
+
+           Twemoji's flag glyphs fill the gap. unicode-range keeps the file out
+           of the critical path everywhere it isn't needed, and keeps this font
+           from ever supplying a non-flag glyph — it is only consulted for the
+           regional indicators below, so the rest of the page is untouched.
+
+           The file is subset to just the flags the site actually uses (4.8 KB
+           rather than 78 KB). tests/flag-font.test.js fails if a flag is added
+           that this subset can't render, since the gap is invisible on a Mac.
+           Regenerate after adding one — the command is in that test. */
+        @font-face {
+            font-family: 'Twemoji Country Flags';
+            src: url('/fonts/TwemojiCountryFlags-subset.woff2') format('woff2');
+            unicode-range: U+1F1E6-1F1FF;
+            font-display: swap;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Twemoji Country Flags', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             font-size: 16px;
             line-height: 1.7;
             color: var(--cc-text);
