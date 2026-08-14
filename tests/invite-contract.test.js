@@ -71,7 +71,7 @@ function skip(name, why) {
 
 // How many checks live behind the app checkout, so a skipped run says how much
 // it did not do rather than quietly reporting two passes as a green suite.
-const CROSS_REPO_CHECKS = 10;
+const CROSS_REPO_CHECKS = 11;
 
 /* ---------- the website side ---------- */
 
@@ -147,6 +147,66 @@ const pageCodePatterns = [...JOIN_HTML.matchAll(/\/\^\[([^\]]+)\]\{(\d+)\}\$\//g
 if (pageCodePatterns.length === 0) {
     console.error('Could not find a code-validation regex in join/index.html.');
     process.exit(1);
+}
+
+/**
+ * The `app-argument` the join page's Smart App Banner would hand the app for a
+ * given invite URL, post-launch — produced by running the page's own banner
+ * block against the shipped appstore.js, so this cannot drift into asserting a
+ * string the page stopped writing.
+ *
+ * Only what that block touches is modelled: it runs inline in the head, where
+ * there is no body and no element to reach for. tests/smart-app-banner.test.js
+ * is what holds it to that.
+ */
+function bannerArgument(search) {
+    const block = (() => {
+        const re = /<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g;
+        let m;
+        while ((m = re.exec(JOIN_HTML)) !== null) {
+            if (/CCStore\.smartBanner\(/.test(m[1])) return m[1];
+        }
+        console.error('No inline script in join/index.html calls CCStore.smartBanner().');
+        process.exit(1);
+    })();
+
+    const appstore = fs.readFileSync(path.join(ROOT, 'appstore.js'), 'utf8');
+    const launched = appstore.replace(/var LAUNCHED = false;/, 'var LAUNCHED = true;');
+    if (launched === appstore && !/var LAUNCHED = true;/.test(appstore)) {
+        console.error('Could not patch LAUNCHED in appstore.js — the declaration changed shape.');
+        process.exit(1);
+    }
+
+    const appended = [];
+    const document = {
+        body: null,
+        head: { appendChild(node) { appended.push(node); } },
+        getElementById() { return null; },
+        querySelector(sel) {
+            if (sel !== 'meta[name="apple-itunes-app"]') return null;
+            return appended.find((n) => n.name === 'apple-itunes-app') || null;
+        },
+        querySelectorAll() { return []; },
+        createElement() { return { name: '', content: '' }; }
+    };
+    const context = vm.createContext({});
+    vm.runInContext('var window = this;', context);
+    Object.assign(context, {
+        document,
+        location: { search, pathname: '/join/', href: 'https://cardioclowns.com/join/' + search },
+        URLSearchParams,
+        console: { warn() {}, log() {} }
+    });
+    vm.runInContext(launched, context, { filename: 'appstore.js' });
+    vm.runInContext(block, context, { filename: 'join:banner' });
+
+    const meta = appended.find((n) => n.name === 'apple-itunes-app');
+    if (!meta) return '';
+    // Split on every comma, the way iOS reads the field list.
+    const field = meta.content.split(',')
+        .map((f) => f.trim())
+        .find((f) => f.startsWith('app-argument='));
+    return field ? field.slice('app-argument='.length) : '';
 }
 
 /* ---------- the app side, if it is here ---------- */
@@ -397,6 +457,73 @@ if (!appAvailable) {
         return m[1] === app.clipBundleID
             ? []
             : [`the page offers ${m[1]}, the project builds ${app.clipBundleID}`];
+    })());
+
+    /*
+     * The Smart App Banner hand-off, which is the one place the two repos
+     * exchange a string at runtime rather than merely agreeing about a format.
+     *
+     * An invitee without the app installs from the banner on /join and taps
+     * Open; iOS hands the app the banner's `app-argument` verbatim. The website
+     * half — that the banner writes that string with the code intact and its
+     * commas encoded — is tests/smart-app-banner.test.js here. The app half —
+     * that InviteLink parses it back into a group code — is InviteLinkTests
+     * .swift over there. Both pass today against literals someone copied across
+     * by hand, which is exactly how they will drift.
+     *
+     * So the string the banner produces has to be a string the app's own tests
+     * actually exercise. Change how the page builds app-argument and this fails
+     * until the app-side case is updated to match — which is the only moment
+     * anyone would think to look.
+     */
+    check('the app tests the exact link the Smart App Banner hands it', (() => {
+        const problems = [];
+        let inviteLinkTests;
+        try {
+            inviteLinkTests = appFile('Cardio Clowns Tests/InviteLinkTests.swift');
+        } catch (e) {
+            return ['the app checkout has no InviteLinkTests.swift'];
+        }
+
+        // Built by running the shipped page, not written out here — a
+        // hand-written expectation would be a third copy to keep in step.
+        const argument = bannerArgument('?code=CLWNS7&ref=abc12345&sid=deadbeef&lang=pt-BR');
+        if (!argument) return ['the join page banner carries no app-argument, so nothing is handed to the app'];
+
+        // Pinning a string that no longer carries a code would still "match" —
+        // every invite URL shares an origin and path, and the app's own
+        // rejection cases use bare ones. tests/smart-app-banner.test.js is what
+        // diagnoses that properly; this is here so a coincidental match cannot
+        // report the contract as held.
+        if (!/[?&]c(ode)?=CLWNS7(&|$)/.test(argument)) {
+            problems.push(
+                `the banner's app-argument is '${argument}', which carries no group code — ` +
+                'pinning it against the app proves nothing'
+            );
+        }
+
+        // Matched as a whole quoted literal, not as a substring: every invite
+        // URL starts with the same origin and path, so a plain `includes` is
+        // satisfied by any longer case that happens to share the prefix — and
+        // a banner that had stopped carrying the code would still pass.
+        if (!inviteLinkTests.includes(`"${argument}"`)) {
+            problems.push(
+                `the banner hands the app '${argument}', and no case in InviteLinkTests.swift ` +
+                'uses that string — the hand-off is untested on the app side'
+            );
+        }
+
+        // The %2C encoding is a claim about Swift, made in JavaScript:
+        // appstore.js encodes commas instead of dropping the argument
+        // *because* URLComponents decodes them back. If the app stops covering
+        // that, the website is sanitising on the strength of an assumption.
+        if (!/%2C/.test(inviteLinkTests)) {
+            problems.push(
+                'no case in InviteLinkTests.swift parses a %2C-encoded invite URL — ' +
+                'appstore.js encodes commas on the assumption that the app decodes them'
+            );
+        }
+        return problems;
     })());
 }
 

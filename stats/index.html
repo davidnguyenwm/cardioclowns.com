@@ -1339,6 +1339,239 @@ function reliability(events) {
     };
 }
 
+/**
+ * Featuring detection — "which country's App Store is pushing us right now?"
+ *
+ * Two independent signals, because neither is sufficient alone:
+ *
+ *  1. Chart rank per storefront (`scanCharts`, below) — direct evidence, read
+ *     straight off Apple's own per-country RSS. It is the only signal that
+ *     names a *storefront*; everything else here names a *device location*.
+ *  2. Install lift (this function) — instant, but circumstantial. A feature is
+ *     a step function: one country's share of new installs jumps while the
+ *     rest of the world keeps following the ordinary launch curve.
+ *
+ * Lift is computed on *shares*, never on raw counts, and that is the whole
+ * trick. On launch day every country's raw installs spike, so a raw-count
+ * threshold flags all of them. A share divides that common launch curve out:
+ * if the world triples and Japan triples, Japan's share is flat and Japan is
+ * not featured. If the world is flat and Japan's share goes 4% → 55%, someone
+ * at Apple put us on a shelf in Japan.
+ *
+ * Caveats the UI repeats, because they decide how much to trust a row:
+ *  * `country` is the device's own time zone, not its App Store storefront.
+ *    They agree for the overwhelming majority of devices and disagree for
+ *    travellers and expats, so treat this as "devices located in X".
+ *  * A press hit lands the same shape as a feature. That is why organic is
+ *    split out — a feature arrives almost entirely as `source: organic`,
+ *    while an invite wave or a press link carries attribution.
+ */
+function featuring(events, recentHours) {
+    const now = Date.now();
+    const cut = now - recentHours * 3600000;
+
+    // One row per install: first_open fires once per fresh install, but the
+    // dedupe keeps a replayed device from counting twice.
+    const seen = new Set();
+    const installs = [];
+    for (const e of events) {
+        if (e.event !== "funnel" || e.params.step !== "first_open") continue;
+        if (seen.has(e.deviceID)) continue;
+        seen.add(e.deviceID);
+        installs.push({
+            ts: e.ts,
+            country: e.params.country || "",
+            organic: (e.params.source || "organic") === "organic",
+        });
+    }
+
+    const recent = installs.filter((i) => i.ts >= cut);
+    const base = installs.filter((i) => i.ts < cut);
+
+    const bump = (m, k) => m.set(k, (m.get(k) || 0) + 1);
+    const rc = new Map(), bc = new Map(), oc = new Map();
+    for (const i of recent) { bump(rc, i.country); if (i.organic) bump(oc, i.country); }
+    for (const i of base) bump(bc, i.country);
+
+    const rTot = recent.length, bTot = base.length;
+    const rows = [...rc.keys()].map((c) => {
+        const n = rc.get(c) || 0;
+        const b = bc.get(c) || 0;
+        const share = rTot ? n / rTot : 0;
+        // No baseline installs at all for this country: it is brand new rather
+        // than merely over-indexed, so the lift is unbounded. Null renders as
+        // "new" instead of a fake Infinity.
+        const baseShare = bTot ? b / bTot : null;
+        return {
+            country: c,
+            installs: n,
+            organic: oc.get(c) || 0,
+            baseInstalls: b,
+            share,
+            baseShare,
+            lift: baseShare == null ? null : (baseShare > 0 ? share / baseShare : null),
+        };
+    }).sort((a, b) => b.installs - a.installs);
+
+    // A row is worth looking at when it carries real volume, is mostly
+    // unattributed, and either over-indexes hard against its own baseline or
+    // had no baseline to over-index against. The volume floor is what keeps
+    // three installs in Malta from topping the table at "infinite lift".
+    const MIN = Math.max(5, Math.round(rTot * 0.02));
+    const flagged = rows.filter((r) => (
+        r.installs >= MIN
+        && r.organic / Math.max(1, r.installs) >= 0.6
+        && (r.lift == null || r.lift >= 3)
+    ));
+
+    // Hourly share per country, for the step-change chart. Buckets run oldest
+    // → newest so the series lines up with the label array.
+    const H = Math.min(72, Math.max(12, recentHours * 2));
+    const hourStart = Math.floor(now / 3600000) * 3600000 - (H - 1) * 3600000;
+    const top = rows.slice(0, 6).map((r) => r.country);
+    const buckets = [];
+    for (let h = 0; h < H; h++) buckets.push({ total: 0, by: new Map() });
+    for (const i of installs) {
+        const h = Math.floor((i.ts - hourStart) / 3600000);
+        if (h < 0 || h >= H) continue;
+        buckets[h].total += 1;
+        const k = top.includes(i.country) ? i.country : "~rest";
+        bump(buckets[h].by, k);
+    }
+
+    const hourly = top.concat(["~rest"]).map((c) => ({
+        country: c,
+        counts: buckets.map((b) => b.by.get(c) || 0),
+        shares: buckets.map((b) => (b.total ? ((b.by.get(c) || 0) / b.total) * 100 : 0)),
+    }));
+    const hourLabels = buckets.map((_, h) => {
+        const d = new Date(hourStart + h * 3600000);
+        return String(d.getHours()).padStart(2, "0") + ":00";
+    });
+
+    return {
+        rows, flagged, hourly, hourLabels,
+        recentTotal: rTot,
+        baseTotal: bTot,
+        recentOrganic: recent.filter((i) => i.organic).length,
+        countries: rc.size,
+        minVolume: MIN,
+        hasBaseline: bTot > 0,
+        totalInstalls: installs.length,
+        hourSpan: H,
+    };
+}
+
+/* ------------------ Storefront chart rank (live, per country) ------------------
+
+   Apple's legacy per-storefront RSS is the one public endpoint that answers
+   "which country's store is showing my app" directly, and it is the only one
+   that sends `Access-Control-Allow-Origin: *` — the newer
+   rss.marketingtools.apple.com feed does not, so a browser cannot read it and
+   it is unusable from this page.
+
+   The genre feed tops out at 100 entries, so a miss means "not in the top 100
+   of Health & Fitness here", never "not in the store here". For a brand-new
+   app that ceiling is the point: charting at all in a category top 100 on day
+   one essentially requires placement.
+--------------------------------------------------------------------------- */
+
+const APP_STORE_ID = "6761773257";
+const BUNDLE_ID = "com.davidnguyen.Cardio-Clowns";
+const GENRE_HEALTH = "6013";
+
+/* The 38 filed nomination territories first, then the majors we did not
+   nominate — a feature can land somewhere nobody asked for, and a storefront
+   missing from this list is simply never checked. */
+const STOREFRONTS = [
+    "us", "gb", "de", "at", "ch", "fr", "it", "es", "nl", "be", "se", "no", "dk", "fi",
+    "pl", "cz", "sk", "si", "hr", "hu", "ro", "gr", "cy", "pt", "ie", "ua", "ru", "tr",
+    "il", "sa", "ae", "eg", "qa", "kw", "bh", "om", "jo", "lb", "za",
+    "ca", "mx", "br", "ar", "cl", "co",
+    "jp", "kr", "cn", "tw", "hk", "sg", "my", "th", "id", "ph", "vn", "in",
+    "au", "nz",
+];
+
+const CHART_STORE_KEY = "ccstats.charts.v1";
+const CHART_CONCURRENCY = 8;
+
+function chartURL(cc, genre) {
+    return "https://itunes.apple.com/" + cc + "/rss/topfreeapplications/limit=100"
+        + (genre ? "/genre=" + genre : "") + "/json";
+}
+
+/** Our rank in one storefront's feed, or 0 when we are not in it. */
+async function rankIn(cc, genre) {
+    const res = await fetch(chartURL(cc, genre), { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const body = await res.json();
+    // A storefront with no entries answers with a feed that has no `entry` key
+    // at all rather than an empty array.
+    const entries = (body && body.feed && body.feed.entry) || [];
+    const list = Array.isArray(entries) ? entries : [entries];
+    for (let i = 0; i < list.length; i++) {
+        const a = (list[i] && list[i].id && list[i].id.attributes) || {};
+        if (a["im:bundleId"] === BUNDLE_ID || a["im:id"] === APP_STORE_ID) return i + 1;
+    }
+    return 0;
+}
+
+/**
+ * Walks every storefront, `CHART_CONCURRENCY` at a time. Storefronts that hit
+ * the category chart are re-checked against the overall chart, which is a
+ * second request only for the handful that matter.
+ */
+async function scanCharts(onProgress) {
+    const out = [];
+    let next = 0, done = 0;
+
+    async function worker() {
+        for (;;) {
+            const i = next++;
+            if (i >= STOREFRONTS.length) return;
+            const cc = STOREFRONTS[i];
+            const row = { cc, health: 0, overall: 0, error: "" };
+            try {
+                row.health = await rankIn(cc, GENRE_HEALTH);
+                if (row.health) {
+                    try { row.overall = await rankIn(cc, ""); } catch (e) { /* category rank is enough */ }
+                }
+            } catch (e) {
+                row.error = String(e && e.message ? e.message : e);
+            }
+            out.push(row);
+            onProgress(++done, STOREFRONTS.length);
+        }
+    }
+
+    await Promise.all(Array.from({ length: CHART_CONCURRENCY }, worker));
+    // Charting storefronts first, best rank first; errors last so a blocked
+    // request never sits above a real hit.
+    out.sort((a, b) => {
+        if (!!a.health !== !!b.health) return a.health ? -1 : 1;
+        if (a.health && b.health) return a.health - b.health;
+        if (!!a.error !== !!b.error) return a.error ? 1 : -1;
+        return a.cc.localeCompare(b.cc);
+    });
+    return out;
+}
+
+/** Previous scan, so every rank can be shown with its move since last check. */
+function loadChartSnapshot() {
+    try {
+        const raw = localStorage.getItem(CHART_STORE_KEY);
+        return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+}
+
+function saveChartSnapshot(rows, at) {
+    const ranks = {};
+    for (const r of rows) if (!r.error) ranks[r.cc] = r.health;
+    try {
+        localStorage.setItem(CHART_STORE_KEY, JSON.stringify({ at, ranks }));
+    } catch (e) { /* private-mode storage; deltas just stop working */ }
+}
+
 /* ====================================================================
    5. Chart components
 
@@ -1532,6 +1765,7 @@ const TABS = [
     { id: "money", name: "Money", render: panelMoney },
     { id: "engagement", name: "Engagement", render: panelEngagement },
     { id: "growth", name: "Growth", render: panelGrowth },
+    { id: "featuring", name: "Featuring", render: panelFeaturing },
     { id: "reach", name: "Reach", render: panelReach },
     { id: "builds", name: "Builds", render: panelBuilds },
     { id: "health", name: "Health", render: panelHealth },
@@ -1804,6 +2038,154 @@ function panelReach(ev) {
         + "</div>";
 }
 
+const FEAT_WINDOWS = [1, 3, 6, 12, 24, 48];
+
+function panelFeaturing(ev) {
+    const f = featuring(ev, state.featHours);
+    const c = state.charts;
+
+    /* ---- 1. Storefront charts: the only signal that names a storefront ---- */
+
+    // Held on state rather than re-read here: the snapshot is overwritten at
+    // the end of every scan, so a second render (a tab switch, a window
+    // change) would otherwise compare the latest scan against itself and show
+    // every move as flat.
+    const prev = c.prev;
+    const move = (cc, rank) => {
+        if (!prev || !(cc in prev.ranks)) return "";
+        const was = prev.ranks[cc];
+        if (!was && rank) return '<em style="color:' + cssvar("--good") + '">new</em>';
+        if (was && !rank) return '<em style="color:' + cssvar("--text-muted") + '">dropped out</em>';
+        if (!was || was === rank) return "";
+        const d = was - rank;
+        return '<em style="color:' + cssvar(d > 0 ? "--good" : "--serious") + '">'
+            + (d > 0 ? "▲" : "▼") + Math.abs(d) + "</em>";
+    };
+
+    const hits = c.rows.filter((r) => r.health);
+    const errs = c.rows.filter((r) => r.error);
+
+    const scanBtn = '<button class="primary" id="chartScan" style="width:auto;padding:.5rem 1rem"'
+        + (c.running ? " disabled" : "") + ">"
+        + (c.running ? "Checking " + int(c.done) + " / " + int(c.total) + "…" : "Check " + STOREFRONTS.length + " storefronts")
+        + "</button>"
+        + '<label style="margin-left:.8rem;font-size:.8rem;color:var(--text-secondary)">'
+        + '<input type="checkbox" id="chartAuto"' + (state.chartsAuto ? " checked" : "") + "> re-check every 10 min</label>"
+        + (c.at ? '<span class="pill" style="margin-left:.8rem"><span class="dot"></span>scanned ' + esc(ago(c.at)) + "</span>" : "");
+
+    const chartBody = (() => {
+        if (!c.at && !c.running) {
+            return '<p class="empty">Not checked yet. The scan reads Apple’s own per-country chart feed straight from this browser — no key, no account.</p>';
+        }
+        if (c.running && !c.rows.length) return '<p class="empty">Reading storefronts…</p>';
+        if (!hits.length) {
+            return '<p class="empty">Not in the Health &amp; Fitness top 100 of any of the '
+                + int(c.rows.length - errs.length) + ' storefronts checked. That rules featuring out in those stores — '
+                + "an editorial placement that moves installs moves rank with it.</p>"
+                + (errs.length ? '<p class="caveat">' + int(errs.length) + " storefront"
+                    + (errs.length === 1 ? "" : "s") + " could not be read: "
+                    + esc(errs.map((r) => r.cc.toUpperCase()).join(", ")) + ".</p>" : "");
+        }
+        const rows = hits.map((r) => [
+            { html: flag(r.cc.toUpperCase()) + " " + esc(countryName(r.cc.toUpperCase())) },
+            { html: "#" + int(r.health) + " " + move(r.cc, r.health) },
+            r.overall ? "#" + int(r.overall) : "outside top 100",
+        ]);
+        return '<div class="hero"><div class="figure">' + esc(int(hits.length)) + "</div>"
+            + '<div class="cap">storefront' + (hits.length === 1 ? "" : "s") + " charting in Health &amp; Fitness · best is "
+            + esc(flag(hits[0].cc.toUpperCase()) + " " + countryName(hits[0].cc.toUpperCase()))
+            + " at #" + esc(int(hits[0].health)) + "</div></div>"
+            + '<div style="height:.8rem"></div>'
+            + table(["Storefront", "Health & Fitness", "Overall"], rows)
+            + (errs.length ? '<p class="caveat">Could not read: ' + esc(errs.map((r) => r.cc.toUpperCase()).join(", ")) + ".</p>" : "");
+    })();
+
+    /* ---- 2. Install lift: instant, circumstantial, needs no App Store ---- */
+
+    const winBtns = '<div class="legend" style="gap:.4rem;margin-bottom:.7rem">'
+        + FEAT_WINDOWS.map((h) => (
+            '<button class="winbtn" data-hours="' + h + '" aria-pressed="' + (h === state.featHours) + '"'
+            + ' style="padding:.28rem .6rem;font-size:.78rem;border:1px solid var(--border);border-radius:6px;'
+            + "background:" + (h === state.featHours ? "var(--plane)" : "transparent") + ";"
+            + "color:var(--text-" + (h === state.featHours ? "primary" : "secondary") + ');cursor:pointer">'
+            + "last " + h + "h</button>"
+        )).join("") + "</div>";
+
+    const tiles = '<div class="tiles">'
+        + tile("New installs", int(f.recentTotal), "in the last " + state.featHours + "h")
+        + tile("Organic", f.recentTotal ? pct(f.recentOrganic / f.recentTotal) : "—", "no invite, no clip, no link")
+        + tile("Countries", int(f.countries), "with at least one install")
+        + tile("Top country", f.rows.length ? pct(f.rows[0].share) : "—", f.rows.length ? countryName(f.rows[0].country) + " of all installs" : "")
+        + tile("Baseline", int(f.baseTotal), "installs before this window")
+        + "</div>";
+
+    const verdict = (() => {
+        if (!f.recentTotal) {
+            return '<p class="empty">No new installs in the last ' + state.featHours + "h — nothing to rank yet.</p>";
+        }
+        if (!f.hasBaseline) {
+            return '<p class="caveat">No installs before this window, so there is nothing to over-index against. '
+                + "Widen the window, or read the storefront scan above instead — it needs no history.</p>";
+        }
+        if (!f.flagged.length) {
+            return '<p class="empty">No country is over-indexing. Every market is growing at roughly the rate '
+                + "the whole launch is growing, which is what an unfeatured launch looks like.</p>";
+        }
+        return '<div class="hbars">' + f.flagged.map((r) => (
+            '<div class="hbar" style="grid-template-columns:minmax(90px,34%) 1fr auto">'
+            + '<div class="k">' + flag(r.country) + " " + esc(countryName(r.country)) + "</div>"
+            + '<div class="track"><div class="fill" style="width:'
+            + Math.max(1.5, Math.min(100, (r.lift == null ? 100 : Math.min(r.lift, 20) / 20 * 100))).toFixed(1)
+            + "%;background:" + cssvar("--series-2") + '"></div></div>'
+            + '<div class="v">' + (r.lift == null ? "new market" : dec1(r.lift) + "×") + "</div></div>"
+        )).join("") + "</div>"
+            + '<p class="caveat">Share of installs versus the same country’s share before this window. '
+            + "Rows need " + int(f.minVolume) + "+ installs and 60%+ organic to appear.</p>";
+    })();
+
+    const liftRows = f.rows.slice(0, 20).map((r) => [
+        { html: flag(r.country) + " " + esc(countryName(r.country)) },
+        int(r.installs),
+        r.installs ? pct(r.organic / r.installs, 0) : "—",
+        pct(r.share, 0),
+        r.baseShare == null ? "—" : pct(r.baseShare, 0),
+        r.lift == null ? (r.baseShare == null ? "—" : "new") : dec1(r.lift) + "×",
+    ]);
+
+    /* ---- 3. The step change, hour by hour ---- */
+
+    const series = f.hourly
+        .filter((h) => h.counts.some((v) => v > 0))
+        .map((h) => ({
+            name: h.country === "~rest" ? "Everywhere else" : countryName(h.country),
+            points: h.shares.map((v) => Math.round(v)),
+        }));
+
+    return card("Is a store featuring us?",
+        "Two answers to the same question. The chart scan is direct evidence and names a storefront; the install lift below is instant but circumstantial and names a device location.",
+        scanBtn + '<div style="height:.9rem"></div>' + chartBody
+        + '<p class="caveat">Health &amp; Fitness top 100 per storefront, read live from Apple’s public feed. '
+        + "Apple refreshes it a few times a day, so a placement can show in installs an hour or two before it shows here.</p>")
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Which country is over-indexing?",
+            "A feature is a step function: one country’s <em>share</em> of new installs jumps while everywhere else keeps following the same launch curve. Comparing shares rather than counts is what stops launch day flagging all 40 markets at once.",
+            winBtns + tiles + '<div style="height:.9rem"></div>' + verdict)
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Share of installs, hour by hour",
+            "Each line is one country’s percentage of all installs that hour. A feature looks like one line stepping up and staying up; a press hit looks like a spike that decays.",
+            timeseries(series, { labels: f.hourLabels, height: 200, aria: "Share of installs per country per hour" })
+            + '<p class="caveat">Last ' + int(f.hourSpan) + " hours, device local time. Thin hours swing wildly — read the shape, not the points.</p>")
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Every country in this window", "",
+            table(["Country", "Installs", "Organic", "Share now", "Share before", "Lift"], liftRows,
+                { empty: "No installs in the last " + state.featHours + "h." })
+            + '<p class="caveat">Country is the device’s own time zone, not its App Store storefront — they agree for most '
+            + "people and disagree for travellers. Installs are <code>first_open</code>, which needs the app to actually be opened.</p>")
+        + "</div>";
+}
+
 function panelBuilds(ev) {
     const a = versionAdoption(ev);
     const rows = (list, total) => list.map((r) => [
@@ -1901,6 +2283,13 @@ const state = {
     error: "",
     errorBody: "",
     needsToken: false,
+    // Featuring tab. The chart scan is deliberately kept out of `load()`: it
+    // talks to Apple rather than CloudKit, costs ~60 requests, and is only
+    // interesting on the handful of days when a placement is plausible.
+    featHours: 6,
+    charts: { rows: [], at: 0, running: false, done: 0, total: 0 },
+    chartsAuto: false,
+    chartsTimer: null,
 };
 
 function renderTabs() {
@@ -2020,8 +2409,54 @@ document.addEventListener("click", (ev) => {
         state.tab = tabBtn.dataset.tab;
         render();
         window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+    }
+
+    const win = ev.target.closest("button.winbtn");
+    if (win) {
+        state.featHours = parseInt(win.dataset.hours, 10) || 6;
+        render();
+        return;
+    }
+
+    if (ev.target.closest("#chartScan")) { runChartScan(); return; }
+});
+
+document.addEventListener("change", (ev) => {
+    if (ev.target.id !== "chartAuto") return;
+    state.chartsAuto = ev.target.checked;
+    clearInterval(state.chartsTimer);
+    state.chartsTimer = null;
+    if (state.chartsAuto) {
+        // Ten minutes: Apple republishes the chart feeds a few times an hour at
+        // best, so anything tighter is ~60 requests spent on the same answer.
+        state.chartsTimer = setInterval(runChartScan, 600000);
+        runChartScan();
     }
 });
+
+/** Runs one storefront sweep, repainting the button as it advances. */
+async function runChartScan() {
+    if (state.charts.running) return;
+    const prev = loadChartSnapshot();
+    state.charts = { rows: state.charts.rows, at: state.charts.at, prev, running: true, done: 0, total: STOREFRONTS.length };
+    render();
+    try {
+        const rows = await scanCharts((done, total) => {
+            state.charts.done = done;
+            state.charts.total = total;
+            const btn = $("#chartScan");
+            if (btn) btn.textContent = "Checking " + int(done) + " / " + int(total) + "…";
+        });
+        const at = Date.now();
+        state.charts = { rows, at, prev, running: false, done: 0, total: 0 };
+        saveChartSnapshot(rows, at);
+        render();
+    } catch (e) {
+        state.charts.running = false;
+        render();
+    }
+}
 
 // One delegated hover handler serves every bar and column on the page.
 document.addEventListener("mousemove", (ev) => {
