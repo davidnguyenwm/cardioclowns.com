@@ -30,6 +30,19 @@
     <meta name="apple-itunes-app" content="app-id=6761773257">
     <script src="/appstore.js"></script>
     <script src="/analytics.js"></script>
+    <script>
+        // Rewrites the tag above with campaign attribution. Here, rather than
+        // at the end of the body with the rest of the page wiring, because
+        // Safari settles the banner while it parses the head — a rewrite that
+        // lands after that still shows a banner (the static tag is valid on its
+        // own) but silently loses the affiliate-data carrying pt/ct, so every
+        // install off the homepage banner reports as an anonymous Web Referrer.
+        // That history does not backfill.
+        //
+        // wireLinks stays at the end of the body: it walks [data-cc-campaign]
+        // elements, which do not exist yet at this point in the parse.
+        CCStore.smartBanner({ campaign: CCStore.campaign('web_home') });
+    </script>
     <title>Cardio Clowns 🤡 — The Daily Step Game for Family & Friends</title>
     <style>
         :root {
@@ -906,8 +919,10 @@
         CCMedia.apply(CCMedia.localeFor(e.detail && e.detail.lang));
     });
     CCLang.init({ dir: '/i18n/' });
-    // Campaign-tagged download links + Smart App Banner. No-ops until LAUNCHED
-    // is flipped in /appstore.js, so it's safe to run pre-launch.
+    // Campaign-tagged download links. Runs here because it walks the CTA
+    // elements, which only exist once the body is parsed; the Smart App Banner
+    // is wired in the head instead, for the reason given there. No-ops until
+    // LAUNCHED is flipped in /appstore.js, so it's safe to run pre-launch.
     //
     // Source tokens are read here as well as on /press, because the "try this
     // with your audience" wave sends creators to the homepage rather than to a
@@ -922,7 +937,6 @@
     // always generates /join/CODE — and the cost is one stray row in ASC. The
     // alternative, leaving creator links unattributed, costs more every day.
     CCStore.wireLinks(document, { sourceToken: true });
-    CCStore.smartBanner({ campaign: CCStore.campaign('web_home') });
     </script>
 </body>
 </html>

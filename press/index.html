@@ -28,6 +28,23 @@
 
     <script src="/appstore.js"></script>
     <script src="/analytics.js"></script>
+    <script>
+        // Smart App Banner with its own campaign, so a download that came from
+        // an editor or journalist reading this page is attributable in App
+        // Store Connect rather than lumped in with the homepage.
+        // CCStore.campaign() folds this page's ?c= token in, making it
+        // web_press_en_macstories rather than one web_press bucket shared by
+        // every outlet pitched. No-ops until LAUNCHED is flipped in
+        // /appstore.js.
+        //
+        // Inline in the head, and synchronous, because that is the only place
+        // it counts: Safari decides whether a page has a banner while it parses
+        // the head, and this page ships no static tag to fall back on. Called
+        // from the end of the body — where it used to live — the tag is written
+        // after that decision, so the page looks perfect, the meta is right
+        // there in the DOM, and no journalist is ever shown a banner.
+        CCStore.smartBanner({ campaign: CCStore.campaign('web_press') });
+    </script>
     <title>Press — Cardio Clowns</title>
     <style>
         :root {
@@ -458,18 +475,13 @@
     </script>
     <script src="/lang.js"></script>
     <script>CCLang.init({ dir: '/press/i18n/', lang: window.CCMarketLang });</script>
-    <!-- Smart App Banner with its own campaign, so downloads that came from an
-         editor or journalist reading this page are attributable in App Store
-         Connect rather than lumped in with the homepage. No-ops until the App
-         Store id is set in /appstore.js.
-
-         CCStore.campaign() folds this page's ?c= token in, so the campaign is
-         web_press_en_macstories rather than a single web_press bucket shared by
-         every outlet pitched. wireLinks is called for the same reason: the page
-         has no download CTA today, and when it gets one the tokenised href is
-         already wired rather than something to remember. -->
+    <!-- wireLinks stays here rather than moving into the head with the banner:
+         it walks [data-cc-campaign] elements, and those do not exist until the
+         body has been parsed. The page has no download CTA today, and when it
+         gets one the tokenised href is already wired rather than something to
+         remember. ?c= is folded in for the same reason it is on the banner —
+         see the head. -->
     <script>
-    CCStore.smartBanner({ campaign: CCStore.campaign('web_press') });
     CCStore.wireLinks(document, { sourceToken: true });
     </script>
 </body>
