@@ -867,13 +867,24 @@ function explainCK(status, text) {
             return "CloudKit won't serve this to a token alone." + detail
                 + " Grant Read to the _world security role on the AnalyticsEvent record type, then deploy the schema.";
         }
-        // A token minted while the Console sat in one environment is refused
-        // outright by the other — the same flat 401 you get from a garbage
-        // string, which makes it the easiest cause to chase in the wrong place.
-        return "CloudKit rejected the API token (" + status + ")." + detail
-            + " Check the environment first: this page is reading " + (state.cfg ? state.cfg.env : "?")
-            + ", and a token created while the CloudKit Console was in the other environment is rejected exactly like a wrong one."
-            + " Otherwise make sure it came from Tokens & Keys → API Tokens (not a Server-to-Server key) in this container.";
+        // Four different mistakes produce this byte-for-byte identical body: a
+        // revoked token, a token from another container, a token minted in the
+        // other environment, and a container id that does not exist at all —
+        // a made-up container name returns exactly what a made-up token does.
+        // So do not rank the causes here. Naming the settings being used is the
+        // only honest help, because the reader can check those against the
+        // Console; anything more confident sends them chasing the wrong one.
+        //
+        // Every message here is escaped at both render sites, so this is plain
+        // text — markup would show up as angle brackets on the page.
+        const cfg = state.cfg || {};
+        return "CloudKit rejected the credentials (" + status + ")." + detail
+            + " A revoked token, a token from another container, a token from the other environment,"
+            + " and a container id that does not exist all return this same error, so it does not say"
+            + " which. This page is asking for container “" + (cfg.container || "?") + "” in "
+            + (cfg.env || "?") + ". Check both against the CloudKit Console before re-minting anything,"
+            + " and make sure the token came from Tokens & Keys → API Tokens rather than being a"
+            + " Server-to-Server key.";
     }
     if (status === 421) {
         return "CloudKit wants a signed-in user." + detail
