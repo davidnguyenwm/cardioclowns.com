@@ -362,6 +362,7 @@
         .cc-preview {
             display: flex; gap: 2rem; align-items: center;
             flex-wrap: wrap; justify-content: center;
+            margin-top: 2rem;
         }
         .cc-preview video {
             width: 260px; height: auto; flex: none; display: block;
@@ -695,11 +696,11 @@
     <nav class="cc-nav">
         <div class="container">
             <div class="cc-nav-inner">
-                <a href="#about" data-i18n="navAbout">About</a>
-                <a href="#features" data-i18n="navFeatures">Why It's Different</a>
+                <a href="#about" data-i18n="navAbout">The idea</a>
                 <a href="#how-it-works" data-i18n="navHow">How It Works</a>
+                <a href="#features" data-i18n="navFeatures">What Makes It Fun</a>
+                <a href="#privacy" data-i18n="navPrivacy">Privacy</a>
                 <a href="#teams" data-i18n="navTeams">For Teams</a>
-                <a href="#privacy" data-i18n="navPrivacy">Privacy Policy</a>
                 <a href="#support" data-i18n="navSupport">Support</a>
             </div>
         </div>
@@ -707,16 +708,12 @@
 
     <section id="about" class="cc-section">
         <div class="container">
-            <h2 data-i18n="h2About">About Cardio Clowns</h2>
+            <h2 data-i18n="h2About">It's not about you</h2>
             <p class="cc-lead" data-i18n-html="aboutLead">Most fitness apps are about <strong>you</strong>: your goals, your streaks, your stats. Cardio Clowns is about <strong>them</strong> — the four or five people you love just enough to never, ever let win.</p>
-            <p data-i18n="aboutOrigin">It started with four of us — me, my wife and two close friends — who wanted to push each other to move every day and couldn't find an app that would let a whole group do it.</p>
-            <p data-i18n="aboutP2">Create a group, share a 6-character code, and every step you take becomes ammunition in a daily battle for the crown. All you need is an iPhone — no Apple Watch required, no accounts, no feeds full of strangers. Just your people, a live leaderboard, and the perfect excuse to take the stairs.</p>
-        </div>
-    </section>
-
-    <section id="preview" class="cc-section">
-        <div class="container">
-            <h2 data-i18n="h2Preview">23 seconds of it</h2>
+            <!-- The video carries the pitch the copy used to: it is faster than
+                 a paragraph and it is the one thing on the page that proves a
+                 step counter can be funny. So it sits here, right under the
+                 hook, instead of in a section of its own further down. -->
             <div class="cc-preview">
                 <video data-preview-video controls playsinline preload="none"
                        poster="/media/preview/en-US.jpg" width="260"
@@ -726,61 +723,8 @@
                     <a href="/media/preview/en-US.mp4" data-preview-dl>download it instead</a>.</span>
                 </video>
                 <div class="cc-preview-copy">
-                    <p data-i18n="previewP1">The App Store preview: the leaderboard updating live, a rival's notification landing mid-scroll, the head-to-head tug-of-war, and the GIF picker.</p>
-                    <p data-i18n="previewP2">The whole pitch is that a step counter can be funny, which is hard to prove in a paragraph and obvious in about ten seconds of watching it.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section id="features" class="cc-section">
-        <div class="container">
-            <h2 data-i18n="h2Features">Why it's not just another fitness app</h2>
-            <div class="cc-features">
-                <div class="cc-feature">
-                    <div class="cc-feature-icon">🏆</div>
-                    <h3 data-i18n="f1Title">A daily race, not a lonely goal</h3>
-                    <p data-i18n-html="f1Body">Every day is a fresh competition. Steps sync automatically from Apple Health on your iPhone, the leaderboard updates live, shows exactly how many steps you need to pass the person ahead of you — <span class="cc-quote">"Almost there! +312 to pass Mom"</span> — and crowns a daily winner 👑 for the whole group to see. Or resent.</p>
-                </div>
-                <div class="cc-feature">
-                    <div class="cc-feature-icon">💬</div>
-                    <h3 data-i18n="f2Title">Push each other, built right in</h3>
-                    <p data-i18n-html="f2Body">Long-press anyone on the leaderboard to send a playful message — and the app knows the situation. Up by 1,000 steps? <span class="cc-quote">"Stay down there 😏"</span> About to get caught? <span class="cc-quote">"Don't choke now 👀"</span> Fire off a quick emoji reaction, pick from a library of nearly 200 reaction GIFs, or write your own message. It's the group chat energy fitness apps are missing.</p>
-                </div>
-                <div class="cc-feature">
-                    <div class="cc-feature-icon">🥊</div>
-                    <h3 data-i18n="f3Title">Head-to-Head rivalries</h3>
-                    <p data-i18n="f3Body">Every member of your group is a 7-day matchup: win–loss records, win streaks (🔥 W3), an animated tug-of-war rope showing who's pulling ahead, and stats like your biggest blowout and your most painful loss. You're not chasing an abstract goal — you're settling a score with your brother.</p>
-                </div>
-                <div class="cc-feature">
-                    <div class="cc-feature-icon">🔔</div>
-                    <h3 data-i18n="f4Title">Notifications that talk like a rival, not a coach</h3>
-                    <p data-i18n-html="f4Body"><span class="cc-quote">"Dad just passed you! Time to fight back! 😤"</span> Pick your intensity: Chill mode only pings you for the big moments and stays quiet at night, while All In mode keeps the pressure on all day.</p>
-                </div>
-                <div class="cc-feature">
-                    <div class="cc-feature-icon">📊</div>
-                    <h3 data-i18n="f5Title">History that tells the story</h3>
-                    <p data-i18n="f5Body">Daily step charts, finishing ranks, and medals for every day — see who's been carrying the crown all week. Pro members get a full 30 days of history and head-to-head stats.</p>
-                </div>
-                <div class="cc-feature">
-                    <div class="cc-feature-icon">🤡</div>
-                    <h3 data-i18n="f6Title">Make it yours</h3>
-                    <p data-i18n="f6Body">Build your own clown avatar — hair, eyes, outfit, the works — or pick an emoji. Add a home screen widget that shows your live standing at a glance, and dress up your leaderboard with themes.</p>
-                </div>
-                <div class="cc-feature">
-                    <div class="cc-feature-icon">⌚</div>
-                    <h3 data-i18n="f7Title">Apple Watch? A bonus, not a requirement</h3>
-                    <p data-i18n="f7Body">Cardio Clowns runs entirely on iPhone. But if you do wear an Apple Watch, you get the full app on your wrist — leaderboard, history, head-to-head matchups, and messaging — plus watch-face widgets showing your live rank, so one glance tells you whether it's time for a victory lap or a panic walk.</p>
-                </div>
-                <div class="cc-feature">
-                    <div class="cc-feature-icon">👨‍👩‍👧‍👦</div>
-                    <h3 data-i18n="f8Title">Perfect for families and small crews</h3>
-                    <p data-i18n="f8Body">One 6-character code gets everyone in — kids, parents, grandparents, the college group chat. Country flags next to every name and support for 44 languages mean the competition works across borders, too. No friend requests, no public profiles, nothing to manage.</p>
-                </div>
-                <div class="cc-feature">
-                    <div class="cc-feature-icon">🎉</div>
-                    <h3 data-i18n="f9Title">It celebrates like it means it</h3>
-                    <p data-i18n="f9Body">Take first place and the screen erupts in fireworks. Yesterday's winner wears the crown all day. Cardio Clowns turns 8,000 steps into a story your group talks about at dinner.</p>
+                    <p data-i18n="aboutOrigin">It started with four of us — me, my wife and two close friends — who wanted to push each other to move every day and couldn't find an app that would let a whole group do it.</p>
+                    <p data-i18n="previewP1">Here's 23 seconds of what we built. A step counter can be funny — that's much easier to watch than to explain.</p>
                 </div>
             </div>
         </div>
@@ -790,7 +734,7 @@
         <div class="container">
             <h2 data-i18n="h2How">How it works</h2>
             <ol class="cc-steps">
-                <li data-i18n-html="step1"><strong>Download</strong> on iPhone. (Have an Apple Watch? Great — but it's optional.)</li>
+                <li data-i18n-html="step1"><strong>Download</strong> on iPhone. An Apple Watch is optional.</li>
                 <li data-i18n-html="step2"><strong>Create a group</strong> and share your code — or join with one.</li>
                 <li data-i18n-html="step3"><strong>Walk.</strong> Steps sync automatically from Apple Health.</li>
                 <li data-i18n-html="step4"><strong>Push each other,</strong> steal the crown, repeat tomorrow. 👑</li>
@@ -799,29 +743,71 @@
         </div>
     </section>
 
-    <!-- Company / employer sales. Deliberately NOT mirrored inside the app: a
-         "buy Pro for your company" link in-app is guideline 3.1.1 territory.
-         Fulfilment is manual and already built — an App Store Connect offer-code
-         batch, invoiced directly, redeemed with the paywall's "Redeem a Code"
-         button. The site's only job is to catch the inquiry, so the CTA is a
-         prefilled mailto that asks for everything needed to quote in one pass. -->
-    <section id="teams" class="cc-section">
+    <!-- Six cards, one or two sentences each. The long version of this section
+         listed nine features in full paragraphs, which is more than anyone
+         reads before deciding whether to tap Download — the cut features moved
+         into the cards that were already about them (celebrations into the
+         daily race, history and widgets into the last two). -->
+    <section id="features" class="cc-section">
         <div class="container">
-            <h2 data-i18n="h2Teams">Cardio Clowns for teams</h2>
-            <p class="cc-lead" data-i18n-html="teamsLead">Want Pro for a whole company, team, or club? We do <strong>team plans</strong>. You pay once, we send you a batch of codes, and everyone unlocks Pro in the app with a tap.</p>
+            <h2 data-i18n="h2Features">What makes it fun</h2>
+            <div class="cc-features">
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">🏆</div>
+                    <h3 data-i18n="f1Title">A daily race, not a lonely goal</h3>
+                    <!-- .cc-quote is an inline-block, so a full stop straight
+                         after one lands alone at the start of a line. Every
+                         quote on this page is followed by a space and a new
+                         sentence for that reason. -->
+                    <p data-i18n-html="f1Body">Every day starts even. Steps sync from Apple Health, and the leaderboard updates live with exactly what you need: <span class="cc-quote">"Almost there! +312 to pass Mom"</span> Win the day and the screen erupts in fireworks — the crown 👑 is yours until midnight.</p>
+                </div>
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">💬</div>
+                    <h3 data-i18n="f2Title">Push each other, built right in</h3>
+                    <p data-i18n-html="f2Body">Long-press anyone on the leaderboard to send an emoji, a GIF from a library of nearly 200, or your own message. Up by 1,000 steps? <span class="cc-quote">"Stay down there 😏"</span> It's the group chat energy fitness apps are missing.</p>
+                </div>
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">🔔</div>
+                    <h3 data-i18n="f4Title">Notifications that sound like a rival</h3>
+                    <p data-i18n-html="f4Body"><span class="cc-quote">"Dad just passed you! Time to fight back! 😤"</span> Chill mode pings you only for the big moments and stays quiet at night. All In keeps the pressure on all day.</p>
+                </div>
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">🥊</div>
+                    <h3 data-i18n="f3Title">Head-to-Head rivalries</h3>
+                    <p data-i18n="f3Body">Everyone in your group is also a 7-day matchup: win–loss record, streaks (🔥 W3), and a tug-of-war rope showing who's pulling ahead. You're not chasing a goal — you're settling a score with your brother.</p>
+                </div>
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">👨‍👩‍👧‍👦</div>
+                    <h3 data-i18n="f8Title">Everyone's in within a minute</h3>
+                    <p data-i18n="f8Body">One 6-character code gets kids, parents, grandparents and the whole group chat in. No friend requests, no public profiles, nothing to manage. Build a clown avatar, add your flag, pick from 44 languages.</p>
+                </div>
+                <div class="cc-feature">
+                    <div class="cc-feature-icon">⌚</div>
+                    <h3 data-i18n="f7Title">Better with a Watch, fine without one</h3>
+                    <p data-i18n="f7Body">It all runs on iPhone, with a home screen widget keeping your rank one glance away. Wear an Apple Watch and the whole app is on your wrist, plus watch faces showing your live standing.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The full policy lives at /privacy — that is the URL App Review and the
+         in-app paywall point at, and it is the one that has to be complete.
+         What belongs here is the last objection before the download button
+         below: the summary, and who is behind it. -->
+    <section id="privacy" class="cc-section">
+        <div class="container">
+            <h2 data-i18n="h2Privacy">No accounts. No ads. No tracking.</h2>
             <ul class="cc-privacy-list">
-                <li data-i18n="teamsB1">One invoice for everyone — pay by card or purchase order, in the company's name</li>
-                <li data-i18n="teamsB2">One code per person, good for as long as you choose — six months, a year, or longer</li>
-                <li data-i18n="teamsB3">Nothing to install or set up: each person taps "Redeem a Code" in the app and they're done</li>
-                <li data-i18n="teamsB4">No accounts to create, no seats to manage, no dashboard to learn</li>
-                <li data-i18n="teamsB5">And no employer dashboard either — buying codes gives a company no view of anyone's steps. Numbers stay visible only inside the group a person joins</li>
-                <li data-i18n="teamsB6">Works the same for a team of five or a company of five hundred</li>
+                <li data-i18n="pl1">No account creation — no email, password, or phone number required</li>
+                <li data-i18n="pl2">No advertising, no ad tracking, and no third-party tracking SDKs</li>
+                <li data-i18n="pl3">No public profiles — your data is visible only to your group</li>
+                <li data-i18n="pl4">Daily step counts are read from Apple Health (with your permission) and shared with your group to power the leaderboard</li>
+                <li data-i18n="pl5">Your display name and optional country flag are visible to your group members only</li>
             </ul>
             <div class="cc-info-box">
-                <p data-i18n-html="teamsAsk"><strong>To get a quote,</strong> tell us the company, how many people, and how long you want it for. Rather write your own email? <a href="mailto:hello@cardioclowns.com">hello@cardioclowns.com</a></p>
+                <p data-i18n-html="privWho"><strong>Who "we" is:</strong> Cardio Clowns is made by David Nguyen, one developer in Munich, Germany. No accounts, no ads and no trackers isn't a policy someone wrote for me — it's just how I built it.</p>
             </div>
-            <p><a class="cc-mail-btn" href="mailto:hello@cardioclowns.com?subject=Cardio%20Clowns%20team%20plan&amp;body=Company%3A%20%0ANumber%20of%20people%3A%20%0AHow%20long%20%28six%20months%2C%20a%20year%2C%20longer%29%3A%20%0ACountry%20and%20billing%20details%3A%20%0APurchase%20order%20needed%3A%20%0AAnything%20else%20we%20should%20know%3A%20%0A" data-i18n-html="teamsMail">✉️ Email us about a team plan</a></p>
-            <p data-i18n="teamsNote">Cardio Clowns lands on the App Store soon. Get in touch now and your codes will be ready the day it does.</p>
+            <p data-i18n-html="privFull">The details: <a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a></p>
         </div>
     </section>
 
@@ -839,52 +825,26 @@
         </div>
     </section>
 
-    <section id="privacy" class="cc-section">
+    <!-- Company / employer sales. Deliberately NOT mirrored inside the app: a
+         "buy Pro for your company" link in-app is guideline 3.1.1 territory.
+         Fulfilment is manual and already built — an App Store Connect offer-code
+         batch, invoiced directly, redeemed with the paywall's "Redeem a Code"
+         button. The site's only job is to catch the inquiry, so the CTA is a
+         prefilled mailto that asks for everything needed to quote in one pass.
+         It sits after the download banner because it is a different audience:
+         nobody reading for themselves has to scroll past it to reach the CTA. -->
+    <section id="teams" class="cc-section">
         <div class="container">
-            <h2 data-i18n="h2Privacy">Privacy Policy</h2>
-            <p data-i18n-html="privEffective"><strong>Effective Date:</strong> June 12, 2026</p>
-
-            <h3 data-i18n="h3Overview">Overview</h3>
-            <p data-i18n="overviewP">Your privacy is important to us. Cardio Clowns is designed to share as little as possible: just your step count, with just your group. This policy explains how the app handles your information.</p>
-
-            <div class="cc-info-box">
-                <p data-i18n-html="inShort"><strong>In short:</strong> Cardio Clowns has no accounts, no ads, and no tracking. Your daily step count and display name are shared only with the members of the group you join, so the leaderboard works. That's it.</p>
-            </div>
-
-            <h3 data-i18n="h3Data">Data Collection</h3>
-            <p data-i18n="dataP">Cardio Clowns collects only what the game needs to run:</p>
+            <h2 data-i18n="h2Teams">Cardio Clowns for teams</h2>
+            <p class="cc-lead" data-i18n-html="teamsLead">Want Pro for a whole company, team, or club? We do <strong>team plans</strong>. You pay once, we send you a batch of codes, and everyone unlocks Pro in the app with a tap.</p>
             <ul class="cc-privacy-list">
-                <li data-i18n="pl1">No account creation — no email, password, or phone number required</li>
-                <li data-i18n="pl2">No advertising, no ad tracking, and no third-party tracking SDKs</li>
-                <li data-i18n="pl3">No public profiles — your data is visible only to your group</li>
-                <li data-i18n="pl4">Daily step counts are read from Apple Health (with your permission) and shared with your group to power the leaderboard</li>
-                <li data-i18n="pl5">Your display name and optional country flag are visible to your group members only</li>
+                <li data-i18n="teamsB1">One invoice for everyone — pay by card or purchase order, in the company's name</li>
+                <li data-i18n="teamsB3">Nothing to install or set up: each person taps "Redeem a Code" in the app and they're done</li>
+                <li data-i18n="teamsB5">No employer dashboard — buying codes gives a company no view of anyone's steps. Numbers stay visible only inside the group a person joins</li>
+                <li data-i18n="teamsB6">Works the same for a team of five or a company of five hundred</li>
             </ul>
-
-            <h3 data-i18n="h3Health">Apple Health</h3>
-            <p data-i18n="healthP">With your permission, Cardio Clowns reads your daily step count from Apple Health. Step data is used solely for the group leaderboard and head-to-head matchups. We never write to Apple Health, and we never share health data with third parties.</p>
-
-            <h3 data-i18n="h3Storage">Data Storage</h3>
-            <p data-i18n="storageP">To keep your group's leaderboard live across devices, your daily step total, your display name, and your country flag (if you set one) are stored in Apple's iCloud (CloudKit). That's the whole list. We don't run our own servers and have no database of our own — Apple hosts the data, and only members of your group can read it. Leaving a group removes you from its leaderboard, and deleting the app removes all locally stored data.</p>
-
-            <h3 data-i18n="h3Third">Third-Party Services</h3>
-            <p data-i18n="thirdP">Cardio Clowns uses no third-party advertising, tracking SDKs, or data brokers. To see which features people actually use, the app records anonymous usage events — such as which screen was opened — in our own iCloud database, tied to a random device identifier rather than to you, and never sold or shared. This website counts page views without cookies.</p>
-
-            <h3 data-i18n="h3Children">Children's Privacy</h3>
-            <p data-i18n="childrenP">Cardio Clowns is designed for families. The app collects no personal information beyond a chosen display name and step counts, requires no account, and shares data only within private groups joined by invitation code. The app complies with the Children's Online Privacy Protection Act (COPPA) and similar regulations.</p>
-
-            <h3 data-i18n="h3Changes">Changes to This Policy</h3>
-            <p data-i18n="changesP">If we ever update this privacy policy, changes will be reflected on this page with an updated effective date.</p>
-
-            <h3 data-i18n="h3Rights">Your Rights</h3>
-            <p data-i18n="rightsP">You can leave a group at any time to stop sharing your steps, revoke Apple Health access in iOS Settings, or contact us to have your data removed entirely.</p>
-
-            <!-- Signs the policy. Every claim above is stronger attached to a
-                 person than to an anonymous "we" — which, on this site, is one
-                 developer. -->
-            <div class="cc-info-box">
-                <p data-i18n-html="privWho"><strong>Who "we" is:</strong> Cardio Clowns is made by David Nguyen, one developer in Munich, Germany. No accounts, no ads and no trackers isn't a policy someone wrote for me — it's just how I built it.</p>
-            </div>
+            <p><a class="cc-mail-btn" href="mailto:hello@cardioclowns.com?subject=Cardio%20Clowns%20team%20plan&amp;body=Company%3A%20%0ANumber%20of%20people%3A%20%0AHow%20long%20%28six%20months%2C%20a%20year%2C%20longer%29%3A%20%0ACountry%20and%20billing%20details%3A%20%0APurchase%20order%20needed%3A%20%0AAnything%20else%20we%20should%20know%3A%20%0A" data-i18n-html="teamsMail">✉️ Email us about a team plan</a></p>
+            <p data-i18n-html="teamsAsk"><strong>To get a quote,</strong> tell us the company, how many people, and how long you want it for. Cardio Clowns lands on the App Store soon — get in touch now and your codes will be ready the day it does.</p>
         </div>
     </section>
 
@@ -895,7 +855,6 @@
             <div class="cc-info-box">
                 <p data-i18n-html="supportEmail"><strong>Email:</strong> <a href="mailto:hello@cardioclowns.com">hello@cardioclowns.com</a></p>
             </div>
-            <p data-i18n="supportP2">We'll do our best to respond to your inquiry as soon as possible.</p>
         </div>
     </section>
 
@@ -903,9 +862,11 @@
         <div class="container">
             <p data-i18n-html="footTeams">Buying for a company or team? <a href="#teams">Cardio Clowns for teams</a></p>
             <p data-i18n="footCopy">&copy; 2026 Cardio Clowns</p>
-            <!-- Not localized: the Impressum is a German-law page and keeps its
-                 German name in every language, the way legal pages normally do. -->
-            <p><a href="/impressum">Impressum</a></p>
+            <!-- Not localized: these three pages are English-only legal pages,
+                 so a translated link label would promise a translation that
+                 isn't there. The Impressum additionally keeps its German name
+                 in every language, the way legal pages normally do. -->
+            <p><a href="/privacy">Privacy Policy</a> · <a href="/terms">Terms of Use</a> · <a href="/impressum">Impressum</a></p>
             <p data-i18n="footMade">Made for the people you love just enough to never let win. 🤡👑</p>
         </div>
     </footer>
