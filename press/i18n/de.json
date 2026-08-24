@@ -76,7 +76,7 @@
   "ctaNote2": "Tipp: Erstelle eine Gruppe und teile den Code mit einer weiteren Person. Bei dieser App geht es um den zweiten Spieler.",
   "h2Assets": "Material",
   "assetsIntro": "Frei nutzbar für Berichterstattung oder redaktionelle Prüfung:",
-  "asset1": "<a href=\"preview.mp4\">App-Vorschauvideo</a> — 23 s, 886×1920, H.264",
+  "asset1": "<a href=\"/media/preview/en-US.mp4\" data-preview-dl>App-Vorschauvideo</a> — 23 s, 886×1920, H.264",
   "asset2": "<a href=\"/icon-512.png\">App-Symbol</a> — 512×512 PNG (1024 und Vektor verfügbar)",
   "asset3": "<a href=\"/og-image.png\">Banner</a> — 1200×630 PNG",
   "asset4": "Screenshots — iPhone, iPad und Apple Watch, <strong>lokalisiert in allen 50 App-Store-Sprachen</strong>. Sag Bescheid, und du bekommst den kompletten Satz in den Sprachen, die du brauchst.",

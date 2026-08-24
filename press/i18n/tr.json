@@ -76,7 +76,7 @@
   "ctaNote2": "İpucu: bir grup oluştur ve kodu bir kişiyle daha paylaş. Bu uygulamanın esası ikinci oyuncudur.",
   "h2Assets": "Görsel materyaller",
   "assetsIntro": "Haber ve editoryal değerlendirme için serbestçe kullanılabilir:",
-  "asset1": "<a href=\"preview.mp4\">Uygulama önizleme videosu</a> — 23 sn, 886×1920, H.264",
+  "asset1": "<a href=\"/media/preview/en-US.mp4\" data-preview-dl>Uygulama önizleme videosu</a> — 23 sn, 886×1920, H.264",
   "asset2": "<a href=\"/icon-512.png\">Uygulama simgesi</a> — 512×512 PNG (1024 ve vektörel de mevcut)",
   "asset3": "<a href=\"/og-image.png\">Afiş</a> — 1200×630 PNG",
   "asset4": "Ekran görüntüleri — iPhone, iPad ve Apple Watch, <strong>50 App Store dilinin tamamında yerelleştirilmiş</strong>. Bir mesaj at, ihtiyacın olan dillerdeki tam seti alırsın.",

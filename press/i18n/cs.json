@@ -76,7 +76,7 @@
   "ctaNote2": "Tip: založ skupinu a pošli kód ještě jednomu člověku. Ta aplikace je o druhém hráči.",
   "h2Assets": "Materiály",
   "assetsIntro": "Volně k použití pro články i redakční posouzení:",
-  "asset1": "<a href=\"preview.mp4\">Ukázkové video</a> — 23 s, 886×1920, H.264",
+  "asset1": "<a href=\"/media/preview/en-US.mp4\" data-preview-dl>Ukázkové video</a> — 23 s, 886×1920, H.264",
   "asset2": "<a href=\"/icon-512.png\">Ikona aplikace</a> — PNG 512×512 (k dispozici i 1024 a vektor)",
   "asset3": "<a href=\"/og-image.png\">Banner</a> — PNG 1200×630",
   "asset4": "Snímky obrazovky — iPhone, iPad a Apple Watch, <strong>lokalizované do všech 50 jazyků App Storu</strong>. Stačí říct a máš kompletní sadu v jazycích, které potřebuješ.",

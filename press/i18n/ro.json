@@ -76,7 +76,7 @@
   "ctaNote2": "Sfat: creează un grup și trimite codul unei alte persoane. Aplicația e despre al doilea jucător.",
   "h2Assets": "Materiale",
   "assetsIntro": "Libere pentru articole sau evaluare editorială:",
-  "asset1": "<a href=\"preview.mp4\">Videoclip de prezentare</a> — 23 s, 886×1920, H.264",
+  "asset1": "<a href=\"/media/preview/en-US.mp4\" data-preview-dl>Videoclip de prezentare</a> — 23 s, 886×1920, H.264",
   "asset2": "<a href=\"/icon-512.png\">Pictograma aplicației</a> — PNG 512×512 (disponibil și 1024 și vectorial)",
   "asset3": "<a href=\"/og-image.png\">Banner</a> — PNG 1200×630",
   "asset4": "Capturi de ecran — iPhone, iPad și Apple Watch, <strong>localizate în toate cele 50 de limbi App Store</strong>. Cere-le și primești setul complet în limbile de care ai nevoie.",

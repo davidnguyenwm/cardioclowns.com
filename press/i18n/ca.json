@@ -76,7 +76,7 @@
   "ctaNote2": "Consell: crea un grup i comparteix el codi amb una altra persona. L'app va del segon jugador.",
   "h2Assets": "Material",
   "assetsIntro": "Lliure per fer-ne ús en articles o valoració editorial:",
-  "asset1": "<a href=\"preview.mp4\">Vídeo de presentació</a> — 23 s, 886×1920, H.264",
+  "asset1": "<a href=\"/media/preview/en-US.mp4\" data-preview-dl>Vídeo de presentació</a> — 23 s, 886×1920, H.264",
   "asset2": "<a href=\"/icon-512.png\">Icona de l'app</a> — PNG de 512×512 (disponible en 1024 i en vectorial)",
   "asset3": "<a href=\"/og-image.png\">Bàner</a> — PNG de 1200×630",
   "asset4": "Captures de pantalla — iPhone, iPad i Apple Watch, <strong>localitzades en els 50 idiomes de l'App Store</strong>. Demana-les i tindràs el joc complet en els idiomes que necessitis.",

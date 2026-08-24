@@ -206,6 +206,118 @@ check('no duplicate market codes', (() => {
     return dupes;
 })());
 
+/* ---------- 7. links and hooks inside translated copy ---------- */
+
+// Checks 1-6 all ask whether a locale is *wired*. These two ask whether the
+// translated copy itself still works, which is a different failure: the wiring
+// was fine and the link was dead anyway.
+//
+// `data-i18n-html` assigns innerHTML, so a translated string does not just
+// carry words — it carries the markup those words are wrapped in, and it
+// *replaces* whatever the English HTML had there. Any attribute the translator
+// did not retype is gone, and any URL they retyped is now a second copy of a
+// path that nothing keeps in sync with the first.
+//
+// Both halves of that bit the press page at once. Every one of the 43
+// translations of `asset1` shipped `<a href="preview.mp4">` — relative, so it
+// resolved to /press/preview.mp4 and 404'd, and stripped of `data-preview-dl`,
+// so media.js could not repair it. English was inline in press/index.html and
+// correct, which is exactly why nobody saw it: the bug was invisible in the
+// language the page is developed in and live in the other 43.
+
+const PAGES = [
+    { html: 'press/index.html', i18n: 'press/i18n' },
+    { html: 'index.html', i18n: 'i18n' }
+];
+
+// Pull the English innerHTML for each data-i18n-html key straight out of the
+// page source. Brace-counting's cousin: find the element's own closing tag by
+// depth rather than by the first `</p>` that turns up, or a key on an <a> runs
+// past its own end and swallows whatever markup follows it.
+function innerHtmlByKey(html) {
+    const out = {};
+    const attr = /data-i18n-html="([\w-]+)"/g;
+    let m;
+    while ((m = attr.exec(html)) !== null) {
+        const open = html.lastIndexOf('<', m.index);
+        const name = /^<([a-zA-Z][\w-]*)/.exec(html.slice(open, m.index + 1));
+        const gt = html.indexOf('>', m.index);
+        if (!name || gt === -1) continue;
+        const tag = name[1];
+        const openRe = new RegExp(`<${tag}\\b`, 'g');
+        const closeRe = new RegExp(`</${tag}\\s*>`, 'g');
+        let depth = 1, i = gt + 1, end = -1;
+        while (i < html.length) {
+            openRe.lastIndex = i;
+            closeRe.lastIndex = i;
+            const o = openRe.exec(html);
+            const c = closeRe.exec(html);
+            if (!c) break;
+            if (o && o.index < c.index) { depth++; i = o.index + 1; continue; }
+            if (--depth === 0) { end = c.index; break; }
+            i = c.index + 1;
+        }
+        if (end !== -1) out[m[1]] = html.slice(gt + 1, end);
+    }
+    return out;
+}
+
+function translations(dir) {
+    return fs.readdirSync(path.join(ROOT, dir))
+        .filter((f) => f.endsWith('.json'))
+        .map((f) => ({ lang: f.replace(/\.json$/, ''), strings: JSON.parse(fs.readFileSync(path.join(ROOT, dir, f), 'utf8')) }));
+}
+
+check('every link in translated copy resolves to a file that exists', (() => {
+    const problems = [];
+    for (const page of PAGES) {
+        // A relative href in a translation resolves against the page that
+        // loaded it, not against the i18n folder the string came from.
+        const pageDir = path.join(ROOT, path.dirname(page.html));
+        for (const { lang, strings } of translations(page.i18n)) {
+            for (const [k, v] of Object.entries(strings)) {
+                if (typeof v !== 'string') continue;
+                for (const m of v.matchAll(/(?:href|src)="([^"]+)"/g)) {
+                    const url = m[1];
+                    if (/^(?:https?:|mailto:|tel:|#|data:)/.test(url)) continue;
+                    const bare = url.split(/[?#]/)[0];
+                    const target = bare.startsWith('/')
+                        ? path.join(ROOT, bare.slice(1))
+                        : path.join(pageDir, bare);
+                    if (!fs.existsSync(target)) {
+                        problems.push(`${page.i18n}/${lang}.json '${k}' links to ${url} -> ${path.relative(ROOT, target)} does not exist`);
+                    }
+                }
+            }
+        }
+    }
+    return problems;
+})());
+
+check('translations keep the data-* hooks their English markup carries', (() => {
+    const problems = [];
+    for (const page of PAGES) {
+        const en = innerHtmlByKey(fs.readFileSync(path.join(ROOT, page.html), 'utf8'));
+        for (const [k, html] of Object.entries(en)) {
+            // data-i18n* are lang.js's own markers. They sit on child elements
+            // of the translated block and are re-read on every switch, so a
+            // translation that drops one is not a bug — media.js's hooks are.
+            const hooks = [...new Set([...html.matchAll(/\s(data-[\w-]+)/g)].map((m) => m[1]))]
+                .filter((a) => !a.startsWith('data-i18n'));
+            if (hooks.length === 0) continue;
+            for (const { lang, strings } of translations(page.i18n)) {
+                if (typeof strings[k] !== 'string') continue;
+                for (const hook of hooks) {
+                    if (!strings[k].includes(hook)) {
+                        problems.push(`${page.i18n}/${lang}.json '${k}' drops ${hook} — media.js can no longer localize it`);
+                    }
+                }
+            }
+        }
+    }
+    return problems;
+})());
+
 /* ---------- summary ---------- */
 
 console.log();

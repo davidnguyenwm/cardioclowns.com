@@ -76,7 +76,7 @@
   "ctaNote2": "Tips: opprett en gruppe og del koden med én person til. Appen handler om spiller nummer to.",
   "h2Assets": "Materiell",
   "assetsIntro": "Fritt til bruk i omtale eller redaksjonell vurdering:",
-  "asset1": "<a href=\"preview.mp4\">Forhåndsvisningsvideo</a> — 23 s, 886×1920, H.264",
+  "asset1": "<a href=\"/media/preview/en-US.mp4\" data-preview-dl>Forhåndsvisningsvideo</a> — 23 s, 886×1920, H.264",
   "asset2": "<a href=\"/icon-512.png\">Appsymbol</a> — 512×512 PNG (1024 og vektor finnes)",
   "asset3": "<a href=\"/og-image.png\">Banner</a> — 1200×630 PNG",
   "asset4": "Skjermbilder — iPhone, iPad og Apple Watch, <strong>oversatt til alle 50 App Store-språk</strong>. Si fra, så får du hele settet på de språkene du trenger.",
