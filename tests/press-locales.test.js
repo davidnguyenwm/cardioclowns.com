@@ -318,6 +318,41 @@ check('translations keep the data-* hooks their English markup carries', (() => 
     return problems;
 })());
 
+/* ---------- 9. a translation's preview link names its own language ---------- */
+
+// media.js rewrites these hrefs on load, so the literal in the JSON is only
+// what a visitor gets before that runs — no-JS, a failed fetch, or "copy link
+// address" from the context menu. Pointing them all at en-US would leave the
+// page technically working and quietly English in 43 languages, which is the
+// same failure the 404 was, just silent.
+//
+// Per-language literals also mean media.js is *refining* a correct answer
+// rather than repairing a wrong one. It still earns its keep: a language can
+// be broader than a market, so es.json says es-ES and ?m=mx narrows it to
+// es-MX at runtime.
+
+check('every preview link in a translation names that language\'s own video', (() => {
+    const problems = [];
+    for (const page of PAGES) {
+        for (const { lang, strings } of translations(page.i18n)) {
+            const expected = CCMedia.LANG_ASSETS[lang];
+            if (expected === undefined) {
+                problems.push(`${page.i18n}/${lang}.json has no CCMedia.LANG_ASSETS entry, so its preview link cannot be checked`);
+                continue;
+            }
+            for (const [k, v] of Object.entries(strings)) {
+                if (typeof v !== 'string') continue;
+                for (const m of v.matchAll(/\/media\/preview\/([\w-]+)\.mp4/g)) {
+                    if (m[1] !== expected) {
+                        problems.push(`${page.i18n}/${lang}.json '${k}' links to the ${m[1]} video — '${lang}' should point at ${expected}`);
+                    }
+                }
+            }
+        }
+    }
+    return problems;
+})());
+
 /* ---------- summary ---------- */
 
 console.log();
