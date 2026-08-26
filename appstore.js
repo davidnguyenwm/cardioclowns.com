@@ -38,10 +38,12 @@
  * real and verifiable in the console; `LAUNCHED` alone decides whether the
  * "Coming soon" CTAs become download links.
  *
- * PROVIDER_TOKEN is still a placeholder: App Store Connect → Users and Access →
- * the numeric "Provider ID"/campaign token. Links work without it, they just
- * lose campaign attribution — and attribution is not retroactive, so fill it in
- * before launch, not after.
+ * PROVIDER_TOKEN is still a placeholder. It is NOT in Users and Access and NOT
+ * in the App Store Connect API (both checked 2026-08-10): the only source is
+ * App Store Connect → Analytics → Acquisition → Campaigns → create a campaign
+ * link, then copy the numeric pt= value out of the generated URL. Digits only.
+ * Links work without it, they just lose campaign attribution — and attribution
+ * is not retroactive, so fill it in the day the app goes live.
  *
  * Verify the app is actually live before flipping — resultCount goes 0 → 1:
  *   https://itunes.apple.com/lookup?id=6761773257
@@ -77,7 +79,7 @@
     'use strict';
 
     var APP_STORE_ID = '6761773257';
-    var PROVIDER_TOKEN = 'PROVIDER_TOKEN';
+    var PROVIDER_TOKEN = '117881791';
 
     /** The one launch-day switch. See the header. */
     var LAUNCHED = false;
