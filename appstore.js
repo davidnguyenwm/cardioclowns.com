@@ -82,7 +82,7 @@
     var PROVIDER_TOKEN = '117881791';
 
     /** The one launch-day switch. See the header. */
-    var LAUNCHED = false;
+    var LAUNCHED = true;
 
     /** The query parameter press links carry. See SOURCE TOKENS in the header. */
     var TOKEN_PARAM = 'c';

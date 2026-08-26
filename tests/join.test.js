@@ -171,11 +171,14 @@ function renderJoin(options = {}) {
     const href = 'https://cardioclowns.com' + pathname + search;
 
     let appstore = APPSTORE_SRC;
-    if (options.launched) {
-        if (!/var LAUNCHED = false;/.test(appstore)) {
+    if (options.launched !== undefined) {
+        if (!/var LAUNCHED = (?:false|true);/.test(appstore)) {
             throw new Error('could not patch LAUNCHED — declaration changed shape');
         }
-        appstore = appstore.replace(/var LAUNCHED = false;/, 'var LAUNCHED = true;');
+        appstore = appstore.replace(
+            /var LAUNCHED = (?:false|true);/,
+            `var LAUNCHED = ${options.launched === true};`
+        );
     }
     if (options.providerToken !== undefined) {
         if (!/var PROVIDER_TOKEN = '[^']*';/.test(appstore)) {
@@ -454,7 +457,7 @@ check('the banner and the download button report the same campaign', (() => {
 // so rather than break.
 check('before launch the page renders and the CTA stays inert', (() => {
     const problems = [];
-    const page = renderJoin({ search: '?code=CLWNS7&lang=de' });
+    const page = renderJoin({ launched: false, search: '?code=CLWNS7&lang=de' });
     if (page.code !== 'CLWNS7') problems.push('the code did not render');
     if (page.ctaHref !== '#') problems.push(`the CTA href became '${page.ctaHref}' before launch`);
     if (page.banner) problems.push('a Smart App Banner was written before launch');

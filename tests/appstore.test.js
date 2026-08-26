@@ -180,8 +180,12 @@ function loadStore(options = {}) {
         src = src.replace(pattern, replacement);
     };
 
-    if (options.launched) {
-        patch(/var LAUNCHED = false;/, 'var LAUNCHED = true;', 'LAUNCHED');
+    // Tri-state on purpose: `true` forces post-launch, `false` forces
+    // pre-launch, and omitting it reads the shipped file as-is. Before the flip
+    // the pre-launch tests could just load the file unpatched; after it, that
+    // silently turned them into duplicates of the post-launch tests.
+    if (options.launched !== undefined) {
+        patch(/var LAUNCHED = (?:false|true);/, `var LAUNCHED = ${options.launched === true};`, 'LAUNCHED');
     }
     if (options.providerToken !== undefined) {
         patch(/var PROVIDER_TOKEN = '[^']*';/, `var PROVIDER_TOKEN = '${options.providerToken}';`, 'PROVIDER_TOKEN');
@@ -215,10 +219,11 @@ console.log(
 // and verifiable while the site still shows "Coming soon".
 check('before launch nothing links to the App Store', (() => {
     const problems = [];
-    if (shipped.store.isLive()) problems.push('isLive() is true but LAUNCHED has not been flipped');
-    if (shipped.store.url('web_home') !== null) problems.push('url() returns a link before launch');
+    const preLaunch = loadStore({ launched: false });
+    if (preLaunch.store.isLive()) problems.push('isLive() is true but LAUNCHED has not been flipped');
+    if (preLaunch.store.url('web_home') !== null) problems.push('url() returns a link before launch');
 
-    const { document } = loadStore({ search: '?c=en_macstories' });
+    const { document } = loadStore({ launched: false, search: '?c=en_macstories' });
     if (document._appended.length !== 0) {
         problems.push('smartBanner() wrote a meta tag before launch');
     }
@@ -480,7 +485,7 @@ check('flipping LAUNCHED turns the placeholder into a real download button', (()
 check('before launch the CTA stays inert and unclickable', (() => {
     const problems = [];
     const cta = ctaMarkup();
-    const { store, document } = loadStore({ body: [cta] });
+    const { store, document } = loadStore({ launched: false, body: [cta] });
     store.wireLinks(document);
 
     const el = document.body.childNodes[0];

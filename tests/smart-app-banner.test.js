@@ -288,8 +288,10 @@ check('wireLinks runs late enough to find the elements it wires', (() => {
  */
 check('every banner block runs before the body exists', (() => {
     const problems = [];
-    const launched = APPSTORE_SRC.replace(/var LAUNCHED = false;/, 'var LAUNCHED = true;');
-    if (launched === APPSTORE_SRC) return ['could not patch LAUNCHED — the declaration changed shape'];
+    if (!/var LAUNCHED = (?:false|true);/.test(APPSTORE_SRC)) {
+        return ['could not patch LAUNCHED — the declaration changed shape'];
+    }
+    const launched = APPSTORE_SRC.replace(/var LAUNCHED = (?:false|true);/, 'var LAUNCHED = true;');
 
     for (const { page, html, block } of BANNER_PAGES) {
         // /join is the page whose banner varies with the URL, so it is the one
@@ -406,7 +408,7 @@ function bannerFor(search, options = {}) {
         querySelectorAll() { return []; },
         createElement() { return { name: '', content: '' }; }
     };
-    let src = APPSTORE_SRC.replace(/var LAUNCHED = false;/, 'var LAUNCHED = true;');
+    let src = APPSTORE_SRC.replace(/var LAUNCHED = (?:false|true);/, 'var LAUNCHED = true;');
     if (options.providerToken) {
         src = src.replace(/var PROVIDER_TOKEN = '[^']*';/, `var PROVIDER_TOKEN = '${options.providerToken}';`);
     }
