@@ -1101,6 +1101,162 @@ function purchaseFunnel(events) {
     return f;
 }
 
+/**
+ * The customers, told apart from ourselves.
+ *
+ * Cardio Clowns went live on the App Store on 26 August 2026 at 06:40 UTC.
+ * Every Pro device before that instant is one of ours: TestFlight builds
+ * buying against the StoreKit sandbox, where a subscription costs nothing and
+ * can be bought again every few minutes. In the funnel above they are
+ * indistinguishable from customers — same events, same params — and there are
+ * enough of them to move every rate on this tab.
+ *
+ * The line is drawn per device by *first* Pro signal, never by event date. A
+ * tester subscribed since June who reinstalls today emits a brand-new
+ * `pro_started`, and counting events would file that as a fresh customer; the
+ * device's earlier `is_pro=true` events pin it to the pre-launch side instead,
+ * where it belongs. That rule has an honest cost — a tester who does go on to
+ * buy for real is still a tester here — so their purchase is reported beside
+ * the cohort rather than folded into it.
+ */
+const LAUNCH_TS = Date.UTC(2026, 7, 26, 6, 40);
+
+/** How a device arrived at Pro, in the words of `pro_started`'s trigger. */
+const PRO_ROUTES = {
+    purchase: "Bought here",
+    restore: "Restored",
+    renewal: "Renewal",
+    launch: "Entitled elsewhere",
+    update: "Entitled elsewhere",
+};
+
+/** Devices whose Pro life began after launch — the post-launch Pro cohort. */
+function proCohort(events, days) {
+    const span = days || 30;
+    const dev = new Map();
+    const at = (id) => {
+        let d = dev.get(id);
+        if (!d) {
+            d = { id, proSince: Infinity, buy: null, start: null, endedAt: 0, country: "", lang: "" };
+            dev.set(id, d);
+        }
+        return d;
+    };
+
+    for (const e of events) {
+        const p = e.params;
+        const d = at(e.deviceID);
+        if (!d.country && p.country) d.country = p.country;
+        if (!d.lang && p.lang) d.lang = p.lang;
+
+        // `is_pro` rides every event, so it is the only signal that can see a
+        // subscription which began before this window opened — and the only
+        // thing standing between a reinstalling tester and the customer count.
+        let pro = isPro(e);
+        switch (e.event) {
+            case "purchase_succeeded":
+                if (p.source === DEBUG_SOURCE) break;   // a debug preview buys nothing
+                pro = true;
+                if (!d.buy || e.ts < d.buy.ts) {
+                    d.buy = {
+                        ts: e.ts,
+                        plan: p.plan || "other",
+                        source: p.source || "unknown",
+                        price: p.price || "",
+                        freeDays: Number(p.free_tenure_days),
+                    };
+                }
+                break;
+            case "pro_started":
+                pro = true;
+                if (!d.start || e.ts < d.start.ts) {
+                    d.start = { ts: e.ts, plan: p.plan || "other", trigger: p.trigger || "" };
+                }
+                break;
+            case "pro_ended":
+                pro = true;                              // it ended, so it existed
+                if (e.ts > d.endedAt) d.endedAt = e.ts;
+                break;
+            case "restore_succeeded":
+            case "subscription_renewed":
+                pro = true;
+                break;
+        }
+        if (pro && e.ts < d.proSince) d.proSince = e.ts;
+    }
+
+    const fresh = [], bySource = new Map();
+    let testers = 0, testersWhoBought = 0;
+
+    for (const d of dev.values()) {
+        if (d.proSince === Infinity) continue;           // never Pro, nothing to say
+        if (d.proSince < LAUNCH_TS) {
+            testers++;
+            if (d.buy && d.buy.ts >= LAUNCH_TS) testersWhoBought++;
+            continue;
+        }
+        // "Bought here" beats whatever the trigger says: a purchase is the one
+        // route we have a price for, and `pro_started` fires from it too.
+        const paid = !!(d.buy && d.buy.ts >= LAUNCH_TS);
+        const route = paid ? "purchase" : ((d.start && d.start.trigger) || "unknown");
+        if (paid) bySource.set(d.buy.source, (bySource.get(d.buy.source) || 0) + 1);
+        fresh.push({
+            id: d.id,
+            ts: d.proSince,
+            paid,
+            route,
+            routeLabel: PRO_ROUTES[route] || "Unknown",
+            plan: (d.buy && d.buy.plan) || (d.start && d.start.plan) || "other",
+            price: d.buy ? d.buy.price : "",
+            source: d.buy ? d.buy.source : "",
+            country: d.country,
+            lang: d.lang,
+            freeDays: d.buy && isFinite(d.buy.freeDays) && d.buy.freeDays > 0 ? d.buy.freeDays : null,
+            ended: d.endedAt > d.proSince,
+        });
+    }
+    fresh.sort((a, b) => b.ts - a.ts);
+
+    // Arrivals per day from launch day (or the window floor, whichever is
+    // later) to today, so a day nobody bought is a zero and not a gap.
+    const launchDay = dayKey(LAUNCH_TS);
+    const dayKeys = fillDays(span).filter((k) => k >= launchDay);
+    const went = new Map(), bought = new Map();
+    for (const f of fresh) {
+        const k = dayKey(f.ts);
+        went.set(k, (went.get(k) || 0) + 1);
+        if (f.paid) bought.set(k, (bought.get(k) || 0) + 1);
+    }
+
+    const windowStart = Date.now() - span * 86400000;
+    const count = (pred) => fresh.filter(pred).length;
+    return {
+        launchTs: LAUNCH_TS,
+        windowStart,
+        // A 7-day window no longer reaches launch day, and a count that quietly
+        // starts later would read as a collapse in sales rather than a
+        // narrower window. The panel says which one it is.
+        coversLaunch: windowStart <= LAUNCH_TS,
+        devices: fresh,
+        total: fresh.length,
+        paid: count((f) => f.paid),
+        restored: count((f) => f.route === "restore"),
+        entitled: count((f) => f.route === "launch" || f.route === "update" || f.route === "renewal"),
+        ended: count((f) => f.ended),
+        stillPro: count((f) => !f.ended),
+        yearly: count((f) => f.plan === "yearly"),
+        monthly: count((f) => f.plan === "monthly"),
+        testers,
+        testersWhoBought,
+        sources: [...bySource].map(([key, value]) => ({ key, value })).sort((a, b) => b.value - a.value),
+        series: {
+            labels: dayKeys.map((k) => dayLabel(k)),
+            went: dayKeys.map((k) => went.get(k) || 0),
+            bought: dayKeys.map((k) => bought.get(k) || 0),
+        },
+    };
+}
+
 /** `AnalyticsManager.fetchPermissionStats` — latest decision per device. */
 function permissions(events) {
     const latest = { notification_permission: new Map(), health_permission: new Map() };
@@ -1842,8 +1998,9 @@ function panelOverview(ev, days) {
         + "</div>";
 }
 
-function panelMoney(ev) {
+function panelMoney(ev, days) {
     const f = purchaseFunnel(ev);
+    const c = proCohort(ev, days);
 
     const hero = '<div class="hero"><div class="figure">' + esc(f.shown ? pct(f.conversion) : "—") + "</div>"
         + '<div class="cap">of paywalls seen ended in a purchase · '
@@ -1885,7 +2042,68 @@ function panelMoney(ev) {
         tip: s.source + " — " + int(s.succeeded) + " purchases from " + int(s.shown) + " impressions",
     }));
 
-    return card("Conversion", "Debug-menu paywall previews are excluded from every rate here.", hero + '<div style="height:.9rem"></div>' + hbars(funnelRows, { ordinal: true }))
+    /* ---- Post-launch cohort: the part of this tab that is not us ---- */
+
+    const liveSince = new Date(c.launchTs).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+
+    const cohortHero = '<div class="hero"><div class="figure">' + esc(int(c.total)) + "</div>"
+        + '<div class="cap">devices have gone Pro since the App Store went live on ' + esc(liveSince)
+        + " · " + esc(int(c.paid)) + " of them paid on the device itself</div></div>";
+
+    const cohortTiles = '<div class="tiles">'
+        + tile("Bought here", int(c.paid), "verified purchase in the app")
+        + tile("Restored", int(c.restored), "same subscription, another device")
+        + tile("Entitled elsewhere", int(c.entitled), "offer code, Family Sharing, other device")
+        + tile("Still Pro", int(c.stillPro), c.total ? pct(c.stillPro / c.total) + " of the cohort" : "")
+        + tile("Already ended", int(c.ended), "lapsed or cancelled since")
+        + tile("Yearly · Monthly", int(c.yearly) + " · " + int(c.monthly), "plan the cohort chose")
+        + tile("Pre-launch testers", int(c.testers),
+            c.testersWhoBought ? int(c.testersWhoBought) + " of them bought again for real" : "sandbox and TestFlight, excluded above")
+        + "</div>";
+
+    const cohortCaveat = c.coversLaunch
+        ? '<p class="caveat">A device counts here only if nothing in this window says it was already Pro before launch, so our own sandbox subscriptions stay out of the number. '
+          + "Every other card on this tab still spans the whole window, testing included.</p>"
+        : '<p class="caveat">The ' + esc(String(days || 30)) + "-day window no longer reaches launch day, so this counts devices that went Pro since "
+          + esc(dayLabel(dayKey(c.windowStart))) + " — widen the window to see the whole cohort.</p>";
+
+    const cohortSources = c.sources.map((s) => ({
+        key: s.key, value: s.value, tip: s.key + " — " + int(s.value) + " new " + (s.value === 1 ? "buyer" : "buyers"),
+    }));
+
+    const cohortRows = c.devices.map((d) => [
+        "…" + d.id.slice(-6),
+        new Date(d.ts).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+        d.routeLabel,
+        d.plan === "other" ? "—" : d.plan,
+        d.price || "—",
+        d.source || "—",
+        d.country ? flag(d.country) + " " + countryName(d.country) : "—",
+        d.freeDays != null ? dec1(d.freeDays) : "—",
+        d.ended ? "Ended" : "Pro",
+    ]);
+
+    const cohortCard = card("New Pro since launch",
+        "Distinct devices, counted by the day Pro first appeared on them. Anything before " + esc(liveSince) + " was our own testing and is excluded.",
+        cohortHero + '<div style="height:.9rem"></div>' + cohortTiles + cohortCaveat)
+        + '<div class="grid cols-2" style="margin-top:.85rem">'
+        + card("New Pro devices per day", "Since launch day. “Paid on the device” is the subset that went through a paywall here rather than arriving already entitled.",
+            timeseries([
+                { name: "Went Pro", points: c.series.went },
+                { name: "Paid on the device", points: c.series.bought, color: cssvar("--series-2") },
+            ], { labels: c.series.labels, aria: "New Pro devices per day since launch" }))
+        + card("Which gate earned them", "The paywall each new buyer came through — post-launch buyers only.",
+            hbars(cohortSources, { empty: "Nobody has bought since launch yet." }))
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Every new Pro device", "One row per device, newest first. “Days free” is how long the device had the app before buying.",
+            table(["Device", "Went Pro", "How", "Plan", "Price", "Where", "Country", "Days free", "Status"], cohortRows,
+                { empty: "Nobody has gone Pro since launch yet." }))
+        + "</div>";
+
+    return cohortCard
+        + '<div style="height:.85rem"></div>'
+        + card("Conversion", "Debug-menu paywall previews are excluded from every rate here. Pre-launch testing is not — see the cohort above for the post-launch-only read.", hero + '<div style="height:.9rem"></div>' + hbars(funnelRows, { ordinal: true }))
         + '<div class="grid" style="margin-top:.85rem">' + card("The money numbers", "", tiles) + "</div>"
         + '<div class="grid" style="margin-top:.85rem">' + card("How buyers decide", "What happens before the tap — the levers on copy, placement and timing.", decisionTiles) + "</div>"
         + '<div class="grid cols-2" style="margin-top:.85rem">'
