@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Press information for Cardio Clowns — the daily step game that turns your family group chat into a competition. iPhone, iPad, Apple Watch. 44 languages. No accounts, no ads.">
+    <meta name="description" content="Press information for Cardio Clowns — the daily step game that turns your family group chat into a competition. Out now on the App Store for iPhone, iPad, and Apple Watch. 44 languages. No accounts, no ads.">
     <link rel="canonical" href="https://cardioclowns.com/press">
-    <!-- Unlisted while pre-launch: this URL is handed out, not published.
-         Remove the robots line at launch if you want it indexed. -->
-    <meta name="robots" content="noindex, follow">
+    <!-- Indexable since launch. Before that this page carried
+         `noindex, follow`: the URL was handed to editors one at a time,
+         rather than published. -->
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -19,11 +19,11 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://cardioclowns.com/press">
     <meta property="og:title" content="Cardio Clowns — Press">
-    <meta property="og:description" content="The daily step game that turns your family group chat into a competition. iPhone, iPad, Apple Watch. 44 languages. No accounts, no ads. Built by one developer.">
+    <meta property="og:description" content="Out now on the App Store. The daily step game that turns your family group chat into a competition. iPhone, iPad, Apple Watch. 44 languages. No accounts, no ads. Built by one developer.">
     <meta property="og:image" content="https://cardioclowns.com/og-image.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Cardio Clowns — Press">
-    <meta name="twitter:description" content="The daily step game that turns your family group chat into a competition. iPhone, iPad, Apple Watch. 44 languages. No accounts, no ads.">
+    <meta name="twitter:description" content="Out now on the App Store. The daily step game that turns your family group chat into a competition. iPhone, iPad, Apple Watch. 44 languages. No accounts, no ads.">
     <meta name="twitter:image" content="https://cardioclowns.com/og-image.png">
 
     <script src="/appstore.js"></script>
@@ -34,8 +34,8 @@
         // Store Connect rather than lumped in with the homepage.
         // CCStore.campaign() folds this page's ?c= token in, making it
         // web_press_en_macstories rather than one web_press bucket shared by
-        // every outlet pitched. No-ops until LAUNCHED is flipped in
-        // /appstore.js.
+        // every outlet pitched. Live since launch; it no-ops on its own if
+        // LAUNCHED is ever flipped back in /appstore.js.
         //
         // Inline in the head, and synchronous, because that is the only place
         // it counts: Safari decides whether a page has a banner while it parses
@@ -192,7 +192,9 @@
         .facts span { color: var(--cc-text-light); }
         .cta-wrap { margin: 2rem 0; }
         .cta {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
             background: var(--cc-primary);
             color: #fff;
             font-weight: 700;
@@ -202,6 +204,21 @@
         }
         .cta { box-shadow: var(--cc-shadow-md); transition: var(--cc-transition); }
         .cta:hover { background: var(--cc-primary-dark); color: #fff; box-shadow: var(--cc-shadow-lg); }
+        /* The CTA ships as an inert <span> and appstore.js promotes it to an
+           <a>, exactly as on the homepage — so the page cannot advertise a
+           download the flag says isn't on sale. The class name is not this
+           page's to choose: appstore.js removes the literal `cc-cta-soon`, so
+           anything else here would stay styled as inert after activation. */
+        .cc-cta-soon, .cc-cta-soon:hover {
+            cursor: default;
+            background: var(--cc-primary);
+            box-shadow: var(--cc-shadow-md);
+            color: #fff;
+        }
+        /* Both labels ship in the markup and appstore.js hides one. Stated
+           explicitly because these are flex items, and a flex container is
+           exactly where a UA default gets second-guessed. */
+        .cta [hidden] { display: none; }
         .cta-note { display: block; margin-top: 0.6rem; color: var(--cc-text-light); font-size: 0.9rem; }
         .stack { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.95rem; }
         .stack th, .stack td { text-align: left; vertical-align: top; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--cc-border); }
@@ -263,9 +280,9 @@
         <div class="facts">
             <strong data-i18n="factCategory">Category</strong> <span data-i18n="factCategoryV">Health &amp; Fitness</span><br>
             <strong data-i18n="factPlatforms">Platforms</strong> <span data-i18n="factPlatformsV">iPhone, iPad, Apple Watch</span><br>
-            <strong data-i18n="factLaunch">Launch</strong> <span data-i18n="factLaunchV">End of August 2026, worldwide</span><br>
+            <strong data-i18n="factLaunch">Launch</strong> <span data-i18n="factLaunchV">Out now, worldwide</span><br>
             <strong data-i18n="factLanguages">Languages</strong> <span data-i18n="factLanguagesV">44, across 50 App Store locales</span><br>
-            <strong data-i18n="factPrice">Price</strong> <span data-i18n="factPriceV">Free, with an optional Cardio Clowns Pro subscription</span><br>
+            <strong data-i18n="factPrice">Price</strong> <span data-i18n="factPriceV">Free. Optional Cardio Clowns Pro subscription, first week free</span><br>
             <strong data-i18n="factBuilt">Built by</strong> <span data-i18n="factBuiltV">David Nguyen — one developer, in Munich</span>
         </div>
 
@@ -287,8 +304,12 @@
                 <p data-i18n="previewP1">The App Store preview: the leaderboard updating live, a rival's notification landing mid-scroll, the head-to-head tug-of-war, and the GIF picker.</p>
                 <p data-i18n="previewP2">The whole pitch is that a step counter can be funny, which is hard to prove in a paragraph and obvious in about ten seconds of watching it.</p>
                 <div class="cta-wrap" style="margin:0">
-                    <a class="cta" href="https://testflight.apple.com/join/QTm5Hj6S" data-i18n="cta">Try it on TestFlight</a>
-                    <span class="cta-note" data-i18n="ctaNote1">Public link — no invite code needed.</span>
+                    <span class="cta cc-cta-soon" data-cc-campaign="web_press">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                        <span data-cc-label="soon" data-i18n="ctaSoon">Coming soon to the App Store</span>
+                        <span data-cc-label="live" data-i18n="ctaLive" hidden>Download on the App Store</span>
+                    </span>
+                    <span class="cta-note" data-i18n="ctaNote1">Free · iPhone, iPad, and Apple Watch</span>
                 </div>
             </div>
         </div>
@@ -324,7 +345,7 @@
             <div class="who-copy">
         <p data-i18n-html="whoP1">Cardio Clowns is built by <strong>David Nguyen</strong>, a software engineer in Munich, Germany, previously at Meta.</p>
         <p data-i18n="whoP2">It started with four people: him, his wife, and two close friends who wanted to push each other to move every day and couldn't find an app that would let them. Apple's own Activity Competitions cap at two people for seven days. Nothing else would put a whole group on one leaderboard and just keep it running. So he built the app the four of them wanted.</p>
-        <p data-i18n="whoP3">First commit: 7 April 2026. Ships: end of August. In under five months — around a full-time job and three kids aged four, four, and five — one person shipped a native iPhone, iPad, and Apple Watch app, an App Clip, widgets and watch-face complications, in 44 languages across 50 App Store locales.</p>
+        <p data-i18n="whoP3">First commit: 7 April 2026. Shipped: 27 August 2026. In under five months — around a full-time job and three kids aged four, four, and five — one person shipped a native iPhone, iPad, and Apple Watch app, an App Clip, widgets and watch-face complications, in 44 languages across 50 App Store locales.</p>
         <p data-i18n="whoP4">No team, no funding, no publisher.</p>
             </div>
         </div>
@@ -373,16 +394,21 @@
         <p data-i18n="privacyP2">Country flags are derived from the device's time zone — the app never asks for location.</p>
 
         <h2 data-i18n="h2WhyNow">Why now</h2>
-        <p data-i18n-html="whyNowP">An end-of-August launch lands in the fresh-start window: back to school, the end-of-summer reset, the ramp toward New Year fitness resolutions. Cardio Clowns is the app that turns <em>"I should get back into it"</em> into <em>"my group is counting on me."</em></p>
+        <p data-i18n-html="whyNowP">It landed at the end of August, in the middle of the fresh-start window: back to school, the end-of-summer reset, the ramp toward New Year fitness resolutions. Cardio Clowns is the app that turns <em>"I should get back into it"</em> into <em>"my group is counting on me."</em></p>
 
         <h2 data-i18n="h2Next">What's next</h2>
         <p data-i18n="nextP">A September update adds Live Activities and Siri actions built on App Intents. Beyond that: avatars on the leaderboard and feed, themes, and alternate app icons — all built on the shipped StoreKit 2 foundation.</p>
 
-        <h2 data-i18n="h2Try">Try it</h2>
-        <p data-i18n="tryP">A TestFlight public link is open — no invite code needed.</p>
-        <p data-i18n="tryP2">Pro is free on TestFlight — tap Subscribe and you won't be charged. TestFlight purchases run in Apple's sandbox.</p>
+        <h2 data-i18n="h2Try">Get it</h2>
+        <p data-i18n="tryP">Cardio Clowns is on the App Store now — free, on iPhone, iPad, and Apple Watch. No account to create.</p>
+        <p data-i18n="tryP3">Pro opens with a free week, so there is nothing to pay to review it.</p>
+        <p data-i18n-html="tryP2">If you would rather not put a payment method in at all, the TestFlight build is still open: <a href="https://testflight.apple.com/join/QTm5Hj6S">join here</a>, tap Subscribe, and nothing is charged — TestFlight purchases run in Apple's sandbox.</p>
         <div class="cta-wrap">
-            <a class="cta" href="https://testflight.apple.com/join/QTm5Hj6S" data-i18n="cta">Try it on TestFlight</a>
+            <span class="cta cc-cta-soon" data-cc-campaign="web_press">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                <span data-cc-label="soon" data-i18n="ctaSoon">Coming soon to the App Store</span>
+                <span data-cc-label="live" data-i18n="ctaLive" hidden>Download on the App Store</span>
+            </span>
             <span class="cta-note" data-i18n="ctaNote2">Tip: create a group and share the code with one other person. The app is about the second player.</span>
         </div>
 
@@ -477,10 +503,9 @@
     <script>CCLang.init({ dir: '/press/i18n/', lang: window.CCMarketLang });</script>
     <!-- wireLinks stays here rather than moving into the head with the banner:
          it walks [data-cc-campaign] elements, and those do not exist until the
-         body has been parsed. The page has no download CTA today, and when it
-         gets one the tokenised href is already wired rather than something to
-         remember. ?c= is folded in for the same reason it is on the banner —
-         see the head. -->
+         body has been parsed. It is what turns the two "Coming soon" spans
+         above into campaign-tagged App Store links. ?c= is folded in for the
+         same reason it is on the banner — see the head. -->
     <script>
     CCStore.wireLinks(document, { sourceToken: true });
     </script>
