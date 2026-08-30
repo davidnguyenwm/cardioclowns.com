@@ -1121,13 +1121,60 @@ function purchaseFunnel(events) {
  */
 const LAUNCH_TS = Date.UTC(2026, 7, 26, 6, 40);
 
-/** How a device arrived at Pro, in the words of `pro_started`'s trigger. */
+/**
+ * How a device arrived at Pro, in the words of `pro_started`'s trigger.
+ *
+ * The keys are the exact strings `StoreManager` passes to
+ * `refreshPurchasedProducts(trigger:)`, and every one of them has to be here: a
+ * trigger this table doesn't know reads as "Unknown" and then falls out of the
+ * route tiles entirely, because those count named routes rather than the
+ * remainder. `foreground` and `diagnostics` were missing, which is precisely
+ * where a code redeemed outside the app lands — the app re-derives entitlements
+ * when it comes back to the front, finds one that wasn't there before, and says
+ * so with the only trigger it has.
+ */
 const PRO_ROUTES = {
     purchase: "Bought here",
+    // Only `StoreManager.presentRedeemSheet` passes this, and it passes it only
+    // after Apple's offer-code sheet has been dismissed. Nothing else produces
+    // it, which makes it the one route that names a comp with certainty.
+    redeem: "Offer code",
     restore: "Restored",
     renewal: "Renewal",
     launch: "Entitled elsewhere",
     update: "Entitled elsewhere",
+    foreground: "Entitled elsewhere",
+    diagnostics: "Entitled elsewhere",
+};
+
+/**
+ * The routes that mean "arrived already Pro, from somewhere we can't see" —
+ * Family Sharing, or a subscription bought on another device and picked up
+ * silently. Kept as a list rather than an inline `||` chain so adding a trigger
+ * to `PRO_ROUTES` above and forgetting it here is one edit, not two.
+ */
+const ENTITLED_ROUTES = ["launch", "update", "renewal", "foreground", "diagnostics"];
+
+/**
+ * Days a device ran Free before Pro began. The purchase reports it; so does
+ * `pro_started`, which is the only one of the two a comped device emits. Prefer
+ * the purchase, because that is the number the conversion copy is about, and
+ * fall back rather than showing a comp an em dash it has an answer for.
+ */
+function pickFreeDays(d) {
+    for (const n of [d.buy && d.buy.freeDays, d.start && d.start.freeDays]) {
+        if (isFinite(n) && n > 0) return n;
+    }
+    return null;
+}
+
+/** What the "Offer code" label is standing on, per device. */
+const COMP_EVIDENCE = {
+    redeem: "Redeemed through the in-app offer-code sheet.",
+    inferred: "Went Pro without ever completing a purchase here and without "
+        + "asking to restore one, on an install this dashboard had already "
+        + "watched running Free. A code redeemed in the App Store looks exactly "
+        + "like this — so, less often, do Family Sharing and a second device.",
 };
 
 /** Devices whose Pro life began after launch — the post-launch Pro cohort. */
@@ -1137,7 +1184,18 @@ function proCohort(events, days) {
     const at = (id) => {
         let d = dev.get(id);
         if (!d) {
-            d = { id, proSince: Infinity, buy: null, start: null, endedAt: 0, country: "", lang: "" };
+            d = {
+                id, proSince: Infinity, buy: null, start: null, endedAt: 0, country: "", lang: "",
+                // First sighting of the device at all, Pro or not. What makes a
+                // comp inferable: an entitlement that appears on an install we
+                // had already watched running Free was not carried in by a
+                // reinstall or a second device signing in.
+                firstSeen: Infinity,
+                // Any restore attempt, successful or not. Someone who asked for
+                // their subscription back had one somewhere else — that is a
+                // different story from a code and must not be told as one.
+                restored: false,
+            };
             dev.set(id, d);
         }
         return d;
@@ -1146,6 +1204,7 @@ function proCohort(events, days) {
     for (const e of events) {
         const p = e.params;
         const d = at(e.deviceID);
+        if (e.ts < d.firstSeen) d.firstSeen = e.ts;
         if (!d.country && p.country) d.country = p.country;
         if (!d.lang && p.lang) d.lang = p.lang;
 
@@ -1170,14 +1229,28 @@ function proCohort(events, days) {
             case "pro_started":
                 pro = true;
                 if (!d.start || e.ts < d.start.ts) {
-                    d.start = { ts: e.ts, plan: p.plan || "other", trigger: p.trigger || "" };
+                    d.start = {
+                        ts: e.ts,
+                        plan: p.plan || "other",
+                        trigger: p.trigger || "",
+                        // `pro_started` measures the same thing `purchase_succeeded`
+                        // does — days installed before Pro began — and it is the
+                        // only place a device that never bought reports it.
+                        freeDays: Number(p.free_tenure_days),
+                    };
                 }
                 break;
             case "pro_ended":
                 pro = true;                              // it ended, so it existed
                 if (e.ts > d.endedAt) d.endedAt = e.ts;
                 break;
+            case "restore_started":
+                d.restored = true;
+                break;
             case "restore_succeeded":
+                d.restored = true;
+                pro = true;
+                break;
             case "subscription_renewed":
                 pro = true;
                 break;
@@ -1198,20 +1271,65 @@ function proCohort(events, days) {
         // "Bought here" beats whatever the trigger says: a purchase is the one
         // route we have a price for, and `pro_started` fires from it too.
         const paid = !!(d.buy && d.buy.ts >= LAUNCH_TS);
-        const route = paid ? "purchase" : ((d.start && d.start.trigger) || "unknown");
+        const trigger = (d.start && d.start.trigger) || "";
+
+        // Comped: holds Pro, and no money reached us for this device.
+        //
+        // A redeemed offer code grants a genuine subscription. The app sees the
+        // same product, arriving by the same `Transaction.updates` delivery into
+        // the same `currentEntitlements` a purchase produces, and it never
+        // reports the offer behind the transaction — so the code leaves no
+        // positive trace in this stream at all. It is legible only as an
+        // absence, and only two absences are strong enough to read:
+        //
+        //   redeem    the app said so. `trigger: "redeem"` comes from exactly
+        //             one place — the refresh that runs when Apple's offer-code
+        //             sheet is dismissed — so it is not an inference.
+        //
+        //   inferred  Pro turned up on an install this dashboard had already
+        //             watched running Free, with no purchase ever completed on
+        //             it and no restore even attempted. A code redeemed in the
+        //             App Store rather than in the app produces exactly that.
+        //             So, less often, do Family Sharing and a second device
+        //             picking up its owner's subscription — which is why the
+        //             label carries a question mark and this comment exists.
+        //
+        // The `firstSeen < proSince` clause is what keeps reinstalls and second
+        // devices out of the inferred set: those arrive already entitled, so
+        // their first event is their first Pro event and there is no Free life
+        // on record for an entitlement to have interrupted. It reads only what
+        // is in the window, so narrowing the window past a device's Free life
+        // moves it back to "entitled elsewhere" — the tab under-claims comps
+        // rather than inventing them, which is the right way round.
+        // A completed purchase outranks both: money is the one thing here we
+        // have direct evidence of, so a device that ever paid is a sale even if
+        // it later redeemed something. That also keeps the route tiles disjoint.
+        const redeemed = !paid && trigger === "redeem";
+        const inferredComp = !d.buy && !d.restored && d.firstSeen < d.proSince;
+        const comped = !paid && (redeemed || inferredComp);
+        const compEvidence = !comped ? "" : (redeemed ? "redeem" : "inferred");
+
+        // `route` stays whatever the app actually said, comped or not; the
+        // counts below drop comps from the other routes rather than rewriting
+        // the trigger, so this field never disagrees with the event stream.
+        const route = paid ? "purchase" : (trigger || "unknown");
         if (paid) bySource.set(d.buy.source, (bySource.get(d.buy.source) || 0) + 1);
         fresh.push({
             id: d.id,
             ts: d.proSince,
             paid,
+            comped,
+            compEvidence,
             route,
-            routeLabel: PRO_ROUTES[route] || "Unknown",
+            routeLabel: paid ? PRO_ROUTES.purchase
+                : comped ? (redeemed ? PRO_ROUTES.redeem : PRO_ROUTES.redeem + "?")
+                : (PRO_ROUTES[route] || "Unknown"),
             plan: (d.buy && d.buy.plan) || (d.start && d.start.plan) || "other",
             price: d.buy ? d.buy.price : "",
             source: d.buy ? d.buy.source : "",
             country: d.country,
             lang: d.lang,
-            freeDays: d.buy && isFinite(d.buy.freeDays) && d.buy.freeDays > 0 ? d.buy.freeDays : null,
+            freeDays: pickFreeDays(d),
             ended: d.endedAt > d.proSince,
         });
     }
@@ -1221,11 +1339,12 @@ function proCohort(events, days) {
     // later) to today, so a day nobody bought is a zero and not a gap.
     const launchDay = dayKey(LAUNCH_TS);
     const dayKeys = fillDays(span).filter((k) => k >= launchDay);
-    const went = new Map(), bought = new Map();
+    const went = new Map(), bought = new Map(), comped = new Map();
     for (const f of fresh) {
         const k = dayKey(f.ts);
         went.set(k, (went.get(k) || 0) + 1);
         if (f.paid) bought.set(k, (bought.get(k) || 0) + 1);
+        if (f.comped) comped.set(k, (comped.get(k) || 0) + 1);
     }
 
     const windowStart = Date.now() - span * 86400000;
@@ -1240,8 +1359,14 @@ function proCohort(events, days) {
         devices: fresh,
         total: fresh.length,
         paid: count((f) => f.paid),
-        restored: count((f) => f.route === "restore"),
-        entitled: count((f) => f.route === "launch" || f.route === "update" || f.route === "renewal"),
+        // Comps sit beside the paid count, never inside it, and they are
+        // subtracted from every other route: a device the app itself called a
+        // redemption is not also an "entitled elsewhere", and an inferred comp
+        // is only inferred *because* no other route claimed it.
+        comped: count((f) => f.comped),
+        compedConfirmed: count((f) => f.compEvidence === "redeem"),
+        restored: count((f) => !f.comped && f.route === "restore"),
+        entitled: count((f) => !f.comped && ENTITLED_ROUTES.includes(f.route)),
         ended: count((f) => f.ended),
         stillPro: count((f) => !f.ended),
         yearly: count((f) => f.plan === "yearly"),
@@ -1253,6 +1378,7 @@ function proCohort(events, days) {
             labels: dayKeys.map((k) => dayLabel(k)),
             went: dayKeys.map((k) => went.get(k) || 0),
             bought: dayKeys.map((k) => bought.get(k) || 0),
+            comped: dayKeys.map((k) => comped.get(k) || 0),
         },
     };
 }
@@ -2048,12 +2174,21 @@ function panelMoney(ev, days) {
 
     const cohortHero = '<div class="hero"><div class="figure">' + esc(int(c.total)) + "</div>"
         + '<div class="cap">devices have gone Pro since the App Store went live on ' + esc(liveSince)
-        + " · " + esc(int(c.paid)) + " of them paid on the device itself</div></div>";
+        + " · " + esc(int(c.paid)) + " of them paid on the device itself"
+        + (c.comped ? " · " + esc(int(c.comped)) + " came in on a code" : "")
+        + "</div></div>";
+
+    const compSub = c.comped
+        ? (c.compedConfirmed === c.comped ? "all confirmed by the redeem sheet"
+            : c.compedConfirmed ? int(c.compedConfirmed) + " confirmed, the rest inferred"
+            : "inferred — no purchase, no restore")
+        : "comped, so worth no revenue";
 
     const cohortTiles = '<div class="tiles">'
         + tile("Bought here", int(c.paid), "verified purchase in the app")
+        + tile("Offer codes", int(c.comped), compSub)
         + tile("Restored", int(c.restored), "same subscription, another device")
-        + tile("Entitled elsewhere", int(c.entitled), "offer code, Family Sharing, other device")
+        + tile("Entitled elsewhere", int(c.entitled), "arrived already Pro — Family Sharing or another device")
         + tile("Still Pro", int(c.stillPro), c.total ? pct(c.stillPro / c.total) + " of the cohort" : "")
         + tile("Already ended", int(c.ended), "lapsed or cancelled since")
         + tile("Yearly · Monthly", int(c.yearly) + " · " + int(c.monthly), "plan the cohort chose")
@@ -2067,6 +2202,24 @@ function panelMoney(ev, days) {
         : '<p class="caveat">The ' + esc(String(days || 30)) + "-day window no longer reaches launch day, so this counts devices that went Pro since "
           + esc(dayLabel(dayKey(c.windowStart))) + " — widen the window to see the whole cohort.</p>";
 
+    // Says out loud what the comp column can and cannot know, because the
+    // number it produces is exactly the kind that gets quoted as revenue.
+    const inferredCount = c.comped - c.compedConfirmed;
+    const inferredSentence = inferredCount
+        ? (c.compedConfirmed ? "The other " + esc(int(inferredCount)) + " " : "All " + esc(int(c.comped)) + " ")
+          + "went Pro with no purchase and no restore, on an install already "
+          + "running Free here — which is what a code redeemed in the App Store looks like, and, less often, what "
+          + "Family Sharing and a second device look like too. Those rows carry a question mark."
+        : "";
+    const confirmedSentence = c.compedConfirmed
+        ? esc(int(c.compedConfirmed)) + " came through the in-app redeem sheet, which reports itself. "
+        : "";
+    const compCaveat = c.comped
+        ? '<p class="caveat"><strong>Offer codes.</strong> A redeemed code is a real subscription — same product, '
+          + "same transaction delivery, no price — and the app never reports the offer behind it, so a comp is told "
+          + "from a sale only by what is missing. " + confirmedSentence + inferredSentence + "</p>"
+        : "";
+
     const cohortSources = c.sources.map((s) => ({
         key: s.key, value: s.value, tip: s.key + " — " + int(s.value) + " new " + (s.value === 1 ? "buyer" : "buyers"),
     }));
@@ -2074,9 +2227,15 @@ function panelMoney(ev, days) {
     const cohortRows = c.devices.map((d) => [
         "…" + d.id.slice(-6),
         new Date(d.ts).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
-        d.routeLabel,
+        // A comped row carries the evidence for its own label on hover, so the
+        // question mark is answerable at the row rather than only in the note.
+        d.compEvidence
+            ? { html: '<span title="' + esc(COMP_EVIDENCE[d.compEvidence]) + '">' + esc(d.routeLabel) + "</span>" }
+            : d.routeLabel,
         d.plan === "other" ? "—" : d.plan,
-        d.price || "—",
+        // Comps have no price because nothing was charged; saying so beats an
+        // em dash, which reads as "we failed to record it".
+        d.comped ? "Free" : (d.price || "—"),
         d.source || "—",
         d.country ? flag(d.country) + " " + countryName(d.country) : "—",
         d.freeDays != null ? dec1(d.freeDays) : "—",
@@ -2085,18 +2244,19 @@ function panelMoney(ev, days) {
 
     const cohortCard = card("New Pro since launch",
         "Distinct devices, counted by the day Pro first appeared on them. Anything before " + esc(liveSince) + " was our own testing and is excluded.",
-        cohortHero + '<div style="height:.9rem"></div>' + cohortTiles + cohortCaveat)
+        cohortHero + '<div style="height:.9rem"></div>' + cohortTiles + cohortCaveat + compCaveat)
         + '<div class="grid cols-2" style="margin-top:.85rem">'
-        + card("New Pro devices per day", "Since launch day. “Paid on the device” is the subset that went through a paywall here rather than arriving already entitled.",
+        + card("New Pro devices per day", "Since launch day. “Paid on the device” is the subset that went through a paywall here rather than arriving already entitled; “on a code” is the comped remainder.",
             timeseries([
                 { name: "Went Pro", points: c.series.went },
                 { name: "Paid on the device", points: c.series.bought, color: cssvar("--series-2") },
-            ], { labels: c.series.labels, aria: "New Pro devices per day since launch" }))
+                { name: "On a code", points: c.series.comped, color: cssvar("--series-3") },
+            ], { labels: c.series.labels, aria: "New Pro devices per day since launch, split by paid and comped" }))
         + card("Which gate earned them", "The paywall each new buyer came through — post-launch buyers only.",
             hbars(cohortSources, { empty: "Nobody has bought since launch yet." }))
         + "</div>"
         + '<div class="grid" style="margin-top:.85rem">'
-        + card("Every new Pro device", "One row per device, newest first. “Days free” is how long the device had the app before buying.",
+        + card("Every new Pro device", "One row per device, newest first. “Days free” is how long the device had the app before going Pro. A “How” of <em>Offer code?</em> is inferred from an absence rather than reported by the app — hover it for the evidence.",
             table(["Device", "Went Pro", "How", "Plan", "Price", "Where", "Country", "Days free", "Status"], cohortRows,
                 { empty: "Nobody has gone Pro since launch yet." }))
         + "</div>";

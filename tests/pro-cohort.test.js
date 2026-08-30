@@ -120,6 +120,8 @@ const bought = (device, ts, extra) => ev(device, 'purchase_succeeded', ts, Objec
     source: 'history', plan: 'yearly', price: '€19.99', free_tenure_days: '3.0', exposures_before_purchase: '2', is_pro: 'false',
 }, extra || {}));
 const started = (device, ts, trigger, plan) => ev(device, 'pro_started', ts, { trigger, plan: plan || 'yearly', is_pro: 'true' });
+const renewed = (device, ts, plan) => ev(device, 'subscription_renewed', ts, { plan: plan || 'yearly', is_pro: 'true' });
+const restoreTap = (device, ts) => ev(device, 'restore_started', ts, { source: 'history' });
 
 /* ----------------------------- The tests ----------------------------- */
 
@@ -196,7 +198,7 @@ console.log('\n  how each device arrived');
 
 {
     const events = [
-        started('code', AFTER, 'launch', 'yearly'),          // offer code redeemed in the App Store
+        started('arrived', AFTER, 'launch', 'yearly'),       // first event of its life is already Pro
         started('second', AFTER, 'restore', 'monthly'),      // same person, second device
         opened('payer', AFTER), bought('payer', AFTER + 1000, { plan: 'monthly', price: '€2.99' }),
     ];
@@ -205,10 +207,98 @@ console.log('\n  how each device arrived');
     eq('  bought here', c.paid, 1);
     eq('  restored', c.restored, 1);
     eq('  entitled elsewhere', c.entitled, 1);
+    eq('  and none of them comped', c.comped, 0);
     eq('  plan split follows the device, not the purchase alone', c.monthly, 2);
-    check('a redeemed code reads as entitled elsewhere, not as a sale',
-        c.devices.some((d) => d.id === 'code' && d.routeLabel === 'Entitled elsewhere' && d.paid === false)
-            ? [] : ['route was ' + JSON.stringify(c.devices.filter((d) => d.id === 'code').map((d) => d.routeLabel))]);
+    check('a device whose first event is already Pro stays "entitled elsewhere"',
+        c.devices.some((d) => d.id === 'arrived' && d.routeLabel === 'Entitled elsewhere' && d.paid === false)
+            ? [] : ['route was ' + JSON.stringify(c.devices.filter((d) => d.id === 'arrived').map((d) => d.routeLabel))]);
+}
+
+/*
+ * Comps.
+ *
+ * A redeemed offer code is a real subscription: same product, same transaction
+ * delivery, same entitlement — and the app never reports the offer behind it.
+ * So a comp is legible only as an absence, and the tab's whole ability to keep
+ * free seats out of the sales count rests on the two reads below. Get either
+ * wrong and a handed-out code is quoted as revenue.
+ */
+
+console.log('\n  codes, and what they are told apart from');
+
+{
+    // The shape a code redeemed in the App Store leaves behind: the app was
+    // already installed and Free here, then an entitlement appeared on a
+    // foreground re-derive with nothing bought and no restore asked for.
+    const events = [
+        opened('friend', AFTER),
+        ev('friend', 'paywall_shown', AFTER + 3600000, { source: 'history', exposure: '1' }),
+        renewed('friend', AFTER + DAY),
+        started('friend', AFTER + DAY, 'foreground', 'yearly'),
+    ];
+    const c = proCohort(events, 90);
+    eq('a code redeemed outside the app is one comped device', c.comped, 1);
+    eq('  …and not a sale', c.paid, 0);
+    eq('  …nor "entitled elsewhere", which it is no longer indistinguishable from', c.entitled, 0);
+    eq('  …labelled as inferred, not as reported', c.devices[0].compEvidence, 'inferred');
+    eq('  …with the question mark that admits it', c.devices[0].routeLabel, 'Offer code?');
+    eq('  …counted on the comped series the day it landed', c.series.comped.reduce((a, b) => a + b, 0), 1);
+}
+
+{
+    // The in-app sheet says so outright: `trigger: "redeem"` comes from exactly
+    // one call site and is not an inference.
+    const events = [opened('sheet', AFTER), started('sheet', AFTER + 1000, 'redeem', 'yearly')];
+    const c = proCohort(events, 90);
+    eq('a code redeemed through the in-app sheet is confirmed', c.compedConfirmed, 1);
+    eq('  …and needs no question mark', c.devices[0].routeLabel, 'Offer code');
+    eq('  …still counting as a comp', c.comped, 1);
+}
+
+{
+    // The failure that would make the inference useless: it must not swallow
+    // people who asked for a subscription back. A restore tap says the
+    // entitlement existed somewhere else already — a different story entirely,
+    // and one that is true even when the restore fails.
+    const events = [
+        opened('again', AFTER),
+        restoreTap('again', AFTER + 1000),
+        started('again', AFTER + 2000, 'foreground', 'yearly'),
+    ];
+    const c = proCohort(events, 90);
+    eq('a device that asked to restore is not read as comped', c.comped, 0);
+    eq('  …it is entitled from elsewhere', c.entitled, 1);
+}
+
+{
+    // A buyer has Free life on record too. The purchase has to win, or every
+    // sale with a paywall impression before it reads as a giveaway.
+    const events = [opened('payer', AFTER), bought('payer', AFTER + 1000), started('payer', AFTER + 2000, 'purchase')];
+    const c = proCohort(events, 90);
+    eq('a real purchase is never inferred to be a comp', c.comped, 0);
+    eq('  …it is a sale', c.paid, 1);
+}
+
+{
+    // Every trigger `StoreManager` can pass must resolve to a named route.
+    // `foreground` and `diagnostics` had no entry, so both fell through to
+    // "Unknown" and out of every route tile — which is exactly where the two
+    // real redemptions were sitting when this was written.
+    const triggers = ['purchase', 'redeem', 'restore', 'renewal', 'launch', 'update', 'foreground', 'diagnostics'];
+    const unknown = triggers.filter((t) => {
+        // Arrive already entitled, so nothing but the trigger decides the label.
+        const c = proCohort([started('t_' + t, AFTER, t, 'yearly')], 90);
+        return c.devices[0].routeLabel === 'Unknown';
+    });
+    check('every trigger the app emits has a route label', unknown.length === 0
+        ? [] : ['unnamed: ' + unknown.join(', ')]);
+}
+
+{
+    const c = proCohort([], 30);
+    check('the comped series is one point per label like the others',
+        c.series.comped.length === c.series.labels.length ? []
+            : [`${c.series.comped.length} comped points for ${c.series.labels.length} labels`]);
 }
 
 {
