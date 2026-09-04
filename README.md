@@ -224,6 +224,38 @@ a transcription of the reader of the same name in `AnalyticsManager.swift`.
 It is not linked from anywhere, carries `noindex`, and is disallowed in
 [`robots.txt`](robots.txt).
 
+### The Ratings tab
+
+The one tab that does not come entirely from CloudKit. The **ask** does — the
+app logs `cta_tap` / `review_prompted` the instant `ReviewPrompter` decides to
+call `requestReview()`, and `review_prompt_blocked` with the gate that stopped
+it — but the outcome does not exist in the event stream, and cannot:
+
+- **Displayed** is never reported. `requestReview()` has no completion handler,
+  iOS alone decides whether to draw the sheet, it never draws one in a
+  TestFlight build, and it stops after three per person per 365 days. The ask
+  is an upper bound on a display and there is no better number.
+- **Reviewed** shows up only as the public rating count going up, unattributed.
+- **Declined** is never reported at any granularity.
+
+So the store side arrives in two pieces:
+
+- **Written reviews** are swept live from Apple's legacy per-country RSS, the
+  same host the Featuring tab's chart scan uses and one of the few Apple
+  endpoints that still answers a cross-origin `fetch`.
+- **Star-only ratings** — what most people leave after a prompt — are only in
+  the iTunes lookup API, and that endpoint **withholds
+  `Access-Control-Allow-Origin` when the request carries a browser
+  User-Agent**, so no page can read it. `scripts/store_ratings.py` in the app
+  repo reads it from outside a browser and writes `stats/ratings.json` here;
+  the tab loads that file if it exists and says so plainly if it doesn't. Run
+  the script and commit the file to move those numbers.
+
+Two device ids (the fastlane screenshot runner and the developer's own phone)
+write real events into production and are excluded on this tab only — between
+them they hold every ask past the third, which would otherwise make Apple's
+ceiling look like something users are hitting.
+
 ### First run
 
 Open `/stats/` and fill in the one-time form:

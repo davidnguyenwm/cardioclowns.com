@@ -1,0 +1,484 @@
+{
+ "at": 1788524510,
+ "appStoreId": "6761773257",
+ "count": 0,
+ "avg": 0.0,
+ "verCount": 0,
+ "version": "1.0.1",
+ "stores": [
+  {
+   "cc": "ae",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "ar",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "at",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "au",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "be",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "bh",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "br",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "ca",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "ch",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "cl",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "cn",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "co",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "cy",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "cz",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "de",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "dk",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "eg",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "es",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "fi",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "fr",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "gb",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "gr",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "hk",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "hr",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "hu",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "id",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "ie",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "il",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "in",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "it",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "jo",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "jp",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "kr",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "kw",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "lb",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "mx",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "my",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "nl",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "no",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "nz",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "om",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "ph",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "pl",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "pt",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "qa",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "ro",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "ru",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "sa",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "se",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "sg",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "si",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "sk",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "th",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "tr",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "tw",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "ua",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "us",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "vn",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  },
+  {
+   "cc": "za",
+   "count": 0,
+   "avg": 0.0,
+   "verCount": 0,
+   "verAvg": 0.0,
+   "version": "1.0.1"
+  }
+ ],
+ "missing": [],
+ "errors": []
+}

@@ -415,6 +415,15 @@
         .legend span { display: inline-flex; align-items: center; gap: .35rem; }
         .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 
+        /* Reviews — prose, so deliberately not a table: cells here are
+           nowrap and right-aligned, which clips a paragraph. */
+        .reviews { display: grid; gap: .8rem; }
+        .review { border-left: 2px solid var(--grid); padding-left: .75rem; }
+        .review .meta { font-size: .74rem; color: var(--text-muted); display: flex; gap: .45rem; align-items: baseline; flex-wrap: wrap; }
+        .review .stars { color: var(--warning); letter-spacing: .06em; }
+        .review .rtitle { font-weight: 600; font-size: .87rem; margin-top: .12rem; }
+        .review .rtext { font-size: .82rem; color: var(--text-secondary); margin-top: .1rem; line-height: 1.45; }
+
         /* Tables */
         .tw { overflow-x: auto; }
         table { border-collapse: collapse; width: 100%; font-size: .82rem; }
@@ -1521,7 +1530,6 @@ function growth(events) {
     const channels = new Map();      // invite_shared → channel
     const firstOpenSource = new Map();
     const installBucket = new Map();
-    const reviewBlocked = new Map();
     const groupState = new Map();    // device → its latest daily snapshot
     const widgets = new Map();       // device → latest widget census
     const widgetTaps = new Map();
@@ -1565,9 +1573,6 @@ function growth(events) {
             if (!prev || e.ts > prev.ts) {
                 widgets.set(e.deviceID, { ts: e.ts, count: parseInt(e.params.count, 10) || 0, families: e.params.families || "" });
             }
-        } else if (e.event === "review_prompt_blocked") {
-            const r = e.params.reason || "unknown";
-            reviewBlocked.set(r, (reviewBlocked.get(r) || 0) + 1);
         } else if (e.event === "cta_tap" && e.params.cta === "widget_tap") {
             const k = (e.params.widget_kind || "?") + " · " + (e.params.widget_family || "?");
             widgetTaps.set(k, (widgetTaps.get(k) || 0) + 1);
@@ -1586,7 +1591,6 @@ function growth(events) {
         channels: [...channels].map(([key, value]) => ({ key, value })).sort((a, b) => b.value - a.value),
         firstOpenSource: [...firstOpenSource].map(([key, value]) => ({ key, value })).sort((a, b) => b.value - a.value),
         installBucket: [...installBucket].map(([key, value]) => ({ key, value })),
-        reviewBlocked: [...reviewBlocked].map(([key, value]) => ({ key, value })).sort((a, b) => b.value - a.value),
         widgetTaps: [...widgetTaps].map(([key, value]) => ({ key, value })).sort((a, b) => b.value - a.value),
         groupStates: states.length,
         solo, botOnly,
@@ -1595,6 +1599,152 @@ function growth(events) {
         worstSoloStreak: states.length ? Math.max(...states.map((s) => s.daysSolo)) : 0,
         widgetDevices,
         widgetCensus: widgets.size,
+    };
+}
+
+/* ------------------- Review prompts: what we can and cannot see -------------
+
+   The ask is measured exactly. `ReviewPrompter` logs `cta_tap` /
+   `review_prompted` at the instant it decides to call `requestReview()`,
+   carrying the delight moment that earned it, and `review_prompt_blocked`
+   carrying the gate that stopped it.
+
+   The outcome is not measured at all, and no amount of client work would fix
+   that:
+
+     * **Displayed** — `requestReview()` takes no completion handler and
+       returns nothing. iOS decides on its own whether to draw the sheet,
+       never draws it in a TestFlight build, and caps it at three per person
+       per 365 days. An ask is therefore an *upper bound* on a display.
+     * **Reviewed** — nothing in StoreKit or App Store Connect ties a rating
+       back to the prompt that produced it. The only outcome signal is the
+       storefront's public rating count going up, which also collects ratings
+       from people who found the product page by themselves.
+     * **Declined** — never reported by any Apple API, at any granularity.
+       The gap between asks and ratings gained is its upper bound and nothing
+       more.
+
+   So: count the asks honestly, sweep the public rating counts for the
+   outcome, and label the join as the inference it is.
+--------------------------------------------------------------------------- */
+
+/* The fastlane screenshot runner and the developer's own phone. Both write
+   real events into *production* (the seeded deviceID outlives the screenshot
+   run, so a later ordinary launch logs under the fake id), and between them
+   they hold every ask past the third — which would make Apple's quota read as
+   a problem real users are hitting. Dropped here only; the other tabs still
+   count them. */
+const TEST_DEVICES = new Set(["screenshotme", "DC88AE60-5178-46CE-90BA-695615E4B721"]);
+
+/* Gates in the order `ReviewPrompter.shouldPromptNow` checks them, which is
+   also the order of "how close this person got to being asked". `cooldown` is
+   last because reaching it means they were already asked once. */
+const GATES = [
+    { id: "no_moment", name: "Nothing good has happened yet", why: "No crown win, no first rival — the prompter had no delight moment banked" },
+    { id: "no_real_friends", name: "Racing bots only", why: "A moment was banked, but the group holds no real rival to be happy about" },
+    { id: "tenure", name: "Too new to ask", why: "Under 3 days since install — the app hasn't earned the ask yet" },
+    { id: "cooldown", name: "Already asked recently", why: "Asked within the last 120 days, so the quota is deliberately being saved" },
+];
+const GATE_NAME = Object.fromEntries(GATES.map((g) => [g.id, g.name]));
+const GATE_WHY = Object.fromEntries(GATES.map((g) => [g.id, g.why]));
+
+/* Which delight moment earned the ask. `ReviewPrompter` banks exactly these. */
+const MOMENT_NAME = { crown_won: "Won yesterday's crown", first_friend: "First real rival joined" };
+
+/**
+ * Everything the event stream knows about the rating prompt.
+ *
+ * Two different units, deliberately kept apart: an ask is one event per ask,
+ * while a block is throttled to **once per device per day**, so a block count
+ * is device-days and the two must never be summed into one funnel. The
+ * per-device ladder below is the one place they meet, and it counts devices.
+ */
+function reviews(events, days) {
+    const asks = [];
+    const blocks = [];
+    let excluded = 0;
+
+    for (const e of events) {
+        const isAsk = e.event === "cta_tap" && e.params.cta === "review_prompted";
+        const isBlock = e.event === "review_prompt_blocked";
+        if (!isAsk && !isBlock) continue;
+        if (TEST_DEVICES.has(e.deviceID)) { excluded += 1; continue; }
+        (isAsk ? asks : blocks).push(e);
+    }
+
+    const tally = (rows, pick) => {
+        const m = new Map();
+        for (const e of rows) {
+            const k = pick(e);
+            if (k) m.set(k, (m.get(k) || 0) + 1);
+        }
+        return m;
+    };
+
+    /* Asks per day, zero-filled, so a quiet week reads as quiet and not as a
+       gap in the data. */
+    const dayKeys = fillDays(days);
+    const perDay = tally(asks, (e) => dayKey(e.ts));
+    const series = dayKeys.map((k) => perDay.get(k) || 0);
+
+    /* How many asks each device has had. Apple's ceiling is three per person
+       per 365 days: a device sitting at 3 has spent the year's quota, and a
+       4th ask — which ReviewPrompter's 120-day cooldown should make
+       impossible without a reinstall — would be an ask that certainly never
+       drew a sheet. */
+    const askCount = new Map();
+    for (const e of asks) askCount.set(e.deviceID, (askCount.get(e.deviceID) || 0) + 1);
+    const spread = new Map();
+    for (const n of askCount.values()) spread.set(n, (spread.get(n) || 0) + 1);
+    const atCeiling = [...askCount.values()].filter((n) => n === 3).length;
+    const overQuota = [...askCount.values()].filter((n) => n > 3).length;
+
+    /* How far each device got. A device shows up at its *best* state, so a
+       phone blocked on tenure in June and asked in August counts as asked. */
+    const rank = new Map(GATES.map((g, i) => [g.id, i]));
+    const best = new Map();
+    for (const e of blocks) {
+        const r = rank.has(e.params.reason) ? rank.get(e.params.reason) : 0;
+        best.set(e.deviceID, Math.max(best.get(e.deviceID) == null ? -1 : best.get(e.deviceID), r));
+    }
+    for (const e of asks) best.set(e.deviceID, GATES.length);
+    const ladderCount = new Array(GATES.length + 1).fill(0);
+    for (const v of best.values()) ladderCount[v] += 1;
+    const ladder = GATES.map((g, i) => ({
+        key: g.name,
+        value: ladderCount[i],
+        tip: g.why,
+    })).concat([{ key: "Asked", value: ladderCount[GATES.length], tip: "The prompter called requestReview() for this device" }]);
+
+    const blockRows = GATES
+        .map((g) => ({ key: g.name, value: (tally(blocks, (e) => e.params.reason).get(g.id) || 0), tip: g.why }))
+        .filter((r) => r.value > 0)
+        .sort((a, b) => b.value - a.value);
+
+    const sorted = (m, name) => [...m]
+        .map(([key, value]) => ({ key: name ? (name[key] || key) : key, value }))
+        .sort((a, b) => b.value - a.value);
+
+    return {
+        asks: asks.length,
+        askDevices: askCount.size,
+        blocks: blocks.length,
+        blockDevices: new Set(blocks.map((e) => e.deviceID)).size,
+        evaluated: best.size,
+        moments: sorted(tally(asks, (e) => e.params.reason || "unknown"), MOMENT_NAME),
+        countries: sorted(tally(asks, (e) => e.params.country || "")).map((r) => (
+            { key: flag(r.key) + " " + countryName(r.key), value: r.value }
+        )),
+        spread: [...spread].sort((a, b) => a[0] - b[0]).map(([n, devices]) => (
+            { key: n + (n === 1 ? " ask" : " asks"), value: devices, tip: int(devices) + " device" + (devices === 1 ? "" : "s") + " asked " + n + " time" + (n === 1 ? "" : "s") }
+        )),
+        atCeiling,
+        overQuota,
+        ladder,
+        blockRows,
+        series,
+        labels: dayKeys.map(dayLabel),
+        excluded,
     };
 }
 
@@ -1865,6 +2015,123 @@ function saveChartSnapshot(rows, at) {
     } catch (e) { /* private-mode storage; deltas just stop working */ }
 }
 
+/* --------------- Reviews per storefront (live) + rating counts -------------
+
+   Two different sources, because Apple only lets a browser have one of them:
+
+     * **Written reviews** come from the legacy per-storefront RSS, the same
+       host the chart feed uses and one of the very few Apple endpoints that
+       still answers a cross-origin `fetch` — 50 per page, each carrying its
+       star rating, the version it was left against, and its text.
+     * **Rating counts** — the star-only taps, which is what most people leave
+       after a prompt — are only in the iTunes lookup API, and that endpoint
+       *withholds* `Access-Control-Allow-Origin` when the request carries a
+       browser User-Agent. (Verified: identical request, curl UA gets the
+       header on every try, Chrome's UA gets it on none. So it is not flaky,
+       it is deliberate, and no amount of retrying fixes it.) `scripts/
+       store_ratings.py` reads it from outside a browser and writes
+       `ratings.json` beside this page; the counts below appear once that file
+       is there, and the reviews work with or without it.
+
+   Ratings are the *only* outcome the review prompt ever produces publicly.
+   Nothing connects one back to the prompt that caused it, so read the join as
+   a rate over the whole market, never as attribution.
+--------------------------------------------------------------------------- */
+
+const REVIEWS_CONCURRENCY = 8;
+const REVIEWS_PAGE_SIZE = 50;      // the RSS feed's own page size
+
+function reviewsURL(cc) {
+    return "https://itunes.apple.com/" + cc + "/rss/customerreviews/page=1/id="
+        + APP_STORE_ID + "/sortBy=mostRecent/json";
+}
+
+/** The written reviews on page 1 of one storefront's feed. */
+async function reviewsIn(cc) {
+    const res = await fetch(reviewsURL(cc), { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const body = await res.json();
+    // A storefront with no reviews answers with a feed that has no `entry` key
+    // at all, exactly like the chart feed does when nothing is listed.
+    const raw = (body && body.feed && body.feed.entry) || [];
+    const list = Array.isArray(raw) ? raw : [raw];
+    const label = (o, k) => (o && o[k] && o[k].label ? o[k].label : "");
+    const rows = list.map((e) => ({
+        cc,
+        stars: parseInt(label(e, "im:rating"), 10) || 0,
+        version: label(e, "im:version"),
+        title: label(e, "title"),
+        text: label(e, "content"),
+        author: (e && e.author && e.author.name && e.author.name.label) || "",
+        at: Date.parse(label(e, "updated")) || 0,
+    // A rating outside 1–5 is a malformed entry, not a review.
+    })).filter((r) => r.stars >= 1 && r.stars <= 5);
+    return { cc, reviews: rows, full: list.length >= REVIEWS_PAGE_SIZE };
+}
+
+/** Walks every storefront, `REVIEWS_CONCURRENCY` at a time. */
+async function scanReviews(onProgress) {
+    const out = [];
+    let next = 0, done = 0;
+
+    async function worker() {
+        for (;;) {
+            const i = next++;
+            if (i >= STOREFRONTS.length) return;
+            const cc = STOREFRONTS[i];
+            try {
+                out.push(await reviewsIn(cc));
+            } catch (e) {
+                out.push({ cc, reviews: [], full: false, error: String(e && e.message ? e.message : e) });
+            }
+            onProgress(++done, STOREFRONTS.length);
+        }
+    }
+
+    await Promise.all(Array.from({ length: REVIEWS_CONCURRENCY }, worker));
+    out.sort((a, b) => {
+        if (!!a.error !== !!b.error) return a.error ? 1 : -1;
+        if (b.reviews.length !== a.reviews.length) return b.reviews.length - a.reviews.length;
+        return a.cc.localeCompare(b.cc);
+    });
+    return out;
+}
+
+/** Everything the sweep found, flattened across storefronts. */
+function reviewTotals(rows) {
+    const all = [];
+    for (const r of rows) for (const x of r.reviews) all.push(x);
+    const stars = [0, 0, 0, 0, 0];
+    let sum = 0;
+    for (const x of all) { stars[x.stars - 1] += 1; sum += x.stars; }
+    const versions = new Map();
+    for (const x of all) if (x.version) versions.set(x.version, (versions.get(x.version) || 0) + 1);
+    return {
+        all: all.sort((a, b) => b.at - a.at),
+        count: all.length,
+        avg: all.length ? sum / all.length : 0,
+        stars,
+        read: rows.filter((r) => !r.error).length,
+        errors: rows.filter((r) => r.error),
+        capped: rows.filter((r) => r.full).map((r) => r.cc),
+        stores: rows.filter((r) => !r.error && r.reviews.length).length,
+        versions: [...versions].map(([key, value]) => ({ key, value })).sort((a, b) => b.value - a.value),
+    };
+}
+
+/* `scripts/store_ratings.py` writes this beside the page; it is the only way
+   to see star-only ratings, which no browser can read. Absent is the normal
+   state before the script has ever run, and the page says so rather than
+   pretending the number is zero. */
+async function loadRatingCounts() {
+    try {
+        const res = await fetch("ratings.json", { cache: "no-store" });
+        if (!res.ok) return null;
+        const body = await res.json();
+        return body && body.stores ? body : null;
+    } catch (e) { return null; }
+}
+
 /* ====================================================================
    5. Chart components
 
@@ -2058,6 +2325,7 @@ const TABS = [
     { id: "money", name: "Money", render: panelMoney },
     { id: "engagement", name: "Engagement", render: panelEngagement },
     { id: "growth", name: "Growth", render: panelGrowth },
+    { id: "ratings", name: "Ratings", render: panelRatings },
     { id: "featuring", name: "Featuring", render: panelFeaturing },
     { id: "reach", name: "Reach", render: panelReach },
     { id: "builds", name: "Builds", render: panelBuilds },
@@ -2378,10 +2646,203 @@ function panelGrowth(g_ev) {
             + tile("Widget taps", int(g.widgetTaps.reduce((a, b) => a + b.value, 0)), "opens from a widget")
             + "</div>"
             + (g.widgetTaps.length ? '<div style="height:.7rem"></div>' + hbars(g.widgetTaps.slice(0, 6)) : ""))
+        + "</div>";
+}
+
+/**
+ * Rating prompts, and the only outcome Apple ever discloses.
+ *
+ * The left half of this tab (the ask) is measured; the right half (the store)
+ * is swept live from Apple. Nothing joins a rating to the prompt that caused
+ * it, so the two halves are shown as two halves.
+ */
+function panelRatings(ev, days) {
+    const r = reviews(ev, days);
+    const s = state.ratings;
+    const t = s.rows.length ? reviewTotals(s.rows) : null;
+    // Star-only ratings, from the file `scripts/store_ratings.py` writes.
+    // Null until that script has run at least once.
+    const counts = state.ratingCounts;
+
+    /* ---------------------------- 1. The ask ---------------------------- */
+
+    const hero = '<div class="hero"><div class="figure">' + esc(int(r.asks)) + "</div>"
+        + '<div class="cap">prompt' + (r.asks === 1 ? "" : "s") + " asked for in the last " + days + " days · "
+        + esc(int(r.askDevices)) + " " + (r.askDevices === 1 ? "person" : "people")
+        + " · " + esc(int(r.evaluated)) + " had the gates run on them</div></div>";
+
+    const askTiles = '<div class="tiles">'
+        + tile("Asked", int(r.asks), r.askDevices ? dec1(r.asks / r.askDevices) + " per person asked" : "")
+        + tile("People asked", int(r.askDevices), r.evaluated ? pct(r.askDevices / r.evaluated) + " of everyone evaluated" : "")
+        + tile("Blocked", int(r.blocks), "device-days a gate stopped it")
+        + tile("At Apple's ceiling", int(r.atCeiling), "people asked 3 times — the year's quota")
+        + tile("Past the ceiling", int(r.overQuota), r.overQuota ? "people asked a 4th time, which cannot have shown" : "nobody asked a 4th time")
+        + "</div>";
+
+    /* ------------------- 2. Star-only ratings (from the file) ----------- */
+
+    const countsBody = (() => {
+        if (!counts) {
+            return '<p class="empty">No <code>ratings.json</code> beside this page yet. '
+                + "Apple's lookup endpoint drops its CORS header for browser user-agents, so the star counts "
+                + "cannot be read from here at all — run <code>scripts/store_ratings.py</code> and commit the file it writes.</p>";
+        }
+        const rated = counts.stores.filter((x) => x.count > 0).sort((a, b) => b.count - a.count);
+        const tiles = '<div class="tiles">'
+            + tile("Ratings", int(counts.count), "across " + int(counts.stores.length) + " storefronts")
+            + tile("Average", counts.count ? dec1(counts.avg) + "★" : "—", counts.count ? "weighted by storefront" : "nothing to average yet")
+            + tile("On this build", int(counts.verCount), counts.version ? "version " + counts.version : "")
+            + tile("Storefronts rated", int(rated.length), "of " + int(counts.stores.length) + " where the app is on sale")
+            + "</div>";
+        const stamp = '<p class="caveat">Read ' + esc(ago(counts.at * 1000))
+            + " by <code>scripts/store_ratings.py</code>. This file is a snapshot, not a live read — re-run the script to move it.</p>";
+        if (!rated.length) {
+            return tiles + '<p class="empty">Not one rating yet in any storefront where the app is on sale. '
+                + "Every prompt so far has ended without a star.</p>" + stamp;
+        }
+        return tiles + '<div style="height:.8rem"></div>'
+            + table(["Storefront", "Ratings", "Average", "On this build"], rated.map((x) => [
+                { html: flag(x.cc.toUpperCase()) + " " + esc(countryName(x.cc.toUpperCase())) },
+                int(x.count),
+                x.avg ? dec1(x.avg) + "★" : "—",
+                x.verCount ? int(x.verCount) : "—",
+            ])) + stamp;
+    })();
+
+    /* ------------------- 3. Written reviews (live sweep) ---------------- */
+
+    const scanBtn = '<button class="primary" id="ratingScan" style="width:auto;padding:.5rem 1rem"'
+        + (s.running ? " disabled" : "") + ">"
+        + (s.running ? "Reading " + int(s.done) + " / " + int(s.total) + "…" : "Read " + STOREFRONTS.length + " storefronts")
+        + "</button>"
+        + (s.at ? '<span class="pill" style="margin-left:.8rem"><span class="dot"></span>read ' + esc(ago(s.at)) + "</span>" : "");
+
+    const reviewBody = (() => {
+        if (!s.at && !s.running) {
+            return '<p class="empty">Not read yet. The sweep reads Apple’s own per-country review feed straight from '
+                + "this browser — no key, no App Store Connect account.</p>";
+        }
+        if (s.running && !s.rows.length) return '<p class="empty">Reading storefronts…</p>';
+
+        const foot = (t.errors.length ? '<p class="caveat">Could not read: '
+                + esc(t.errors.map((x) => x.cc.toUpperCase()).join(", ")) + ".</p>" : "")
+            + (t.capped.length ? '<p class="caveat">' + int(t.capped.length) + " storefront"
+                + (t.capped.length === 1 ? "" : "s") + " returned a full page ("
+                + esc(t.capped.slice(0, 6).map((x) => x.toUpperCase()).join(", "))
+                + (t.capped.length > 6 ? " and " + int(t.capped.length - 6) + " more" : "")
+                + "), so there are more reviews there than the " + REVIEWS_PAGE_SIZE + " counted here.</p>" : "");
+
+        if (!t.count) {
+            return '<p class="empty">Not one written review yet across the ' + int(t.read)
+                + " storefronts read. Most people who answer the prompt only tap stars, so this can stay empty "
+                + "while the counts above move.</p>" + foot;
+        }
+
+        // Sentiment, not rank: a one-star bar has to read as the bad news it
+        // is, which the ordinal ramp (lightest first) inverts.
+        const starColor = ["--critical", "--serious", "--warning", "--good", "--good"];
+        const starRows = [5, 4, 3, 2, 1].map((n) => ({
+            key: "★".repeat(n),
+            value: t.stars[n - 1],
+            color: cssvar(starColor[n - 1]),
+            tip: t.stars[n - 1] + " review" + (t.stars[n - 1] === 1 ? "" : "s") + " at " + n + " star" + (n === 1 ? "" : "s"),
+        }));
+
+        const recent = '<div class="reviews">' + t.all.slice(0, 8).map((x) => (
+            '<div class="review"><div class="meta">'
+            + flag(x.cc.toUpperCase())
+            + '<span class="stars">' + "★".repeat(x.stars) + "☆".repeat(5 - x.stars) + "</span>"
+            + (x.version ? "<span>" + esc(x.version) + "</span>" : "")
+            + (x.at ? "<span>" + esc(dayLabel(dayKey(x.at))) + "</span>" : "")
+            + (x.author ? "<span>" + esc(x.author) + "</span>" : "")
+            + "</div>"
+            + (x.title ? '<div class="rtitle">' + esc(x.title) + "</div>" : "")
+            + '<div class="rtext">' + esc(x.text.length > 260 ? x.text.slice(0, 260) + "…" : x.text) + "</div>"
+            + "</div>"
+        )).join("") + "</div>";
+
+        return '<div class="tiles">'
+            + tile("Written reviews", int(t.count), "across " + int(t.stores) + " storefront" + (t.stores === 1 ? "" : "s"))
+            + tile("Average", dec1(t.avg) + "★", "of the written ones only")
+            + tile("One star", int(t.stars[0]), t.count ? pct(t.stars[0] / t.count) + " of them" : "")
+            + "</div>"
+            + '<div style="height:.9rem"></div>' + hbars(starRows)
+            + '<div style="height:1rem"></div>'
+            + '<h3 style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin:0 0 .6rem">Most recent</h3>'
+            + recent
+            + foot;
+    })();
+
+    /* ------------------------- 4. The join ------------------------------ */
+
+    const join = (() => {
+        const outcome = counts ? counts.count : (t ? t.count : null);
+        const what = counts ? "ratings" : "written reviews";
+        if (outcome == null) {
+            return '<p class="empty">Read the storefronts above — or run <code>scripts/store_ratings.py</code> — '
+                + "and the ask gets an outcome to sit beside.</p>";
+        }
+        const per100 = r.asks ? (outcome / r.asks) * 100 : null;
+        return '<div class="tiles">'
+            + tile("Per 100 asks", per100 == null ? "—" : dec1(per100), what + ", over the whole market")
+            + tile("Asks without one", int(Math.max(0, r.asks - outcome)), "upper bound on “declined”")
+            + "</div>"
+            + '<p class="caveat">' + (counts ? "Rating" : "Review") + " counts are lifetime totals; the asks are the last "
+            + days + " days. The two only line up while the app is younger than the window — widen the range as it ages."
+            + (counts ? "" : " And written reviews are a small fraction of ratings, so this reads far too low until "
+                + "<code>ratings.json</code> exists.") + "</p>";
+    })();
+
+    /* ------------------------------ Render ------------------------------ */
+
+    return card("Asking for a rating", "Every call to <code>requestReview()</code> the app decided to make, and the delight moment that earned it.",
+        hero + '<div style="height:.9rem"></div>' + askTiles
+        + (r.excluded ? '<p class="caveat">' + int(r.excluded) + " event" + (r.excluded === 1 ? "" : "s")
+            + " from the screenshot runner and the developer's own phone are excluded here — between them they hold every ask past the third. "
+            + "The other tabs still count them.</p>" : ""))
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Asks per day", "One point per ask, not per person — a phone can be asked again after the 120-day cooldown.",
+            timeseries([{ name: "Asks", points: r.series }], { labels: r.labels, aria: "Review prompt asks per day" })
+            + '<p class="caveat">Today is still filling up, so the last point is a partial day.</p>')
+        + "</div>"
+        + '<div class="grid cols-2" style="margin-top:.85rem">'
+        + card("What earned the ask", "The moment banked before the gates ran. A trigger that never appears here has never fired in the field.",
+            hbars(r.moments, { wideKeys: true, empty: "Nobody was asked in this window." }))
+        + card("How far each person got", "Every device the prompter evaluated, at the best state it ever reached.",
+            hbars(r.ladder, { ordinal: true, wideKeys: true, empty: "The prompter didn’t run in this window." }))
+        + "</div>"
+        + '<div class="grid cols-2" style="margin-top:.85rem">'
+        + card("Why the prompt didn’t fire", "Apple allows three prompts per person per year — these are the gates that spend or save that quota. Counted once per device per day, so read them as device-days.",
+            hbars(r.blockRows, { wideKeys: true, empty: "The prompt wasn’t blocked in this window." }))
+        + card("How often one person is asked", "Apple stops drawing the sheet after the third ask in 365 days, and the 120-day cooldown is what keeps anyone from reaching it.",
+            hbars(r.spread, { ordinal: true, empty: "Nobody was asked in this window." }))
         + "</div>"
         + '<div class="grid" style="margin-top:.85rem">'
-        + card("Why the review prompt didn’t fire", "Apple allows three prompts per user per year — these are the gates that spend or waste that quota.",
-            hbars(g.reviewBlocked.slice(0, 8), { empty: "The review prompt wasn’t blocked in this window." }))
+        + card("Where the asks happened", "From the device time zone, the same permission-free country used everywhere else on this page.",
+            hbars(r.countries.slice(0, 12), { wideKeys: true, empty: "Nobody was asked in this window." }))
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("Ratings on the store", "Star taps with no text — what most people leave after a prompt. A browser can’t read these at all, so they come from a file a script writes.",
+            countsBody)
+        + "</div>"
+        + '<div class="grid" style="margin-top:.85rem">'
+        + card("What people actually wrote", "Apple’s per-country review feed, read live from this browser. Page one only, so a busy storefront is counted to " + REVIEWS_PAGE_SIZE + ".",
+            scanBtn + '<div style="height:.9rem"></div>' + reviewBody)
+        + "</div>"
+        + '<div class="grid cols-2" style="margin-top:.85rem">'
+        + card("Prompt → rating", "The nearest thing to a conversion rate that exists.", join)
+        + card("What Apple never tells us", "",
+            '<div class="hbars" style="gap:.75rem">'
+            + '<p class="hint" style="margin:0"><strong>Displayed.</strong> <code>requestReview()</code> has no completion handler and returns nothing. '
+            + "iOS alone decides whether to draw the sheet, never draws it in a TestFlight build, and stops after three in 365 days. "
+            + "Every number above is the <em>ask</em> — the upper bound on a display.</p>"
+            + '<p class="hint" style="margin:0"><strong>Reviewed.</strong> No API ties a rating back to the prompt that produced it. '
+            + "The storefront counts above are the only outcome signal, and they also collect ratings from people who "
+            + "opened the product page themselves. Apple goes further and hides the star counts from browsers outright — "
+            + "the lookup endpoint drops its CORS header for a browser user-agent, which is why they arrive here in a file.</p>"
+            + '<p class="hint" style="margin:0"><strong>Declined.</strong> Never reported, at any granularity. '
+            + "“Asks without one” is its ceiling and nothing more.</p>"
+            + "</div>")
         + "</div>";
 }
 
@@ -2679,6 +3140,10 @@ const state = {
     charts: { rows: [], at: 0, running: false, done: 0, total: 0 },
     chartsAuto: false,
     chartsTimer: null,
+    // Ratings tab. Same deal as the chart scan: it talks to Apple, not
+    // CloudKit, so it is never part of `load()`.
+    ratings: { rows: [], at: 0, running: false, done: 0, total: 0 },
+    ratingCounts: null,
 };
 
 function renderTabs() {
@@ -2809,6 +3274,7 @@ document.addEventListener("click", (ev) => {
     }
 
     if (ev.target.closest("#chartScan")) { runChartScan(); return; }
+    if (ev.target.closest("#ratingScan")) { runRatingScan(); return; }
 });
 
 document.addEventListener("change", (ev) => {
@@ -2845,6 +3311,28 @@ async function runChartScan() {
         state.charts.running = false;
         render();
     }
+}
+
+/** Reads every storefront's review feed, repainting the button as it goes. */
+async function runRatingScan() {
+    if (state.ratings.running) return;
+    state.ratings = { rows: state.ratings.rows, at: state.ratings.at, running: true, done: 0, total: STOREFRONTS.length };
+    render();
+    try {
+        const rows = await scanReviews((done, total) => {
+            state.ratings.done = done;
+            state.ratings.total = total;
+            const btn = $("#ratingScan");
+            if (btn) btn.textContent = "Reading " + int(done) + " / " + int(total) + "\u2026";
+        });
+        state.ratings = { rows, at: Date.now(), running: false, done: 0, total: 0 };
+    } catch (e) {
+        state.ratings.running = false;
+    }
+    // Cheap, local, and the star counts are the half that matters — worth a
+    // re-read every sweep in case the script has run since the page loaded.
+    state.ratingCounts = await loadRatingCounts();
+    render();
 }
 
 // One delegated hover handler serves every bar and column on the page.
@@ -3093,6 +3581,12 @@ function enter(cfg) {
     if (!sealed) {
         try { sealed = localStorage.getItem(STORE_KEY); } catch (e) { /* private mode */ }
     }
+
+    loadRatingCounts().then((c) => {
+        if (!c) return;
+        state.ratingCounts = c;
+        if (state.tab === "ratings") render();
+    });
 
     if (sealed) showUnlock();
     else showSetup();
